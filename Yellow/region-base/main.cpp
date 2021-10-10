@@ -4,19 +4,20 @@
 #include <string>
 #include <tuple>
 #include <set>
+#include <algorithm>
 
 using namespace std;
 
-//enum class Lang {
-//  DE, FR, IT
-//};
+enum class Lang {
+  DE, FR, IT
+};
 
-//struct Region {
-//  string std_name;
-//  string parent_std_name;
-//  map<Lang, string> names;
-//  int64_t population;
-//};
+struct Region {
+  string std_name;
+  string parent_std_name;
+  map<Lang, string> names;
+  int64_t population;
+};
 
 tuple<string, string, map<Lang, string>, int64_t> GetRank(const Region& region) {
     return tie(region.std_name, region.parent_std_name, region.names, region.population);
@@ -30,16 +31,20 @@ bool operator<(const Region& lhs, const Region& rhs) {
     return GetRank(lhs) < GetRank(rhs);
 }
 
-int FindMaxRepetitionCount(const vector<Region>& vectorRegions) {
-    if(vectorRegions.size() == 0)
+int FindMaxRepetitionCount(const vector<Region>& regions) {
+    if(regions.size() == 0)
         return 0;
 
-    set<Region> setRegions(vectorRegions.begin(), vectorRegions.end());
+    map<Region, size_t> m;
+    size_t result = 0;
 
-    if(vectorRegions.size() == setRegions.size())
-        return 1;
+    for(const auto& i : regions) {
+        ++m[i];
+        if(m[i] > result)
+            result = m[i];
+    }
 
-    return vectorRegions.size() - setRegions.size();
+    return result;
 }
 
 int main() {
@@ -98,6 +103,30 @@ int main() {
             "Russia",
             {{Lang::DE, "Moskau"}, {Lang::FR, "Moscou"}, {Lang::IT, "Mosca"}},
             31
+        },
+    }) << endl;
+
+    cout << FindMaxRepetitionCount({
+        {
+            "Moscow",
+            "Russia",
+            {{Lang::DE, "Moskau"}, {Lang::FR, "Moscou"}, {Lang::IT, "Mosca"}},
+            89
+        }, {
+            "Russia",
+            "Eurasia",
+            {{Lang::DE, "Russland"}, {Lang::FR, "Russie"}, {Lang::IT, "Russia"}},
+            89
+        }, {
+            "Moscow",
+            "Russia",
+            {{Lang::DE, "Moskau"}, {Lang::FR, "Moscou"}, {Lang::IT, "Mosca"}},
+            89
+        }, {
+            "Moscow",
+            "Russia",
+            {{Lang::DE, "Moskau"}, {Lang::FR, "Moscou"}, {Lang::IT, "Mosca"}},
+            89
         },
     }) << endl;
 
