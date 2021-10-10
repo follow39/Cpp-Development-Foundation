@@ -6,10 +6,10 @@ using namespace std;
 int main() {
     int n = 0;
     int r = 0;
-    long w = 0;
-    long h = 0;
-    long d = 0;
-    long long sum = 0;
+    int64_t w = 0;
+    int64_t h = 0;
+    int64_t d = 0;
+    unsigned long long sum = 0;
 
     cin >> n >> r;
 
