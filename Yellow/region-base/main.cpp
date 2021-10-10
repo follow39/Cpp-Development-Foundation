@@ -7,16 +7,16 @@
 
 using namespace std;
 
-enum class Lang {
-  DE, FR, IT
-};
+//enum class Lang {
+//  DE, FR, IT
+//};
 
-struct Region {
-  string std_name;
-  string parent_std_name;
-  map<Lang, string> names;
-  int64_t population;
-};
+//struct Region {
+//  string std_name;
+//  string parent_std_name;
+//  map<Lang, string> names;
+//  int64_t population;
+//};
 
 tuple<string, string, map<Lang, string>, int64_t> GetRank(const Region& region) {
     return tie(region.std_name, region.parent_std_name, region.names, region.population);
