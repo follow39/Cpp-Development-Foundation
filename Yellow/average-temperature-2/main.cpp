@@ -4,23 +4,32 @@
 using namespace std;
 
 int main() {
+    vector<int> vec;
+    vector<int> vecGavg;
     int n = 0;
-    int r = 0;
-    int w = 0;
-    int h = 0;
-    int d = 0;
-    long sum = 0;
+    int temp = 0;
+    int sum = 0;
+    cin >> n;
 
-    cin >> n >> r;
-
-    while(n-- > 0)
-    {
-        cin >> w >> h >> d;
-
-        sum += r * w * h * d;
+    while(n-- > 0) {
+        cin >> temp;
+        vec.push_back(temp);
+        sum += temp;
     }
 
-    cout << sum;
+    int avg = sum / static_cast<int>(vec.size());
+
+    for(size_t i = 0; i < vec.size(); ++i) {
+        if(vec[i] > avg) {
+            vecGavg.push_back(i);
+        }
+    }
+    cout << vecGavg.size() << endl;
+
+    for(const auto& i : vecGavg) {
+        cout << i << ' ';
+    }
+    cout << endl;
 
     return 0;
 }
