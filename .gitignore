@@ -39,4 +39,4 @@
 *.pdb
 *.Debug
 *.Release
-Yellow/build-block-weight-Desktop_Qt_6_1_3_MSVC2019_64bit-Debug/Makefile
+Yellow/*Debug/
