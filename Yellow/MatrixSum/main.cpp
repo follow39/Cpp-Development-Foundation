@@ -10,29 +10,43 @@ public:
         if(new_rows < 0 || new_cols < 0) {
             throw out_of_range("Out of range");
         }
-        rows = new_rows;
-        cols = new_cols;
-        data = vector{rows * cols};
+        if(new_rows != 0 && new_cols != 0) {
+            rows = new_rows;
+            cols = new_cols;
+            data = vector<int>(rows * cols);
+        }
+        else {
+            rows = 0;
+            cols = 0;
+        }
     }
     void Reset(int new_rows, int new_cols) {
         if(new_rows < 0 || new_cols < 0) {
             throw out_of_range("Out of range");
         }
-        rows = new_rows;
-        cols = new_cols;
-        data.clear();
-        data = vector{rows * cols};
+        if(new_rows != 0 && new_cols != 0) {
+            rows = new_rows;
+            cols = new_cols;
+            data.clear();
+            data = vector<int>(rows * cols);
+        }
+        else {
+            rows = 0;
+            cols = 0;
+            data.clear();
+            data = vector<int>{};
+        }
     }
     int At(int row, int col) const {
-        if( row < 0 || row > rows ||
-                col < 0 || col > cols) {
+        if( row < 0 || row >= rows ||
+                col < 0 || col >= cols) {
             throw out_of_range("Out of range");
         }
         return data[row*cols + col];
     }
     int& At(int row, int col) {
-        if( row < 0 || row > rows ||
-                col < 0 || col > cols) {
+        if( row < 0 || row >= rows ||
+                col < 0 || col >= cols) {
             throw out_of_range("Out of range");
         }
         return data[row*cols + col];
@@ -52,16 +66,19 @@ private:
 istream& operator>>(istream& stream, Matrix& matrix) {
     int rows = 0;
     int cols = 0;
-    int i = 0;
 
     try {
         stream >> rows >> cols;
 
-        matrix = {rows, cols};
-
-        while(i < rows * cols) {
-            stream >> matrix.At(i/cols, i%cols);
-            ++i;
+        if(rows == 0 && cols == 0) {
+            matrix = Matrix{};
+        } else {
+            matrix = {rows, cols};
+            for(int i = 0; i < rows; ++i) {
+                for(int j = 0; j < cols; ++j) {
+                    stream >> matrix.At(i, j);
+                }
+            }
         }
     }  catch (exception& ex) {
     }
@@ -73,13 +90,13 @@ ostream& operator<<(ostream& stream, const Matrix& matrix) {
     try {
         stream << matrix.GetNumRows() << ' ' <<
                   matrix.GetNumColumns();
-        stream << EOF;
+        stream << '\n';
 
         for(int i = 0; i < matrix.GetNumRows(); ++i) {
             for(int j = 0; j < matrix.GetNumColumns(); ++j) {
                 stream << matrix.At(i, j) << ' ';
             }
-            stream << EOF;
+            stream << '\n';
         }
     }  catch (exception& ex) {
     }
@@ -107,7 +124,10 @@ Matrix operator+(const Matrix& lhs, const Matrix& rhs)
 {
     if(lhs.GetNumRows() != rhs.GetNumRows() ||
             lhs.GetNumColumns() != rhs.GetNumColumns()) {
-        throw invalid_argument("Matrices have a different sizes");
+        throw invalid_argument("");
+    }
+    if(lhs.GetNumRows() == 0 && rhs.GetNumRows() == 0) {
+        return Matrix{};
     }
 
     Matrix result{lhs.GetNumRows(), lhs.GetNumColumns()};
@@ -122,11 +142,5 @@ Matrix operator+(const Matrix& lhs, const Matrix& rhs)
 
 int main()
 {
-    Matrix one;
-    Matrix two;
-
-    cin >> one >> two;
-    cout << one + two << endl;
-    return 0;
     return 0;
 }
