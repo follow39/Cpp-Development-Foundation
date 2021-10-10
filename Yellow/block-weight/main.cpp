@@ -6,10 +6,10 @@ using namespace std;
 int main() {
     int n = 0;
     int r = 0;
-    int w = 0;
-    int h = 0;
-    int d = 0;
-    long sum = 0;
+    long w = 0;
+    long h = 0;
+    long d = 0;
+    long long sum = 0;
 
     cin >> n >> r;
 
