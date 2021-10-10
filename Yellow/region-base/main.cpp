@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <set>
 
 using namespace std;
 
@@ -25,8 +26,20 @@ bool operator==(const Region& lhs, const Region& rhs) {
     return GetRank(lhs) == GetRank(rhs);
 }
 
-int FindMaxRepetitionCount(const vector<Region>& regions) {
-    return 0;
+bool operator<(const Region& lhs, const Region& rhs) {
+    return GetRank(lhs) < GetRank(rhs);
+}
+
+int FindMaxRepetitionCount(const vector<Region>& vectorRegions) {
+    if(vectorRegions.size() == 0)
+        return 0;
+
+    set<Region> setRegions(vectorRegions.begin(), vectorRegions.end());
+
+    if(vectorRegions.size() == setRegions.size())
+        return 1;
+
+    return vectorRegions.size() - setRegions.size();
 }
 
 int main() {
