@@ -38,6 +38,10 @@ public:
     // подробности см. ниже
     tuple<TasksInfo, TasksInfo> PerformPersonTasks(
             const string& person, int task_count) {
+        if(team.count(person) == 0) {
+            return {};
+        }
+
         TasksInfo tasksListNew;
         TasksInfo tasksListOld = team[person];
 
@@ -48,15 +52,44 @@ public:
         }
 
         for(auto& [status, value] : tasksListOld) {
+            TaskStatus newStatus = static_cast<TaskStatus>(static_cast<int>(status) + 1);
             if(task_count > value) {
                 task_count -= value;
-                tasksListNew[status] += value;
+                tasksListNew[newStatus] += value;
                 value = 0;
             } else {
                 value -= task_count;
-                tasksListNew[status] += task_count;
+                tasksListNew[newStatus] += task_count;
                 break;
             }
+        }
+
+        if(tasksListOld[TaskStatus::NEW] == 0) {
+            tasksListOld.erase(TaskStatus::NEW);
+        }
+        if(tasksListOld[TaskStatus::IN_PROGRESS] == 0) {
+            tasksListOld.erase(TaskStatus::IN_PROGRESS);
+        }
+        if(tasksListOld[TaskStatus::TESTING] == 0) {
+            tasksListOld.erase(TaskStatus::TESTING);
+        }
+
+        team[person][TaskStatus::NEW] = tasksListNew[TaskStatus::NEW] + tasksListOld[TaskStatus::NEW];
+        team[person][TaskStatus::IN_PROGRESS] = tasksListNew[TaskStatus::IN_PROGRESS] + tasksListOld[TaskStatus::IN_PROGRESS];
+        team[person][TaskStatus::TESTING] = tasksListNew[TaskStatus::TESTING] + tasksListOld[TaskStatus::TESTING];
+        team[person][TaskStatus::DONE] += tasksListNew[TaskStatus::DONE];
+
+        if(team[person][TaskStatus::NEW] == 0) {
+            team[person].erase(TaskStatus::NEW);
+        }
+        if(team[person][TaskStatus::NEW] == 0) {
+            team[person].erase(TaskStatus::IN_PROGRESS);
+        }
+        if(team[person][TaskStatus::NEW] == 0) {
+            team[person].erase(TaskStatus::TESTING);
+        }
+        if(team[person][TaskStatus::DONE] == 0) {
+            team[person].erase(TaskStatus::DONE);
         }
 
         return tie(tasksListNew, tasksListOld);
