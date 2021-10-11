@@ -82,10 +82,10 @@ public:
         if(team[person][TaskStatus::NEW] == 0) {
             team[person].erase(TaskStatus::NEW);
         }
-        if(team[person][TaskStatus::NEW] == 0) {
+        if(team[person][TaskStatus::IN_PROGRESS] == 0) {
             team[person].erase(TaskStatus::IN_PROGRESS);
         }
-        if(team[person][TaskStatus::NEW] == 0) {
+        if(team[person][TaskStatus::TESTING] == 0) {
             team[person].erase(TaskStatus::TESTING);
         }
         if(team[person][TaskStatus::DONE] == 0) {
