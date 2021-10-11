@@ -5,25 +5,25 @@
 
 using namespace std;
 
-template <class T> T Sqr(T x);
-template <class First, class Second> pair<First, Second> Sqr(pair<First, Second> x);
-template <class T> vector<T> Sqr(vector<T>& x);
+template <class T> T Sqr(const T& x);
+template <class First, class Second> pair<First, Second> Sqr(const pair<First, Second>& x);
+template <class T> vector<T> Sqr(const vector<T>& x);
 template <class Key, class Value> map<Key, Value> Sqr(const map<Key, Value>& x);
 
 template <class T>
-T Sqr(T x) {
+T Sqr(const T& x) {
     return x * x;
 }
 
 template <class First, class Second>
-pair<First, Second> Sqr(pair<First, Second> x) {
+pair<First, Second> Sqr(const pair<First, Second>& x) {
     return {Sqr(x.first), Sqr(x.second)};
 }
 
 template <class T>
-vector<T> Sqr(vector<T>& x) {
+vector<T> Sqr(const vector<T>& x) {
     vector<T> result;
-    for(auto& i : x) {
+    for(const auto& i : x) {
         result.push_back(Sqr(i));
     }
     return result;
@@ -32,7 +32,7 @@ vector<T> Sqr(vector<T>& x) {
 template <class Key, class Value>
 map<Key, Value> Sqr(const map<Key, Value>& x) {
     map<Key, Value> result;
-    for(auto& [key, value] : x) {
+    for(const auto& [key, value] : x) {
         result[key] = Sqr(value);
     }
     return result;
