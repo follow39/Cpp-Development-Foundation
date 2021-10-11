@@ -64,6 +64,21 @@ public:
             }
         }
 
+        team[person][TaskStatus::NEW] = tasksListNew[TaskStatus::NEW] + tasksListOld[TaskStatus::NEW];
+        team[person][TaskStatus::IN_PROGRESS] = tasksListNew[TaskStatus::IN_PROGRESS] + tasksListOld[TaskStatus::IN_PROGRESS];
+        team[person][TaskStatus::TESTING] = tasksListNew[TaskStatus::TESTING] + tasksListOld[TaskStatus::TESTING];
+        team[person][TaskStatus::DONE] += tasksListNew[TaskStatus::DONE];
+
+        if(tasksListNew[TaskStatus::NEW] == 0) {
+            tasksListNew.erase(TaskStatus::NEW);
+        }
+        if(tasksListNew[TaskStatus::IN_PROGRESS] == 0) {
+            tasksListNew.erase(TaskStatus::IN_PROGRESS);
+        }
+        if(tasksListNew[TaskStatus::TESTING] == 0) {
+            tasksListNew.erase(TaskStatus::TESTING);
+        }
+
         if(tasksListOld[TaskStatus::NEW] == 0) {
             tasksListOld.erase(TaskStatus::NEW);
         }
@@ -74,10 +89,6 @@ public:
             tasksListOld.erase(TaskStatus::TESTING);
         }
 
-        team[person][TaskStatus::NEW] = tasksListNew[TaskStatus::NEW] + tasksListOld[TaskStatus::NEW];
-        team[person][TaskStatus::IN_PROGRESS] = tasksListNew[TaskStatus::IN_PROGRESS] + tasksListOld[TaskStatus::IN_PROGRESS];
-        team[person][TaskStatus::TESTING] = tasksListNew[TaskStatus::TESTING] + tasksListOld[TaskStatus::TESTING];
-        team[person][TaskStatus::DONE] += tasksListNew[TaskStatus::DONE];
 
         if(team[person][TaskStatus::NEW] == 0) {
             team[person].erase(TaskStatus::NEW);
