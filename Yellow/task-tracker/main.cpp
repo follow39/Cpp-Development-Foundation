@@ -78,6 +78,9 @@ public:
         if(tasksListNew[TaskStatus::TESTING] == 0) {
             tasksListNew.erase(TaskStatus::TESTING);
         }
+        if(tasksListNew[TaskStatus::DONE] == 0) {
+            tasksListNew.erase(TaskStatus::DONE);
+        }
 
         if(tasksListOld[TaskStatus::NEW] == 0) {
             tasksListOld.erase(TaskStatus::NEW);
@@ -87,6 +90,9 @@ public:
         }
         if(tasksListOld[TaskStatus::TESTING] == 0) {
             tasksListOld.erase(TaskStatus::TESTING);
+        }
+        if(tasksListOld[TaskStatus::DONE] == 0) {
+            tasksListOld.erase(TaskStatus::DONE);
         }
 
 
