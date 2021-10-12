@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -36,11 +37,32 @@ istream& operator >> (istream& is, QueryType& q) {
 
 istream& operator >> (istream& is, vector<string>& vec) {
     string temp;
-    while(is >> temp) {
+    getline(is, temp);
+    stringstream ss(temp);
+    while(ss >> temp) {
         vec.push_back(temp);
     }
     return is;
 }
+
+ostream& operator << (ostream& os, const vector<string>& vec) {
+    bool first = true;
+    for(const auto& i : vec) {
+        if(!first) {
+            os << ' ';
+        }
+        first = false;
+        os << i;
+    }
+    return os;
+}
+
+//ostream& operator << (ostream& os, const map<string, vector<string>>& m) {
+//    for(const auto& [key, value] : m) {
+//        os << "Bus " << key << ": " << value << endl;
+//    }
+//    return os;
+//}
 
 istream& operator >> (istream& is, Query& q) {
     QueryType type;
@@ -55,39 +77,83 @@ istream& operator >> (istream& is, Query& q) {
 }
 
 struct BusesForStopResponse {
+    vector<string> buses;
 };
 
 ostream& operator << (ostream& os, const BusesForStopResponse& r) {
+    if(r.buses.size() > 0) {
+        os << r.buses;
+    } else {
+        os << "No stop";
+    }
     return os;
 }
 
 struct StopsForBusResponse {
+    map<string, vector<string>> buses;
+    vector<string> busesInOrder;
 };
 
 ostream& operator << (ostream& os, const StopsForBusResponse& r) {
+    if(r.buses.size() > 0) {
+        for(const auto& i : r.busesInOrder) {
+            os << "Bus " << i << ": ";
+            if(r.buses.at(i).size() > 0) {
+                os << r.buses.at(i) << endl;
+            } else {
+                os << "no interchange";
+            }
+        }
+    } else {
+        os << "No bus";
+    }
     return os;
 }
 
 struct AllBusesResponse {
+    map<string, vector<string>> data;
 };
 
 ostream& operator << (ostream& os, const AllBusesResponse& r) {
+    if(r.data.size() > 0) {
+        for(const auto& [bus, stops] : r.data) {
+            os << "Bus " << bus << ": " << stops << endl;
+        }
+    } else {
+        os << "No buses";
+    }
     return os;
 }
 
 class BusManager {
 public:
     void AddBus(const string& bus, const vector<string>& stops) {
+        buses[bus] = stops;
+        busesInOrder.push_back(bus);
     }
 
     BusesForStopResponse GetBusesForStop(const string& stop) const {
+        BusesForStopResponse result;
+        for(const auto& i : busesInOrder) {
+            if(count(buses.at(i).begin(), buses.at(i).end(), stop) != 0) {
+                result.buses.push_back(i);
+            }
+        }
+        return result;
     }
 
     StopsForBusResponse GetStopsForBus(const string& bus) const {
+        StopsForBusResponse result;
+
+        return result;
     }
 
     AllBusesResponse GetAllBuses() const {
+        return {buses};
     }
+private:
+    map<string, vector<string>> buses;
+    vector<string> busesInOrder;
 };
 
 
@@ -116,84 +182,6 @@ int main() {
             break;
         }
     }
-
-
-
-
-
-//    int q;
-//    cin >> q;
-
-//    map<string, vector<string>> buses_to_stops, stops_to_buses;
-
-//    for (int i = 0; i < q; ++i) {
-//        string operation_code;
-//        cin >> operation_code;
-
-//        if (operation_code == "NEW_BUS") {
-
-//            string bus;
-//            cin >> bus;
-//            int stop_count;
-//            cin >> stop_count;
-//            vector<string>& stops = buses_to_stops[bus];
-//            stops.resize(stop_count);
-//            for (string& stop : stops) {
-//                cin >> stop;
-//                stops_to_buses[stop].push_back(bus);
-//            }
-
-//        } else if (operation_code == "BUSES_FOR_STOP") {
-
-//            string stop;
-//            cin >> stop;
-//            if (stops_to_buses.count(stop) == 0) {
-//                cout << "No stop" << endl;
-//            } else {
-//                for (const string& bus : stops_to_buses[stop]) {
-//                    cout << bus << " ";
-//                }
-//                cout << endl;
-//            }
-
-//        } else if (operation_code == "STOPS_FOR_BUS") {
-
-//            string bus;
-//            cin >> bus;
-//            if (buses_to_stops.count(bus) == 0) {
-//                cout << "No bus" << endl;
-//            } else {
-//                for (const string& stop : buses_to_stops[bus]) {
-//                    cout << "Stop " << stop << ": ";
-//                    if (stops_to_buses[stop].size() == 1) {
-//                        cout << "no interchange";
-//                    } else {
-//                        for (const string& other_bus : stops_to_buses[stop]) {
-//                            if (bus != other_bus) {
-//                                cout << other_bus << " ";
-//                            }
-//                        }
-//                    }
-//                    cout << endl;
-//                }
-//            }
-
-//        } else if (operation_code == "ALL_BUSES") {
-
-//            if (buses_to_stops.empty()) {
-//                cout << "No buses" << endl;
-//            } else {
-//                for (const auto& bus_item : buses_to_stops) {
-//                    cout << "Bus " << bus_item.first << ": ";
-//                    for (const string& stop : bus_item.second) {
-//                        cout << stop << " ";
-//                    }
-//                    cout << endl;
-//                }
-//            }
-
-//        }
-//    }
 
     return 0;
 }
