@@ -69,8 +69,22 @@ istream& operator >> (istream& is, Query& q) {
     string bus;
     string stop;
     vector<string> stops;
+    int temp;
 
-    is >> type >> bus >> stop >> stops;
+    is >> type;
+    switch (type) {
+    case QueryType::NewBus:
+        is >> bus >> temp >>stops;
+        break;
+    case QueryType::BusesForStop:
+        is >> stop;
+        break;
+    case QueryType::StopsForBus:
+        is >> bus;
+        break;
+    case QueryType::AllBuses:
+        break;
+    }
     q = {type, bus, stop, stops};
 
     return is;
@@ -89,20 +103,29 @@ ostream& operator << (ostream& os, const BusesForStopResponse& r) {
     return os;
 }
 
+struct Stop {
+    string name;
+    vector<string> buses;
+};
+
 struct StopsForBusResponse {
-    map<string, vector<string>> buses;
-    vector<string> busesInOrder;
+    vector<Stop> stops;
 };
 
 ostream& operator << (ostream& os, const StopsForBusResponse& r) {
-    if(r.buses.size() > 0) {
-        for(const auto& i : r.busesInOrder) {
-            os << "Bus " << i << ": ";
-            if(r.buses.at(i).size() > 0) {
-                os << r.buses.at(i) << endl;
+    if(r.stops.size() > 0) {
+        bool first = true;
+        for(const auto& i : r.stops) {
+            if(!first) {
+                os << '\n';
+            }
+            os << "Bus " << i.name << ": ";
+            if(i.buses.size() > 0) {
+                os << i.buses;
             } else {
                 os << "no interchange";
             }
+            first = false;
         }
     } else {
         os << "No bus";
@@ -143,8 +166,14 @@ public:
     }
 
     StopsForBusResponse GetStopsForBus(const string& bus) const {
+        if(buses.size() == 0)
+            return {};
+
         StopsForBusResponse result;
 
+        for(const auto& i : buses.at(bus)) {
+            result.stops.push_back({i, GetBusesForStop(i).buses});
+        }
         return result;
     }
 
