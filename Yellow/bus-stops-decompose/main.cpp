@@ -20,53 +20,42 @@ struct Query {
 };
 
 istream& operator >> (istream& is, Query& q) {
-    // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌я┐ я└я┐п╫п╨я├п╦я▌
     return is;
 }
 
 struct BusesForStopResponse {
-    // п²п╟п©п╬п╩п╫п╦я┌п╣ п©п╬п╩я▐п╪п╦ я█я┌я┐ я│я┌я─я┐п╨я┌я┐я─я┐
 };
 
 ostream& operator << (ostream& os, const BusesForStopResponse& r) {
-    // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌я┐ я└я┐п╫п╨я├п╦я▌
     return os;
 }
 
 struct StopsForBusResponse {
-    // п²п╟п©п╬п╩п╫п╦я┌п╣ п©п╬п╩я▐п╪п╦ я█я┌я┐ я│я┌я─я┐п╨я┌я┐я─я┐
 };
 
 ostream& operator << (ostream& os, const StopsForBusResponse& r) {
-    // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌я┐ я└я┐п╫п╨я├п╦я▌
     return os;
 }
 
 struct AllBusesResponse {
-    // п²п╟п©п╬п╩п╫п╦я┌п╣ п©п╬п╩я▐п╪п╦ я█я┌я┐ я│я┌я─я┐п╨я┌я┐я─я┐
 };
 
 ostream& operator << (ostream& os, const AllBusesResponse& r) {
-    // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌я┐ я└я┐п╫п╨я├п╦я▌
     return os;
 }
 
 class BusManager {
 public:
     void AddBus(const string& bus, const vector<string>& stops) {
-        // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌п╬я┌ п╪п╣я┌п╬п╢
     }
 
     BusesForStopResponse GetBusesForStop(const string& stop) const {
-        // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌п╬я┌ п╪п╣я┌п╬п╢
     }
 
     StopsForBusResponse GetStopsForBus(const string& bus) const {
-        // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌п╬я┌ п╪п╣я┌п╬п╢
     }
 
     AllBusesResponse GetAllBuses() const {
-        // п═п╣п╟п╩п╦п╥я┐п╧я┌п╣ я█я┌п╬я┌ п╪п╣я┌п╬п╢
     }
 };
 
