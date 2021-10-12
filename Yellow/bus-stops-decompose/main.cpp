@@ -58,13 +58,6 @@ ostream& operator << (ostream& os, const vector<string>& vec) {
     return os;
 }
 
-//ostream& operator << (ostream& os, const map<string, vector<string>>& m) {
-//    for(const auto& [key, value] : m) {
-//        os << "Bus " << key << ": " << value << endl;
-//    }
-//    return os;
-//}
-
 istream& operator >> (istream& is, Query& q) {
     QueryType type;
     string bus;
@@ -157,6 +150,8 @@ public:
     }
 
     BusesForStopResponse GetBusesForStop(const string& stop) const {
+        if(buses.size() == 0)
+            return {};
         BusesForStopResponse result;
         for(const auto& i : busesInOrder) {
             if(count(buses.at(i).begin(), buses.at(i).end(), stop) != 0) {
@@ -167,7 +162,7 @@ public:
     }
 
     StopsForBusResponse GetStopsForBus(const string& bus) const {
-        if(buses.size() == 0)
+        if(buses.size() == 0 || buses.count(bus) == 0)
             return {};
 
         StopsForBusResponse result;
