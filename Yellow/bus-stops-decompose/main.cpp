@@ -120,7 +120,7 @@ ostream& operator << (ostream& os, const StopsForBusResponse& r) {
             if(!first) {
                 os << '\n';
             }
-            os << "Bus " << i.name << ": ";
+            os << "Stop " << i.name << ": ";
             if(i.buses.size() > 0) {
                 os << i.buses;
             } else {
@@ -171,9 +171,12 @@ public:
             return {};
 
         StopsForBusResponse result;
+        vector<string> temp;
 
         for(const auto& i : buses.at(bus)) {
-            result.stops.push_back({i, GetBusesForStop(i).buses});
+            temp = GetBusesForStop(i).buses;
+            temp.erase(find(temp.begin(), temp.end(), bus));
+            result.stops.push_back({i, temp});
         }
         return result;
     }
