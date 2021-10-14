@@ -115,7 +115,7 @@ void TestOneRoots() {
 void TestTwoRoots() {
     Assert(TestGetDistinctRealRootCount(1, 3, 1, 2), "1_3_1");
     Assert(TestGetDistinctRealRootCount(47, 38, 7, 2), "47_38_7");
-    Assert(TestGetDistinctRealRootCount(5.185, 9.4788, 593, 2), "5.185_9.4788_-78.1465");
+    Assert(TestGetDistinctRealRootCount(5.185, 9.4788, -78.1465, 2), "5.185_9.4788_-78.1465");
     Assert(TestGetDistinctRealRootCount(-5.185, 47.1864, -78.1465, 2), "-5.185_47.1864_-78.1465");
 }
 void TestAzero() {
