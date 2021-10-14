@@ -126,16 +126,20 @@ void TestFractionReduction() {
         Assert(TestRational(r, 17, 19), "TestFractionReduction1");
     }
     {
-        Rational r{4, 6};
-        Assert(TestRational(r, 2, 3), "TestFractionReduction2");
+        Rational r{19, 17};
+        Assert(TestRational(r, 19, 17), "TestFractionReduction2");
     }
     {
-        Rational r{11, 121};
-        Assert(TestRational(r, 1, 11), "TestFractionReduction3");
+        Rational r{19, 19};
+        Assert(TestRational(r, 1, 1), "TestFractionReduction3");
+    }
+    {
+        Rational r{4, 6};
+        Assert(TestRational(r, 2, 3), "TestFractionReduction4");
     }
     {
         Rational r{27, 9};
-        Assert(TestRational(r, 3, 1), "TestFractionReduction4");
+        Assert(TestRational(r, 3, 1), "TestFractionReduction5");
     }
 }
 
