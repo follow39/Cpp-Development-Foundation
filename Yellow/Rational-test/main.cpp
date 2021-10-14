@@ -93,24 +93,80 @@ private:
     int fail_count = 0;
 };
 
-class Rational {
-public:
+//class Rational {
+//public:
 
-    Rational();
-    Rational(int numerator, int denominator) {
+//    Rational();
+//    Rational(int numerator, int denominator) {
+//    }
+
+//    int Numerator() const {
+//    }
+
+//    int Denominator() const {
+//    }
+//};
+
+bool TestRational(const Rational& r, int p, int q) {
+    if(r.Numerator() == p && r.Denominator() == q)
+        return true;
+    return false;
+}
+
+void TestEmpty() {
+    {
+        Rational r{};
+        Assert(TestRational(r, 0, 1), "TestEmpty");
     }
+}
 
-    int Numerator() const {
+void TestFractionReduction() {
+    {
+        Rational r{17, 19};
+        Assert(TestRational(r, 17, 19), "TestFractionReduction1");
     }
-
-    int Denominator() const {
+    {
+        Rational r{4, 6};
+        Assert(TestRational(r, 2, 3), "TestFractionReduction2");
     }
-};
+    {
+        Rational r{11, 121};
+        Assert(TestRational(r, 1, 11), "TestFractionReduction3");
+    }
+}
 
+void TestSign() {
+    {
+        Rational r{1, 2};
+        Assert(TestRational(r, 1, 2), "TestSign1");
+    }
+    {
+        Rational r{-1, 2};
+        Assert(TestRational(r, -1, 2), "TestSign2");
+    }
+    {
+        Rational r{1, -2};
+        Assert(TestRational(r, -1, 2), "TestSign3");
+    }
+    {
+        Rational r{-1, -2};
+        Assert(TestRational(r, 1, 2), "TestSign4");
+    }
+}
+
+void TestZero() {
+    {
+        Rational r{0, 1};
+        Assert(TestRational(r, 0, 1), "TestZero1");
+    }
+}
 
 void TestAll() {
     TestRunner runner;
-
+    runner.RunTest(TestEmpty, "TestEmpty");
+    runner.RunTest(TestFractionReduction, "TestFractionReduction");
+    runner.RunTest(TestSign, "TestSign");
+    runner.RunTest(TestZero, "TestZero");
 }
 
 int main() {
