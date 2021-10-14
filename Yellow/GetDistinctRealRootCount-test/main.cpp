@@ -93,9 +93,7 @@ private:
   int fail_count = 0;
 };
 
-int GetDistinctRealRootCount(double a, double b, double c) {
-    return 0;
-}
+int GetDistinctRealRootCount(double a, double b, double c);
 
 bool TestGetDistinctRealRootCount(double a, double b, double c, int expected) {
     if(GetDistinctRealRootCount(a, b, c) == expected)
@@ -142,7 +140,7 @@ void TestABzero() {
     Assert(TestGetDistinctRealRootCount(0, 0, 1, 0), "0_0_1");
 }
 void TestACzero() {
-    Assert(TestGetDistinctRealRootCount(0, 1, 0, 0), "0_1_0");
+    Assert(TestGetDistinctRealRootCount(0, 1, 0, 1), "0_1_0");
 }
 void TestBCzero() {
     Assert(TestGetDistinctRealRootCount(1, 0, 0, 1), "1_0_0");
