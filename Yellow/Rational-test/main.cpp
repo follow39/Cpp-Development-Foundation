@@ -167,6 +167,10 @@ void TestZero() {
         Rational r{0, 1};
         Assert(TestRational(r, 0, 1), "TestZero1");
     }
+    {
+        Rational r{0, 5};
+        Assert(TestRational(r, 0, 1), "TestZero1");
+    }
 }
 
 void TestAll() {
