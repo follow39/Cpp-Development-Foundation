@@ -305,9 +305,9 @@ void TestChangesLastName() {
         year -= 999;
         expected = newNameL + wufn;
         Assert(TestPerson(person, year, expected), "TestChangesLastNameNextYear7");
-        Assert(TestPerson(person, year-1, expected), "TestChangesLastNameNextYear8");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastNameNextYear8");
         expected = inc;
-        Assert(TestPerson(person, year+1, expected), "TestChangesLastNameNextYear9");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastNameNextYear9");
     }
 }
 
