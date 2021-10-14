@@ -104,28 +104,39 @@ bool TestGetDistinctRealRootCount(double a, double b, double c, int expected) {
 }
 
 void TestZero() {
-    Assert(TestGetDistinctRealRootCount(19, 15, 31, 0), "19_15_31");
     Assert(TestGetDistinctRealRootCount(1, 1, 1, 0), "1_1_1");
+    Assert(TestGetDistinctRealRootCount(19, 15, 31, 0), "19_15_31");
     Assert(TestGetDistinctRealRootCount(269, -78, 593, 0), "269_-78_593");
     Assert(TestGetDistinctRealRootCount(26.59, -0.983, 38.2, 0), "26.59_-0.983_38.2");
     Assert(TestGetDistinctRealRootCount(-26.59, 0.983, -38.2, 0), "-26.59_0.983_-38.2");
 }
 void TestOne() {
     Assert(TestGetDistinctRealRootCount(1, 2, 1, 1), "1_2_1");
+    Assert(TestGetDistinctRealRootCount(64, 32, 4, 1), "64_32_4");
 }
 void TestTwo() {
-
+    Assert(TestGetDistinctRealRootCount(1, 3, 1, 2), "1_3_1");
+    Assert(TestGetDistinctRealRootCount(47, 38, 7, 2), "47_38_7");
+    Assert(TestGetDistinctRealRootCount(5.185, 9.4788, 593, 2), "5.185_9.4788_-78.1465");
+    Assert(TestGetDistinctRealRootCount(-5.185, 47.1864, -78.1465, 2), "-5.185_47.1864_-78.1465");
 }
 void TestAzero() {
-
+    Assert(TestGetDistinctRealRootCount(0, 1, 1, 1), "0_1_1");
+    Assert(TestGetDistinctRealRootCount(0, 8, -13, 1), "0_8_-13");
+    Assert(TestGetDistinctRealRootCount(0, -5, 61, 2), "0_-5_61");
+    Assert(TestGetDistinctRealRootCount(0, -96, -86, 0), "0_-96_-86");
 }
 void TestBzero() {
     Assert(TestGetDistinctRealRootCount(1, 0, 1, 0), "1_0_1");
+    Assert(TestGetDistinctRealRootCount(15, 0, -39, 2), "15_0_-39");
+    Assert(TestGetDistinctRealRootCount(-59, 0, 19, 2), "-59_0_19");
+    Assert(TestGetDistinctRealRootCount(-43, 0, -86, 0), "-43_0_-86");
 }
 void TestCzero() {
     Assert(TestGetDistinctRealRootCount(1, 1, 0, 2), "1_1_0");
     Assert(TestGetDistinctRealRootCount(939, -801, 0, 2), "939_-801_0");
     Assert(TestGetDistinctRealRootCount(3, 56, 0, 2), "3_56_0");
+    Assert(TestGetDistinctRealRootCount(19, 2, 0, 2), "19_2_0");
 }
 void TestABzero() {
     Assert(TestGetDistinctRealRootCount(0, 0, 1, 0), "0_0_1");
@@ -138,14 +149,22 @@ void TestBCzero() {
 }
 
 void TestAll() {
-    TestZero();
-    TestOne();
-    TestTwo();
+    TestRunner runner;
+    runner.RunTest(TestZero, "TestZero");
+    runner.RunTest(TestOne, "TestOne");
+    runner.RunTest(TestTwo, "TestTwo");
+
+    runner.RunTest(TestAzero, "TestAzero");
+    runner.RunTest(TestBzero, "TestBzero");
+    runner.RunTest(TestCzero, "TestCzero");
+
+    runner.RunTest(TestABzero, "TestABzero");
+    runner.RunTest(TestACzero, "TestACzero");
+    runner.RunTest(TestBCzero, "TestBCzero");
 }
 
 int main() {
-  TestRunner runner;
-  runner.RunTest(TestZero, "Test with zero roots");
+    TestAll();
 
   return 0;
 }
