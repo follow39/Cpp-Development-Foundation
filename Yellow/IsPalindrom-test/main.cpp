@@ -115,6 +115,5 @@ int main() {
   TestRunner runner;
   runner.RunTest(TestAll, "All tests");
 
-
   return 0;
 }
