@@ -160,7 +160,7 @@ void TestChangesFirstName() {
     {
         Person person;
         string newNameF = "Ivan";
-        string expected = newNameF + wufn;
+        string expected = newNameF + wuln;
         int year = 0;
         person.ChangeFirstName(year, newNameF);
 
@@ -170,7 +170,7 @@ void TestChangesFirstName() {
         Assert(TestPerson(person, year-1, expected), "TestChangesFirstName2");
 
         newNameF = "Igor";
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         year -= 999;
         person.ChangeFirstName(year, newNameF);
 
@@ -181,18 +181,18 @@ void TestChangesFirstName() {
 
         newNameF = "Ivan";
         year += 999;
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         Assert(TestPerson(person, year, expected), "TestChangesFirstName2");
         Assert(TestPerson(person, year+1, expected), "TestChangesFirstName2");
         newNameF = "Igor";
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         Assert(TestPerson(person, year-1, expected), "TestChangesFirstName2");
     }
     // previos year write
     {
         Person person;
         string newNameF = "Ivan";
-        string expected = newNameF + wufn;
+        string expected = newNameF + wuln;
         int year = 0;
         person.ChangeFirstName(year, newNameF);
 
@@ -202,19 +202,19 @@ void TestChangesFirstName() {
         Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
 
         newNameF = "Igor";
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         year += 999;
         person.ChangeFirstName(year, newNameF);
 
         Assert(TestPerson(person, year, expected), "TestChangesFirstName3");
         Assert(TestPerson(person, year+1, expected), "TestChangesFirstName3");
         newNameF = "Ivan";
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
 
         newNameF = "Ivan";
         year -= 999;
-        expected = newNameF + wufn;
+        expected = newNameF + wuln;
         Assert(TestPerson(person, year, expected), "TestChangesFirstName3");
         Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
         expected = inc;
@@ -231,83 +231,83 @@ void TestChangesLastName() {
         int year = 0;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName1");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName1");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName1");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName1");
         expected = inc;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName1");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName1");
 
         newNameL = "Petrov";
         expected = newNameL + wuln;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName1");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName1");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName1");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName1");
         expected = inc;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName1");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName1");
     }
     // previos year write
     {
         Person person;
         string newNameL = "Ivanov";
-        string expected = newNameL + wuln;
+        string expected = newNameL + wufn;
         int year = 0;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName2");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName2");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName2");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName2");
         expected = inc;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName2");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName2");
 
         newNameL = "Petrov";
-        expected = newNameL + wuln;
+        expected = newNameL + wufn;
         year -= 999;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName2");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName2");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName2");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName2");
         expected = inc;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName2");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName2");
 
         newNameL = "Ivanov";
         year += 999;
-        expected = newNameL + wuln;
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName2");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName2");
+        expected = newNameL + wufn;
+        Assert(TestPerson(person, year, expected), "TestChangesLastName2");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName2");
         newNameL = "Petrov";
-        expected = newNameL + wuln;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName2");
+        expected = newNameL + wufn;
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName2");
     }
     // previos year write
     {
         Person person;
         string newNameL = "Ivanov";
-        string expected = newNameL + wuln;
+        string expected = newNameL + wufn;
         int year = 0;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName3");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName3");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName3");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName3");
         expected = inc;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName3");
 
         newNameL = "Petrov";
-        expected = newNameL + wuln;
+        expected = newNameL + wufn;
         year += 999;
         person.ChangeFirstName(year, newNameL);
 
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName3");
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName3");
+        Assert(TestPerson(person, year, expected), "TestChangesLastName3");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName3");
         newNameL = "Ivanov";
-        expected = newNameL + wuln;
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
+        expected = newNameL + wufn;
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName3");
 
         newNameL = "Ivanov";
         year -= 999;
-        expected = newNameL + wuln;
-        Assert(TestPerson(person, year, expected), "TestChangesFirstName3");
-        Assert(TestPerson(person, year-1, expected), "TestChangesFirstName3");
+        expected = newNameL + wufn;
+        Assert(TestPerson(person, year, expected), "TestChangesLastName3");
+        Assert(TestPerson(person, year-1, expected), "TestChangesLastName3");
         expected = inc;
-        Assert(TestPerson(person, year+1, expected), "TestChangesFirstName3");
+        Assert(TestPerson(person, year+1, expected), "TestChangesLastName3");
     }
 }
 
@@ -322,7 +322,7 @@ void TestChangesYear() {
     {
         Person person;
         string newNameF = "Ivan";
-        string expected = newNameF + wufn;
+        string expected = newNameF + wuln;
         int year = 0;
         person.ChangeFirstName(year, newNameF);
         Assert(TestPerson(person, year, expected), "TestZeroYear2");
@@ -330,7 +330,7 @@ void TestChangesYear() {
     {
         Person person;
         string newNameL = "Ivanov";
-        string expected = newNameL + wuln;
+        string expected = newNameL + wufn;
         int year = 0;
         person.ChangeLastName(year, newNameL);
         Assert(TestPerson(person, year, expected), "TestZeroYear3");
