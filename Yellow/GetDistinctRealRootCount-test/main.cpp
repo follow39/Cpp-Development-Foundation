@@ -107,7 +107,6 @@ void TestZeroRoots() {
     Assert(TestGetDistinctRealRootCount(269, -78, 593, 0), "269_-78_593");
     Assert(TestGetDistinctRealRootCount(26.59, -0.983, 38.2, 0), "26.59_-0.983_38.2");
     Assert(TestGetDistinctRealRootCount(-26.59, 0.983, -38.2, 0), "-26.59_0.983_-38.2");
-    Assert(TestGetDistinctRealRootCount(1, 1, 1, 2), "1_1_1");
 }
 void TestOneRoots() {
     Assert(TestGetDistinctRealRootCount(1, 2, 1, 1), "1_2_1");
@@ -126,10 +125,10 @@ void TestAzero() {
     Assert(TestGetDistinctRealRootCount(0, -96, -86, 1), "0_-96_-86");
 }
 void TestBzero() {
-    Assert(TestGetDistinctRealRootCount(1, 0, 1, 1), "1_0_1");
-    Assert(TestGetDistinctRealRootCount(15, 0, -39, 1), "15_0_-39");
-    Assert(TestGetDistinctRealRootCount(-59, 0, 19, 1), "-59_0_19");
-    Assert(TestGetDistinctRealRootCount(-43, 0, -86, 1), "-43_0_-86");
+    Assert(TestGetDistinctRealRootCount(1, 0, 1, 0), "1_0_1");
+    Assert(TestGetDistinctRealRootCount(15, 0, -39, 2), "15_0_-39");
+    Assert(TestGetDistinctRealRootCount(-59, 0, 19, 2), "-59_0_19");
+    Assert(TestGetDistinctRealRootCount(-43, 0, -86, 0), "-43_0_-86");
 }
 void TestCzero() {
     Assert(TestGetDistinctRealRootCount(1, 1, 0, 2), "1_1_0");
