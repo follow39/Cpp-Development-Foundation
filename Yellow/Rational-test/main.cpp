@@ -133,6 +133,10 @@ void TestFractionReduction() {
         Rational r{11, 121};
         Assert(TestRational(r, 1, 11), "TestFractionReduction3");
     }
+    {
+        Rational r{27, 9};
+        Assert(TestRational(r, 3, 1), "TestFractionReduction4");
+    }
 }
 
 void TestSign() {
