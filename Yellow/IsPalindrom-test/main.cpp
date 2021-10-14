@@ -107,8 +107,6 @@ void TestAll() {
     Assert(!IsPalindrom("madam "), "madam_ string");
     Assert(!IsPalindrom("ma2dam"), "ma2dam string");
     Assert(IsPalindrom("abcdefggfedcba"), "abcdefggfedcba string");
-    Assert(IsPalindrom("12321"), "12321 string");
-    Assert(IsPalindrom("123321"), "123321 string");
 }
 
 int main() {
