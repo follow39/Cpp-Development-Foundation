@@ -7,7 +7,7 @@ using namespace std;
 
 template <typename T>
 vector<T> FindGreaterElements(const set<T>& elements, const T& border) {
-    return vector<T>(find_if(elements.begin(), elements.end(), [border](const T& x) { return x > border; }), elements.end());
+    return {find_if(elements.begin(), elements.end(), [border](const T& x) { return x > border; }), elements.end()};
 }
 
 int main()
