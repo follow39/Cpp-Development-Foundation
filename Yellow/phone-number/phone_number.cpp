@@ -5,16 +5,14 @@
 
 PhoneNumber::PhoneNumber(const string &international_number) {
     stringstream ss(international_number);
-    char ch1 = 0;
-    char ch2 = 0;
-    char ch3 = 0;
+    char ch = 0;
 
-    ss >> ch1;
+    ss >> ch;
     getline(ss, country_code_, '-');
     getline(ss, city_code_, '-');
     getline(ss, local_number_);
 
-    if(ch1 != '+' || country_code_.empty() ||
+    if(ch != '+' || country_code_.empty() ||
             city_code_.empty() || local_number_.empty()) {
         throw invalid_argument(international_number);
     }
