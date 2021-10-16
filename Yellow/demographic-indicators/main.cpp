@@ -8,7 +8,18 @@
 
 using namespace std;
 
-void PrintStats(vector<Person> persons);
+void PrintStats(vector<Person> persons) {
+    auto it = persons.begin();
+    cout << "Median age = " << ComputeMedianAge(persons.begin(), persons.end()) << endl;
+    sort(persons.begin(), persons.end(), [](const Person& lhs, const Person& rhs) {
+        return lhs.gender < rhs.gender;
+    });
+    it = find_if(persons.begin(), persons.end(), [](const Person& p) { return p.gender == Gender::MALE; });
+    cout << "Median age for females = " <<
+            ComputeMedianAge(persons.begin(), it) << endl;
+    cout << "Median age for females = " <<
+            ComputeMedianAge(it, persons.end()) << endl;
+}
 
 int main() {
   vector<Person> persons = {
