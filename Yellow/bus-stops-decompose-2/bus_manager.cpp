@@ -1,4 +1,5 @@
 #include "bus_manager.h"
+#include <algorithm>
 
 using namespace std;
 
