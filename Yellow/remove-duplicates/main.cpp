@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
@@ -12,15 +13,9 @@ ostream& operator<<(ostream& os, const vector<int>& vec) {
     return os;
 }
 
-void GenerateString(vector<int>& vec, int n) {
-    while(n-- > 0) {
-        vec.push_back(n);
-    }
-}
-
 void PrintPermutation(int n) {
-    vector<int> vec;
-    GenerateString(vec, n);
+    vector<int> vec(n);
+    iota(vec.rbegin(), vec.rend(), 1);
     std::sort(vec.rbegin(), vec.rend());
     do {
         std::cout << vec << '\n';
