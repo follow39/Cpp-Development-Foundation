@@ -13,6 +13,8 @@ vector<string> SplitIntoWords(const string& s) {
         temp = find(it, s.end(), ' ');
         result.push_back({it, temp});
         it = temp;
+        if(it != s.end())
+            ++it;
     }
 
     return result;
