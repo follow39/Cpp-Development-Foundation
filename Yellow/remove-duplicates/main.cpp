@@ -5,19 +5,26 @@
 
 using namespace std;
 
-string GenerateString(int n) {
-    if(n == 0)
-        return "";
-    else
-        return to_string(n) + GenerateString(n-1);
+ostream& operator<<(ostream& os, const vector<int>& vec) {
+    for(const auto& v : vec) {
+        os << v << ' ';
+    }
+    return os;
+}
+
+void GenerateString(vector<int>& vec, int n) {
+    while(n-- > 0) {
+        vec.push_back(n);
+    }
 }
 
 void PrintPermutation(int n) {
-    std::string s = GenerateString(n);
-    std::sort(s.rbegin(), s.rend());
+    vector<int> vec;
+    GenerateString(vec, n);
+    std::sort(vec.rbegin(), vec.rend());
     do {
-        std::cout << s << '\n';
-    } while(std::prev_permutation(s.begin(), s.end()));
+        std::cout << vec << '\n';
+    } while(std::prev_permutation(vec.begin(), vec.end()));
 }
 
 int main() {
