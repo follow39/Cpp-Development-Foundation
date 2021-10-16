@@ -5,25 +5,26 @@
 
 using namespace std;
 
-template <typename T>
-void RemoveDuplicates(vector<T>& elements) {
-    sort(elements.begin(), elements.end());
-    elements.erase(unique(elements.begin(), elements.end()), elements.end());
+string GenerateString(int n) {
+    if(n == 0)
+        return "";
+    else
+        return to_string(n) + GenerateString(n-1);
+}
+
+void PrintPermutation(int n) {
+    std::string s = GenerateString(n);
+    std::sort(s.rbegin(), s.rend());
+    do {
+        std::cout << s << '\n';
+    } while(std::prev_permutation(s.begin(), s.end()));
 }
 
 int main() {
-    vector<int> v1 = {6, 4, 7, 6, 4, 4, 0, 1};
-    RemoveDuplicates(v1);
-    for (int x : v1) {
-        cout << x << " ";
-    }
-    cout << endl;
+    int n = 0;
+    cin >> n;
 
-    vector<string> v2 = {"C", "C++", "C++", "C", "C++"};
-    RemoveDuplicates(v2);
-    for (const string& s : v2) {
-        cout << s << " ";
-    }
-    cout << endl;
+    PrintPermutation(n);
+
     return 0;
 }
