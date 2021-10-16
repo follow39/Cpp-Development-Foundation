@@ -8,18 +8,14 @@ PhoneNumber::PhoneNumber(const string &international_number) {
     char ch1 = 0;
     char ch2 = 0;
     char ch3 = 0;
-    string country_code_;
-    string city_code_;
-    string local_number_;
 
     ss >> ch1;
-    ss.get(country_code_.data(), '-');
-    ss >> ch2;
-    ss.get(city_code_.data(), '-');
-    ss >> ch3;
-    ss.get(local_number_.data(), '-');
+    getline(ss, country_code_, '-');
+    getline(ss, city_code_, '-');
+    getline(ss, local_number_);
 
-    if(ch1 != '+' || ch2 != '-' || ch3 != '-') {
+    if(ch1 != '+' || country_code_.empty() ||
+            city_code_.empty() || local_number_.empty()) {
         throw invalid_argument(international_number);
     }
 }
