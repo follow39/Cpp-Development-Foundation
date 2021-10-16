@@ -11,7 +11,6 @@ using namespace std;
 
 
 int main() {
-
     int query_count;
     Query q;
 
