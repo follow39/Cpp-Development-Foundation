@@ -8,10 +8,14 @@ set<int>::const_iterator FindNearestElement(
     const set<int>& numbers,
         int border) {
     set<int>::const_iterator result = numbers.begin();
+    bool f = false;
 
     for(auto it = numbers.begin(); it != numbers.end(); ++it) {
         if(abs(*it - border) < abs(*result - border)) {
             result = it;
+            f = true;
+        } else if(f) {
+            break;
         }
     }
 
