@@ -19,13 +19,12 @@ private:
 };
 
 int GetDaysCount(int year, int month);
-//void operator++(Date& d);
 bool operator==(const Date& lhs, const Date& rhs);
 bool operator!=(const Date& lhs, const Date& rhs);
 bool operator<(const Date& lhs, const Date& rhs);
 bool operator>(const Date& lhs, const Date& rhs);
 bool operator<=(const Date& lhs, const Date& rhs);
 bool operator>=(const Date& lhs, const Date& rhs);
-//int operator-(const);
+int operator-(const Date& lhs, const Date& rhs);
 
 #endif // DATE_H

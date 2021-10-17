@@ -92,3 +92,7 @@ bool operator>=(const Date& lhs, const Date& rhs) {
     return lhs > rhs || lhs == rhs;
 }
 
+int operator-(const Date &lhs, const Date &rhs)
+{
+    return 0;
+}
