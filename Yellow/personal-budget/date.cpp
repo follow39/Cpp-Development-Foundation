@@ -30,23 +30,6 @@ void Date::operator++() {
     }
 }
 
-void operator++(Date& d) {
-    int year = d.GetYear();
-    int month = d.GetMonth();
-    int day = d.GetDay();
-
-    ++day;
-    if(day > GetDaysCount(year, month)) {
-        day = 1;
-        ++month;
-    }
-    if(month > MonthsCount) {
-        month = 1;
-        ++year;
-    }
-    d = {year, month, day};
-}
-
 int GetDaysCount(int year, int month)
 {
     if(month == 2 && year%4 == 0) {
@@ -55,11 +38,30 @@ int GetDaysCount(int year, int month)
     return DaysInMonth[month-1];
 }
 
+time_t AsTimestamp(const Date& date) {
+    tm t;
+    t.tm_sec  = 0;
+    t.tm_min  = 0;
+    t.tm_hour = 0;
+    t.tm_mday = date.GetDay();
+    t.tm_mon  = date.GetMonth() - 1;
+    t.tm_year = date.GetYear() - 1900;
+    t.tm_isdst = 0;
+    return mktime(&t);
+}
+
+int ComputeDaysDiff(const Date& date_to, const Date& date_from) {
+    const time_t timestamp_to = AsTimestamp(date_to);
+    const time_t timestamp_from = AsTimestamp(date_from);
+    static constexpr int SECONDS_IN_DAY = 60 * 60 * 24;
+    return (timestamp_to - timestamp_from) / SECONDS_IN_DAY;
+}
+
 bool operator==(const Date &lhs, const Date &rhs)
 {
     return lhs.GetYear() == rhs.GetYear() &&
-           lhs.GetMonth() == rhs.GetMonth() &&
-           lhs.GetDay() == rhs.GetDay();
+            lhs.GetMonth() == rhs.GetMonth() &&
+            lhs.GetDay() == rhs.GetDay();
 }
 bool operator!=(const Date &lhs, const Date &rhs)
 {

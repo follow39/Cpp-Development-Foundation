@@ -4,6 +4,7 @@
 #include <map>
 #include <numeric>
 #include <algorithm>
+#include <iomanip>
 
 const int MonthsCount = 12;
 const int DaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -29,6 +30,32 @@ bool operator>(const Date& lhs, const Date& rhs);
 bool operator<=(const Date& lhs, const Date& rhs);
 bool operator>=(const Date& lhs, const Date& rhs);
 int operator-(const Date& lhs, const Date& rhs);
+
+class Budget
+{
+public:
+    Budget();
+
+    void AddIncome(const Date& from, const Date& to, int value);
+    double ComputeIncome(const Date& from, const Date& to) const;
+private:
+    std::map<Date, double> budget;
+};
+
+using namespace std;
+
+Date DateFromString(const string& date) {
+    stringstream ss(date);
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    char ch1 = 0;
+    char ch2 = 0;
+
+    ss >> year >> ch1 >> month >> ch2 >> day;
+
+    return {year, month, day};
+}
 
 Date::Date(int new_year, int new_month, int new_day) {
     year = new_year;
@@ -58,23 +85,6 @@ void Date::operator++() {
         month = 1;
         ++year;
     }
-}
-
-void operator++(Date& d) {
-    int year = d.GetYear();
-    int month = d.GetMonth();
-    int day = d.GetDay();
-
-    ++day;
-    if(day > GetDaysCount(year, month)) {
-        day = 1;
-        ++month;
-    }
-    if(month > MonthsCount) {
-        month = 1;
-        ++year;
-    }
-    d = {year, month, day};
 }
 
 int GetDaysCount(int year, int month)
@@ -127,59 +137,32 @@ int operator-(const Date &lhs, const Date &rhs)
     return 0;
 }
 
-class Budget
-{
-public:
-    Budget();
-
-    void AddIncome(const Date& from, const Date& to, int value);
-    int ComputeIncome(const Date& from, const Date& to) const;
-private:
-    std::map<Date, double> budget;
-};
-
-using namespace std;
-
-Date DateFromString(const string& date) {
-    stringstream ss(date);
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    char ch1 = 0;
-    char ch2 = 0;
-
-    ss >> year >> ch1 >> month >> ch2 >> day;
-
-    return {year, month, day};
-}
-
 Budget::Budget() {
 }
 
 void Budget::AddIncome(const Date &from, const Date &to, int value) {
     Date it = from;
-    double days_count = 0;
+    int days_count = 0;
     while(it <= to) {
         ++days_count;
         ++it;
     }
-
     it = from;
-    double incomePerDay = value / days_count;
+    double incomePerDay = static_cast<double>(value) / days_count;
     while(it <= to) {
         budget[it] += incomePerDay;
         ++it;
     }
 }
 
-int Budget::ComputeIncome(const Date &from, const Date &to) const {
+double Budget::ComputeIncome(const Date &from, const Date &to) const {
     const auto& it1 = find_if(budget.begin(), budget.end(), [from](const std::map<Date, int>::value_type& i) {
         return i.first >= from;
     });
     const auto& it2 = find_if(budget.rbegin(), budget.rend(), [to](const std::map<Date, int>::value_type& i) {
         return i.first <= to;
     });
-    return accumulate(it1, it2.base(), 0, [](int res, const std::map<Date, int>::value_type& i) {
+    return accumulate(it1, it2.base(), 0.0, [](double res, const std::map<Date, double>::value_type& i) {
         return res + i.second;
     });
 }
@@ -193,11 +176,12 @@ int main()
 
     int q = 0;
     cin >> q;
+    cout.precision(25);
     while(q-- > 0) {
         cin >> cmd;
         if(cmd == "ComputeIncome") {
             cin >> from >> to;
-            cout << budget.ComputeIncome(DateFromString(from), DateFromString(to)) << endl;
+            cout << fixed << budget.ComputeIncome(DateFromString(from), DateFromString(to)) << endl;
         }
         if(cmd == "Earn") {
             int value = 0;

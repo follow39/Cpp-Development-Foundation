@@ -28,11 +28,12 @@ int main()
 
     int q = 0;
     cin >> q;
+    cout.precision(25);
     while(q-- > 0) {
         cin >> cmd;
         if(cmd == "ComputeIncome") {
             cin >> from >> to;
-            cout << budget.ComputeIncome(DateFromString(from), DateFromString(to)) << endl;
+            cout << fixed << budget.ComputeIncome(DateFromString(from), DateFromString(to)) << endl;
         }
         if(cmd == "Earn") {
             int value = 0;
