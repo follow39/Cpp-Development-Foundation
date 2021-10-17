@@ -26,5 +26,6 @@ bool operator<(const Date& lhs, const Date& rhs);
 bool operator>(const Date& lhs, const Date& rhs);
 bool operator<=(const Date& lhs, const Date& rhs);
 bool operator>=(const Date& lhs, const Date& rhs);
+//int operator-(const);
 
 #endif // DATE_H
