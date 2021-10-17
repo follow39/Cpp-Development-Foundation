@@ -48,8 +48,8 @@ int ComputeDaysDiff(const Date& date_to, const Date& date_from) {
     return (timestamp_to - timestamp_from) / SECONDS_IN_DAY;
 }
 
-const Date START_DATE{"2000-01-01"};
-const Date END_DATE{"2100-01-01"};
+static const Date START_DATE{"2000-01-01"};
+static const Date END_DATE{"2100-01-01"};
 const int DAY_COUNT = ComputeDaysDiff(END_DATE, START_DATE);
 
 class Budget
