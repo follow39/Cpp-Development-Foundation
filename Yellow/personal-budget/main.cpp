@@ -1,23 +1,12 @@
 #include <iostream>
 #include <sstream>
 
-#include "budget.h"
 #include "date.h"
+#include "budget.h"
 
 using namespace std;
 
-Date DateFromString(const string& date) {
-    stringstream ss(date);
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    char ch1 = 0;
-    char ch2 = 0;
 
-    ss >> year >> ch1 >> month >> ch2 >> day;
-
-    return {year, month, day};
-}
 
 int main()
 {

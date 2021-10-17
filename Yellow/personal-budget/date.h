@@ -2,6 +2,7 @@
 #define DATE_H
 
 #include <chrono>
+#include <string>
 
 const int MonthsCount = 12;
 const int DaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -23,6 +24,7 @@ private:
 int GetDaysCount(int year, int month);
 time_t AsTimestamp(const Date& date);
 int ComputeDaysDiff(const Date& date_to, const Date& date_from);
+Date DateFromString(const std::string& date);
 bool operator==(const Date& lhs, const Date& rhs);
 bool operator!=(const Date& lhs, const Date& rhs);
 bool operator<(const Date& lhs, const Date& rhs);

@@ -5,10 +5,7 @@
 #include <utility>
 #include "date.h"
 
-struct DayBudget {
-    Date date;
-    double value = 0;
-};
+
 
 class Budget
 {
@@ -18,7 +15,7 @@ public:
     void AddIncome(const Date& from, const Date& to, int value);
     double ComputeIncome(const Date& from, const Date& to) const;
 private:
-    std::vector<DayBudget> budget;
+    std::vector<double> budget;
 };
 
 #endif // BUDGET_H

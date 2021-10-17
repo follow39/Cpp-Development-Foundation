@@ -1,4 +1,7 @@
 #include "date.h"
+#include <sstream>
+
+using namespace std;
 
 Date::Date(int new_year, int new_month, int new_day) {
     year = new_year;
@@ -55,6 +58,19 @@ int ComputeDaysDiff(const Date& date_to, const Date& date_from) {
     const time_t timestamp_from = AsTimestamp(date_from);
     static constexpr int SECONDS_IN_DAY = 60 * 60 * 24;
     return (timestamp_to - timestamp_from) / SECONDS_IN_DAY;
+}
+
+Date DateFromString(const string& date) {
+    stringstream ss(date);
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    char ch1 = 0;
+    char ch2 = 0;
+
+    ss >> year >> ch1 >> month >> ch2 >> day;
+
+    return {year, month, day};
 }
 
 bool operator==(const Date &lhs, const Date &rhs)
