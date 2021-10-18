@@ -11,10 +11,7 @@ pair<RandomIt, RandomIt> FindStartsWith(
         RandomIt range_begin, RandomIt range_end,
         char prefix) {
     string temp{prefix};
-    auto t = equal_range(range_begin, range_end, temp);
-    auto c = lower_bound(range_begin, range_end, temp);
-    auto d = upper_bound(range_begin, range_end, temp);
-    auto e = d - c;
+    auto t = equal_range(range_begin, range_end, temp, [](const string& s1, const string& s2) { return s1[0] < s2[0]; });
     return t;
 }
 
