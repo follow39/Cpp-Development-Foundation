@@ -8,20 +8,25 @@ public:
     ArithmeticExpression(const int x)
     {
         expression += to_string(x);
+        prev_op = '*';
     }
     void AddExpression(const char op, const int value) {
-        expression.insert(expression.begin(), '(');
-        expression += ')';
+        if((op == '*' || op == '/') && (prev_op != '*' && prev_op != '/')) {
+            expression.insert(expression.begin(), '(');
+            expression += ')';
+        }
         expression += ' ';
         expression += op;
         expression += ' ';
         expression += to_string(value);
+        prev_op = op;
     }
     string GetExpressionString() const {
         return expression;
     }
 private:
     string expression;
+    char prev_op;
 };
 
 
