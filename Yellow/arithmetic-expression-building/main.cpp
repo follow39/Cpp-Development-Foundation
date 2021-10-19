@@ -5,19 +5,17 @@ using namespace std;
 
 class ArithmeticExpression {
 public:
-    ArithmeticExpression(int x)
+    ArithmeticExpression(const int x)
     {
-        expression += '(';
         expression += to_string(x);
-        expression += ')';
     }
-    void AddExpression(char op, int value) {
+    void AddExpression(const char op, const int value) {
         expression.insert(expression.begin(), '(');
+        expression += ')';
         expression += ' ';
         expression += op;
         expression += ' ';
         expression += to_string(value);
-        expression += ')';
     }
     string GetExpressionString() const {
         return expression;
