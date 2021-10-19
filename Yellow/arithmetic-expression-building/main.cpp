@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <deque>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ public:
     }
     void AddExpression(const char op, const int value) {
         if((op == '*' || op == '/') && (prev_op != '*' && prev_op != '/')) {
-            expression.insert(expression.begin(), '(');
+            prev_expression += '(';
             expression += ')';
         }
         expression += ' ';
@@ -22,10 +23,11 @@ public:
         prev_op = op;
     }
     string GetExpressionString() const {
-        return expression;
+        return prev_expression + expression;
     }
 private:
     string expression;
+    string prev_expression;
     char prev_op;
 };
 
