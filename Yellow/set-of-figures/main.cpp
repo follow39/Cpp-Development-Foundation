@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 
