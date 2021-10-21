@@ -14,6 +14,9 @@ void SendEmail(const string& email, const string& message) {
 /*
  Реализуйте здесь классы INotifier, SmsNotifier, EmailNotifier
  */
+class INotifier {
+
+};
 
 void Notify(INotifier& notifier, const string& message) {
   notifier.Notify(message);
