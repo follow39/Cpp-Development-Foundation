@@ -62,7 +62,7 @@ public:
         : Person(name, "Policeman") {}
 
     void Check(const Person& p) const {
-        cout << "Policeman: " << Name << " checks Policeman. Policeman's name is: " << p.Name << endl;
+        cout << "Policeman: " << Name << " checks " << p.Type << ". " << p.Type << "'s name is: " << p.Name << endl;
     }
 
 public:
