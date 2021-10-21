@@ -22,7 +22,7 @@ protected:
 class Triangle : public Figure {
 public:
     Triangle(double a, double b, double c) {
-        name = "Triangle";
+        name = "TRIANGLE";
         perimeter = a + b + c;
         double p = perimeter / 2;
         area = sqrt(p * (p - a) * (p - b) * (p - c));
@@ -38,10 +38,10 @@ public:
     }
 };
 
-class Rectangle : public Figure {
+class Rect  : public Figure {
 public:
-    Rectangle(double width, double height) {
-        name = "Rectangle";
+    Rect (double width, double height) {
+        name = "RECT";
         perimeter = width * 2 + height * 2;
         area = width * height;
     }
@@ -59,7 +59,7 @@ public:
 class Circle : public Figure {
 public:
     Circle(double r) {
-        name = "Rectangle";
+        name = "CIRCLE";
         perimeter = 2 * 3.14 * r;
         area = 3.14 * pow(r, 2);
     }
@@ -88,7 +88,7 @@ shared_ptr<Figure> CreateFigure(istream& is) {
         int width = 0;
         int height = 0;
         is >> width >> height;
-        result = make_shared<Rectangle>(width, height);
+        result = make_shared<Rect>(width, height);
     } else if(type == "CIRCLE") {
         int r = 0;
         is >> r;
