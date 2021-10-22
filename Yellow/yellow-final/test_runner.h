@@ -1,18 +1,32 @@
-#ifndef TESTRUNNER_H
-#define TESTRUNNER_H
+#pragma once
 
+#include <iostream>
 #include <sstream>
 #include <exception>
-#include <iostream>
 #include <string>
 #include <map>
 #include <set>
+#include <vector>
 
 using namespace std;
 
 template <class T>
-ostream& operator << (ostream& os, const set<T>& s) {
-  os << "{";
+ostream& operator<<(ostream& os, const vector<T>& s) {
+  os << "vector{";
+  bool first = true;
+  for (const auto& x : s) {
+    if (!first) {
+      os << ", ";
+    }
+    first = false;
+    os << x;
+  }
+  return os << "}";
+}
+
+template <class T>
+ostream& operator<<(ostream& os, const set<T>& s) {
+  os << "set{";
   bool first = true;
   for (const auto& x : s) {
     if (!first) {
@@ -25,8 +39,8 @@ ostream& operator << (ostream& os, const set<T>& s) {
 }
 
 template <class K, class V>
-ostream& operator << (ostream& os, const map<K, V>& m) {
-  os << "{";
+ostream& operator<<(ostream& os, const map<K, V>& m) {
+  os << "map{";
   bool first = true;
   for (const auto& kv : m) {
     if (!first) {
@@ -44,7 +58,7 @@ void AssertEqual(const T& t, const U& u,
 {
   if (t != u) {
     ostringstream os;
-    os << "Assertion failed: " << t << " != " << u
+    os << "Assertion failed: "s << t << " != " << u
        << " hint: " << hint;
     throw runtime_error(os.str());
   }
@@ -78,4 +92,3 @@ private:
   int fail_count = 0;
 };
 
-#endif // TESTRUNNER_H

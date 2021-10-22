@@ -6,12 +6,16 @@ using namespace std;
 
 class Person {
 public:
-    Person(string name, string type)
+    Person(const string& name, const string& type)
         : Name(name),
           Type(type) {}
 
-    virtual void  Walk(string destination) const {
+    virtual void  Walk(const string& destination) const {
         cout << Type << ": " << Name << " walks to: " << destination << endl;
+    }
+
+    string Log() const {
+        return Type + ": " + Name;
     }
 
     const string Name;
@@ -20,21 +24,21 @@ public:
 
 class Student : public Person {
 public:
-    Student(string name, string favouriteSong)
+    Student(const string& name, const string& favouriteSong)
         : Person(name, "Student"),
           FavouriteSong(favouriteSong) {}
 
-    void Learn() {
-        cout << "Student: " << Name << " learns" << endl;
+    void Learn() const {
+        cout << Log() << " learns" << endl;
     }
 
-    void Walk(string destination) const override {
-        cout << "Student: " << Name << " walks to: " << destination << endl;
+    void Walk(const string& destination) const override {
+        this->Person::Walk(destination);
         this->SingSong();
     }
 
     void SingSong() const {
-        cout << "Student: " << Name << " sings a song: " << FavouriteSong << endl;
+        cout << Log() << " sings a song: " << FavouriteSong << endl;
     }
 
     const string FavouriteSong;
@@ -43,12 +47,12 @@ public:
 
 class Teacher : public Person {
 public:
-    Teacher(string name, string subject)
+    Teacher(const string& name, const string& subject)
         : Person(name, "Teacher"),
           Subject(subject) {}
 
-    void Teach() {
-        cout << "Teacher: " << Name << " teaches: " << Subject << endl;
+    void Teach() const {
+        cout << Log() << " teaches: " << Subject << endl;
     }
 
 private:
@@ -58,11 +62,11 @@ private:
 
 class Policeman : public Person{
 public:
-    Policeman(string name)
+    Policeman(const string& name)
         : Person(name, "Policeman") {}
 
     void Check(const Person& p) const {
-        cout << "Policeman: " << Name << " checks " << p.Type << ". " << p.Type << "'s name is: " << p.Name << endl;
+        cout << Log() << " checks " << p.Type << ". " << p.Type << "'s name is: " << p.Name << endl;
     }
 
 public:

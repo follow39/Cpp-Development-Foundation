@@ -1,9 +1,8 @@
 #pragma once
 
-#include "node.h"
-
 #include <memory>
 #include <iostream>
+#include "node.h"
 
 using namespace std;
 

@@ -1,16 +1,20 @@
-#include "database.h"
-#include "date.h"
-#include "condition_parser.h"
-#include "node.h"
-#include "test_runner.h"
-
 #include <iostream>
 #include <stdexcept>
+#include <vector>
+#include <string>
+
+#include "database.h"
+#include "date.h"
+//#include "condition_parser.h"
+//#include "node.h"
+#include "test_runner.h"
+
 
 using namespace std;
 
 string ParseEvent(istream& is) {
   // Реализуйте эту функцию
+    return "";
 }
 
 void TestAll();
@@ -20,49 +24,77 @@ int main() {
 
   Database db;
 
-  for (string line; getline(cin, line); ) {
-    istringstream is(line);
+//  for (string line; getline(cin, line); ) {
+//    istringstream is(line);
 
-    string command;
-    is >> command;
-    if (command == "Add") {
-      const auto date = ParseDate(is);
-      const auto event = ParseEvent(is);
-      db.Add(date, event);
-    } else if (command == "Print") {
-      db.Print(cout);
-    } else if (command == "Del") {
-      auto condition = ParseCondition(is);
-      auto predicate = [condition](const Date& date, const string& event) {
-        return condition->Evaluate(date, event);
-      };
-      int count = db.RemoveIf(predicate);
-      cout << "Removed " << count << " entries" << endl;
-    } else if (command == "Find") {
-      auto condition = ParseCondition(is);
-      auto predicate = [condition](const Date& date, const string& event) {
-        return condition->Evaluate(date, event);
-      };
+//    string command;
+//    is >> command;
+//    if (command == "Add") {
+//      const auto date = ParseDate(is);
+//      const auto event = ParseEvent(is);
+//      db.Add(date, event);
+//    } else if (command == "Print") {
+//      db.Print(cout);
+//    } else if (command == "Del") {
+//      auto condition = ParseCondition(is);
+//      auto predicate = [condition](const Date& date, const string& event) {
+//        return condition->Evaluate(date, event);
+//      };
+//      int count = db.RemoveIf(predicate);
+//      cout << "Removed " << count << " entries" << endl;
+//    } else if (command == "Find") {
+//      auto condition = ParseCondition(is);
+//      auto predicate = [condition](const Date& date, const string& event) {
+//        return condition->Evaluate(date, event);
+//      };
 
-      const auto entries = db.FindIf(predicate);
-      for (const auto& entry : entries) {
-        cout << entry << endl;
-      }
-      cout << "Found " << entries.size() << " entries" << endl;
-    } else if (command == "Last") {
-      try {
-          cout << db.Last(ParseDate(is)) << endl;
-      } catch (invalid_argument&) {
-          cout << "No entries" << endl;
-      }
-    } else if (command.empty()) {
-      continue;
-    } else {
-      throw logic_error("Unknown command: " + command);
-    }
-  }
+//      const auto entries = db.FindIf(predicate);
+//      for (const auto& entry : entries) {
+//        cout << entry << endl;
+//      }
+//      cout << "Found " << entries.size() << " entries" << endl;
+//    } else if (command == "Last") {
+//      try {
+//          cout << db.Last(ParseDate(is)) << endl;
+//      } catch (invalid_argument&) {
+//          cout << "No entries" << endl;
+//      }
+//    } else if (command.empty()) {
+//      continue;
+//    } else {
+//      throw logic_error("Unknown command: " + command);
+//    }
+//  }
 
   return 0;
+}
+
+string GenerateDateString(const int year, const int month, const int day) {
+    return to_string(year) + "-"s + to_string(month) + "-"s + to_string(day);
+}
+
+void TestParseDate() {
+    {
+        int year = 0;
+        int month = 1;
+        int day = 1;
+        istringstream is(GenerateDateString(year, month, day));
+        AssertEqual(ParseDate(is), Date{year, month, day}, is.str());
+    }
+    {
+        int year = -34;
+        int month = 5;
+        int day = 13;
+        istringstream is(GenerateDateString(year, month, day));
+        AssertEqual(ParseDate(is), Date{year, month, day}, is.str());
+    }
+    {
+        int year = 1999;
+        int month = 2;
+        int day = 5;
+        istringstream is(GenerateDateString(year, month, day));
+        AssertEqual(ParseDate(is), Date{year, month, day}, is.str());
+    }
 }
 
 void TestParseEvent() {
@@ -85,6 +117,7 @@ void TestParseEvent() {
 
 void TestAll() {
   TestRunner tr;
+  tr.RunTest(TestParseDate, "TestParseDate");
   tr.RunTest(TestParseEvent, "TestParseEvent");
-  tr.RunTest(TestParseCondition, "TestParseCondition");
+//  tr.RunTest(TestParseCondition, "TestParseCondition");
 }
