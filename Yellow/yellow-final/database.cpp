@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void Database::AddEvent(const Date& date, const string& event) {
+void Database::Add(const Date& date, const string& event) {
     if(event.empty())
         return;
     db[date].emplace(event);
@@ -34,7 +34,14 @@ std::ostream& Database::Print(std::ostream& os) const {
     return os;
 }
 
-std::ostream &operator<<(std::ostream& os, std::set<std::string> data) {
+std::ostream& operator<<(std::ostream& os, dBase data) {
+    return os;
+}
 
+std::ostream& operator<<(std::ostream& os, std::pair<Date, std::set<std::string>> data) {
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, events data) {
     return os;
 }

@@ -21,7 +21,7 @@ class Node
 {
 public:
     Node();
-    virtual bool Evaluate(const Date& date, const std::string str) const;
+    virtual int Evaluate(const Date& date, const std::string str) const;
 };
 
 class EmptyNode : public Node {
