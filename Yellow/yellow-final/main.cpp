@@ -17,6 +17,7 @@ using namespace std;
 
 string ParseEvent(istream& is) {
     string temp;
+    is >> ws;
     getline(is, temp);
     return temp;
 }
@@ -39,22 +40,22 @@ int main() {
         } else if (command == "Print") {
             db.Print(cout);
         } else if (command == "Del") {
-//            auto condition = ParseCondition(is);
-//            auto predicate = [condition](const Date& date, const string& event) {
-//                return condition->Evaluate(date, event);
-//            };
-//            int count = db.RemoveIf(predicate);
-//            cout << "Removed " << count << " entries" << endl;
+            auto condition = ParseCondition(is);
+            auto predicate = [condition](const Date& date, const string& event) {
+                return condition->Evaluate(date, event);
+            };
+            int count = db.RemoveIf(predicate);
+            cout << "Removed " << count << " entries" << endl;
         } else if (command == "Find") {
-//            auto condition = ParseCondition(is);
-//            auto predicate = [condition](const Date& date, const string& event) {
-//                return condition->Evaluate(date, event);
-//            };
-//            const auto entries = db.FindIf(predicate);
-//            for (const auto& entry : entries) {
-//                cout << entry << endl;
-//            }
-//            cout << "Found " << entries.size() << " entries" << endl;
+            auto condition = ParseCondition(is);
+            auto predicate = [condition](const Date& date, const string& event) {
+                return condition->Evaluate(date, event);
+            };
+            const auto entries = db.FindIf(predicate);
+            for (const auto& entry : entries) {
+                cout << entry << endl;
+            }
+            cout << "Found " << entries.size() << " entries" << endl;
         } else if (command == "Last") {
             try {
                 cout << db.Last(ParseDate(is)) << endl;
@@ -120,6 +121,6 @@ void TestParseEvent() {
 void TestAll() {
     TestRunner tr;
     tr.RunTest(TestParseDate, "TestParseDate");
-//    tr.RunTest(TestParseEvent, "TestParseEvent");
-//    tr.RunTest(TestParseCondition, "TestParseCondition");
+    tr.RunTest(TestParseEvent, "TestParseEvent");
+    tr.RunTest(TestParseCondition, "TestParseCondition");
 }

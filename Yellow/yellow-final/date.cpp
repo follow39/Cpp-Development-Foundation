@@ -9,6 +9,11 @@ Date::Date(int new_year, int new_month, int new_day)
       month(new_month),
       day(new_day) {}
 
+Date::Date(const Date& new_date)
+    : year(new_date.year),
+      month(new_date.month),
+      day(new_date.day) {}
+
 time_t Date::AsTimestamp() const {
     tm t;
     t.tm_sec  = 0;

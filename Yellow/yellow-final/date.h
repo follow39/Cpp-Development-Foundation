@@ -7,12 +7,13 @@
 class Date {
 public:
     Date(int new_year, int new_month, int new_day);
+    Date(const Date& new_date);
 
     time_t AsTimestamp() const;
 
-    const int year;
-    const int month;
-    const int day;
+    int year;
+    int month;
+    int day;
 };
 
 int ComputeDaysDiff(const Date& date_to, const Date& date_from);
