@@ -48,10 +48,8 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
     //        return predicate(unit.first, unit.second);
     //    });
     const auto it = stable_partition(db.begin(), db.end(), [predicate](const DBaseUnit& unit) {
-        return predicate(unit.first, unit.second);
+        return !predicate(unit.first, unit.second);
     });
-
-
 
     cnt = db.end() - it;
     db.erase(it, db.end());
