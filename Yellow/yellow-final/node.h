@@ -20,8 +20,7 @@ enum LogicalOperation {
 class Node
 {
 public:
-    Node();
-    virtual int Evaluate(const Date& date, const std::string str) const;
+    virtual int Evaluate(const Date& date, const std::string str) const {return 0;}
 };
 
 class EmptyNode : public Node {
@@ -30,16 +29,16 @@ class EmptyNode : public Node {
 
 class DateComparisonNode : public Node {
 public:
-    DateComparisonNode(Comparison cmp, const Date& date);
+    DateComparisonNode(Comparison cmp, const Date& date) {}
 };
 
 class EventComparisonNode : public Node {
 public:
-    EventComparisonNode(Comparison cmp, const std::string& event);
+    EventComparisonNode(Comparison cmp, const std::string& event) {}
 };
 
 class LogicalOperationNode : public Node {
 public:
-    LogicalOperationNode(LogicalOperation cmp, std::shared_ptr<Node> left, std::shared_ptr<Node> right);
+    LogicalOperationNode(LogicalOperation cmp, std::shared_ptr<Node> left, std::shared_ptr<Node> right) {}
 };
 

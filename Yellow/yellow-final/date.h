@@ -7,6 +7,7 @@
 class Date {
 public:
     Date(int new_year, int new_month, int new_day);
+
     time_t AsTimestamp() const;
 
     const int year;
@@ -22,3 +23,6 @@ std::ostream& operator<<(std::ostream& os, const Date& date);
 bool operator==(const Date& lhs, const Date& rhs);
 bool operator!=(const Date& lhs, const Date& rhs);
 bool operator<(const Date& lhs, const Date& rhs);
+bool operator>(const Date& lhs, const Date& rhs);
+bool operator<=(const Date& lhs, const Date& rhs);
+bool operator>=(const Date& lhs, const Date& rhs);
