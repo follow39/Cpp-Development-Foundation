@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <map>
 #include <vector>
 #include <functional>
 #include <utility>
@@ -18,7 +17,7 @@ public:
     void Add(const Date& date, const std::string& event);
     DBaseUnit Last(const Date& date) const;
     int RemoveIf(std::function<bool(const Date& date, const std::string& event)> predicate);
-    DBase FindIf(std::function<bool(const Date& date, const std::string& event)> predicate);
+    DBase FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const;
     void Print(std::ostream& os) const;
 private:
     DBase db;

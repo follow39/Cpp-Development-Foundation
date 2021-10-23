@@ -54,7 +54,7 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
     return cnt;
 }
 
-DBase Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) {
+DBase Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const {
     if(db.empty()) {
         return {};
     }
