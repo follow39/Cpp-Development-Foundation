@@ -6,6 +6,8 @@
 #include <functional>
 #include <utility>
 #include <memory>
+#include <map>
+#include <set>
 #include "date.h"
 
 using DBaseUnit = std::pair<Date, std::string>;

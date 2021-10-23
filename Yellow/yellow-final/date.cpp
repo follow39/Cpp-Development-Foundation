@@ -64,26 +64,52 @@ std::ostream& operator<<(std::ostream& os, const Date& date) {
 
 bool operator==(const Date &lhs, const Date &rhs)
 {
-    return lhs.AsTimestamp() == rhs.AsTimestamp();
+//    return lhs.AsTimestamp() == rhs.AsTimestamp();
+    return lhs.year == rhs.year && lhs.month == rhs.month && lhs.day == rhs.day;
 }
 
 bool operator!=(const Date &lhs, const Date &rhs)
 {
-    return lhs.AsTimestamp() != rhs.AsTimestamp();
+//    return lhs.AsTimestamp() != rhs.AsTimestamp();
+    return lhs.year != rhs.year || lhs.month != rhs.month || lhs.day != rhs.day;
 }
 
 bool operator<(const Date &lhs, const Date &rhs)
 {
-    return lhs.AsTimestamp() < rhs.AsTimestamp();
+//    return lhs.AsTimestamp() < rhs.AsTimestamp();
+    if(lhs.year != rhs.year) {
+        return lhs.year < rhs.year;
+    } else if(lhs.month != rhs.month) {
+        return lhs.month < rhs.month;
+    }
+    return lhs.day < rhs.day;
 }
 
 bool operator>(const Date& lhs, const Date& rhs) {
-    return lhs.AsTimestamp() > rhs.AsTimestamp();
+//    return lhs.AsTimestamp() > rhs.AsTimestamp();
+    if(lhs.year != rhs.year) {
+        return lhs.year > rhs.year;
+    } else if(lhs.month != rhs.month) {
+        return lhs.month > rhs.month;
+    }
+    return lhs.day > rhs.day;
 }
 
 bool operator<=(const Date& lhs, const Date& rhs) {
-    return lhs.AsTimestamp() <= rhs.AsTimestamp();
+//    return lhs.AsTimestamp() <= rhs.AsTimestamp();
+    if(lhs.year != rhs.year) {
+        return lhs.year <= rhs.year;
+    } else if(lhs.month != rhs.month) {
+        return lhs.month <= rhs.month;
+    }
+    return lhs.day <= rhs.day;
 }
 bool operator>=(const Date& lhs, const Date& rhs) {
-    return lhs.AsTimestamp() >= rhs.AsTimestamp();
+//    return lhs.AsTimestamp() >= rhs.AsTimestamp();
+    if(lhs.year != rhs.year) {
+        return lhs.year >= rhs.year;
+    } else if(lhs.month != rhs.month) {
+        return lhs.month >= rhs.month;
+    }
+    return lhs.day >= rhs.day;
 }

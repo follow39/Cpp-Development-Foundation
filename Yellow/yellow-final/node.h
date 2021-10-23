@@ -25,7 +25,7 @@ public:
 
 class EmptyNode : public Node {
     bool Evaluate(const Date& input_date, const std::string input_event) const override {
-        return false;
+        return true;
     }
 };
 

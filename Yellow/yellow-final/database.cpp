@@ -44,12 +44,19 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
         return 0;
     }
     int cnt = 0;
-    const auto it = remove_if(db.begin(), db.end(), [predicate](const DBaseUnit& unit) {
-        return predicate(unit.first, unit.second);
+//    const auto it = remove_if(db.begin(), db.end(), [predicate](const DBaseUnit& unit) {
+//        return predicate(unit.first, unit.second);
+//    });
+
+    DBase new_db;
+    copy_if(db.begin(), db.end(), back_inserter(new_db), [predicate](const DBaseUnit& unit) {
+        return !predicate(unit.first, unit.second);
     });
 
-    cnt = db.end() - it;
-    db.erase(it, db.end());
+
+    cnt = db.size() - new_db.size();
+//    db.erase(it, db.end());
+    db = new_db;
 
     return cnt;
 }
