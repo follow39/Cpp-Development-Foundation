@@ -25,7 +25,7 @@ public:
 private:
     std::map<Date, std::vector<std::string>> db_vector;
     std::map<Date, std::set<std::string>> db_set;
-    std::map<Date, std::map<std::string, bool>> db_exist;
+    std::map<Date, std::pair<std::vector<std::string>, std::set<std::string>>> db;
 };
 
 std::ostream& operator<<(std::ostream& os, const DBase& data);

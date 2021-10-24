@@ -29,7 +29,7 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
     vector<Date> erase_vector;
 
     for(auto& [key, value] : db_vector) {
-        auto k = key;
+        auto& k = key;
         const auto it_remove = stable_partition(value.begin(), value.end(), [&k, predicate](const string& event) {
             return !predicate(k, event);
         });
@@ -48,6 +48,7 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
         for(auto it = it_remove; it != value.end(); ++it) {
             db_set[key].erase(*it);
         }
+
         value.erase(it_remove, value.end());
         //        db_set[key] = set<string>(value.begin(), value.end());
     }
