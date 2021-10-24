@@ -52,7 +52,7 @@ public:
         default:
             break;
         }
-        return false;
+        return true;
     }
 
     const Comparison cmp;
@@ -81,7 +81,7 @@ public:
         default:
             break;
         }
-        return false;
+        return true;
     }
 
     const Comparison cmp;
