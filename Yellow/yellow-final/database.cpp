@@ -5,74 +5,88 @@
 using namespace std;
 
 void Database::Add(const Date& date, const string& event) {
-    if(db.empty()) {
-        db.push_back(DBaseUnit{date, {event}});
-        return;
+    if(db_set.empty() || db_set[date].count(event) == 0) {
+        db_set[date].emplace(event);
+        db_vector[date].push_back(event);
     }
-
-    auto it_lower = lower_bound(db.begin(), db.end(), date, [](const auto& unit, const Date& date) {
-        return unit.first < date;
-    });
-    const auto it_upper = upper_bound(it_lower, db.end(), date, [](const Date& date, const auto& unit) {
-        return unit.first > date;
-    });
-
-    if(it_lower != db.end() && it_lower->first == date) {
-        const auto it_find = find_if(it_lower, db.end(), [event](const DBaseUnit unit) {
-            return unit.second == event;
-        });
-        if(it_find != db.end()) {
-            return;
-        }
-    }
-
-    db.insert(it_upper, DBaseUnit{date, {event}});
 }
 
 DBaseUnit Database::Last(const Date& date) const {
-    if(db.empty() || date < db.front().first) {
+    if(db_vector.empty() || date < db_vector.begin()->first) {
         throw invalid_argument("No entries");
     }
-    auto it = lower_bound(db.rbegin(), db.rend(), date, [](const auto& lhs, const Date& date) {
+    auto it = lower_bound(db_vector.rbegin(), db_vector.rend(), date, [](const auto& lhs, const Date& date) {
         return lhs.first > date;
     });
-    return DBaseUnit{it->first, {it->second}};
+    return DBaseUnit{it->first, {it->second.back()}};
 }
 
 int Database::RemoveIf(std::function<bool(const Date& date, const std::string& event)> predicate) {
-    if(db.empty()) {
+    if(db_vector.empty()) {
         return 0;
     }
-    int cnt = 0;
-    //    const auto it = remove_if(db.begin(), db.end(), [predicate](const DBaseUnit& unit) {
-    //        return predicate(unit.first, unit.second);
-    //    });
-    const auto it = stable_partition(db.begin(), db.end(), [predicate](const DBaseUnit& unit) {
-        return !predicate(unit.first, unit.second);
-    });
 
-    cnt = db.end() - it;
-    db.erase(it, db.end());
+    int cnt = 0;
+    vector<Date> erase_vector;
+
+    for(auto& [key, value] : db_vector) {
+        auto k = key;
+        const auto it_remove = remove_if(value.begin(), value.end(), [k, predicate](const auto& event) {
+            return predicate(k, event);
+        });
+
+        if(it_remove == value.end()) {
+            continue;
+        }
+
+        if(it_remove == value.begin()) {
+            cnt += db_vector[key].size();
+            erase_vector.push_back(key);
+            continue;
+        }
+
+        for(auto it = it_remove; it != value.end(); ++it) {
+            db_set[key].erase(*it);
+            ++cnt;
+        }
+        value.erase(it_remove);
+    }
+
+    for(const auto& key : erase_vector) {
+        db_vector.erase(key);
+        db_set.erase(key);
+    }
+
 
     return cnt;
 }
 
 DBase Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const {
-    if(db.empty()) {
+    if(db_vector.empty()) {
         return {};
     }
 
     DBase result;
-    copy_if(db.begin(), db.end(), back_inserter(result), [predicate](const DBaseUnit& unit) {
-        return predicate(unit.first, unit.second);
-    });
-
+    //    copy_if(db.begin(), db.end(), back_inserter(result), [predicate](const DBaseUnit& unit) {
+    //        return predicate(unit.first, unit.second);
+    //    });
+    for(const auto& [key, value] : db_vector) {
+        for(const auto& e : value) {
+            if(predicate(key, e)) {
+                result.push_back(DBaseUnit{key, e});
+            }
+        }
+    }
     return result;
 }
 
 
 void Database::Print(std::ostream& os) const {
-    os << db;
+    for(const auto& [key, value] : db_vector) {
+        for(const auto& e : value) {
+            os << DBaseUnit{key, e} << endl;
+        }
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const DBase& data) {

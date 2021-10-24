@@ -22,7 +22,8 @@ public:
     DBase FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const;
     void Print(std::ostream& os) const;
 private:
-    DBase db;
+    std::map<Date, std::vector<std::string>> db_vector;
+    std::map<Date, std::set<std::string>> db_set;
 };
 
 std::ostream& operator<<(std::ostream& os, const DBase& data);
