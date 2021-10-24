@@ -6,17 +6,16 @@
 
 class Date {
 public:
-    Date(int new_year, int new_month, int new_day);
-    Date(const Date& new_date);
-
-    time_t AsTimestamp() const;
+    Date(int new_year, int new_month, int new_day)
+        : year(new_year),
+          month(new_month),
+          day(new_day) {}
 
     const int year;
     const int month;
     const int day;
 };
 
-int ComputeDaysDiff(const Date& date_to, const Date& date_from);
 Date DateFromString(const std::string& date);
 Date ParseDate(std::istream& is);
 

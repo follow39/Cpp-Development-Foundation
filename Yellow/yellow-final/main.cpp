@@ -24,7 +24,7 @@ string ParseEvent(istream& is) {
 void TestAll();
 
 int main() {
-//    TestAll();
+    TestAll();
 
     Database db;
 
@@ -133,5 +133,5 @@ void TestAll() {
     tr.RunTest(TestDatabase, "Test database from GitHub");
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-    std::cout << duration << endl;
+//    std::cout << duration << endl;
 }

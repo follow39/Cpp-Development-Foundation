@@ -21,10 +21,9 @@ Entry Database::Last(const Date& date) const {
 }
 
 int Database::RemoveIf(std::function<bool(const Date& date, const std::string& event)> predicate) {
-//    if(db.empty()) {
-//        return 0;
-//    }
-
+    if(db.empty()) {
+        return 0;
+    }
     int cnt = 0;
     auto it = db.begin();
 
@@ -57,9 +56,9 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
 }
 
 EntryVector Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const {
-//    if(db.empty()) {
-//        return {};
-//    }
+    if(db.empty()) {
+        return {};
+    }
     EntryVector result;
     for(const auto& [key, value] : db) {
         for(const auto& e : value.first) {
