@@ -9,7 +9,7 @@
 #include "node.h"
 #include "condition_parser.h"
 #include "test_runner.h"
-
+#include "test_db.h"
 
 using namespace std;
 
@@ -121,4 +121,12 @@ void TestAll() {
     tr.RunTest(TestParseDate, "TestParseDate");
     tr.RunTest(TestParseEvent, "TestParseEvent");
     tr.RunTest(TestParseCondition, "TestParseCondition");
+    tr.RunTest(TestEmptyNode, "Test 2 from Coursera");
+    tr.RunTest(TestDbAdd, "Test 3(1) from Coursera");
+    tr.RunTest(TestDbFind, "Test 3(2) from Coursera");
+    tr.RunTest(TestDbLast, "Test 3(3) from Coursera");
+    tr.RunTest(TestDbRemoveIf, "Test 3(4) from Coursera");
+    tr.RunTest(TestInsertionOrder, "Order of withdrawal test");
+    tr.RunTest(TestsMyCustom, "My tests");
+    tr.RunTest(TestDatabase, "Test database from GitHub");
 }

@@ -15,9 +15,8 @@ DBaseUnit Database::Last(const Date& date) const {
     if(db_vector.empty() || date < db_vector.begin()->first) {
         throw invalid_argument("No entries");
     }
-    auto it = lower_bound(db_vector.rbegin(), db_vector.rend(), date, [](const auto& lhs, const Date& date) {
-        return lhs.first > date;
-    });
+    auto it = db_vector.upper_bound(date);
+    --it;
     return DBaseUnit{it->first, {it->second.back()}};
 }
 
@@ -30,37 +29,33 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
     vector<Date> erase_vector;
 
     for(auto& [key, value] : db_vector) {
-        if(!predicate(key, "")) {
-            continue;
-        }
-
         auto k = key;
-        const auto it_remove = remove_if(value.begin(), value.end(), [k, predicate](const auto& event) {
-            return predicate(k, event);
+        const auto it_remove = stable_partition(value.begin(), value.end(), [&k, predicate](const string& event) {
+            return !predicate(k, event);
         });
 
         if(it_remove == value.end()) {
             continue;
         }
 
+        cnt += value.end() - it_remove;
+
         if(it_remove == value.begin()) {
-            cnt += db_vector[key].size();
             erase_vector.push_back(key);
             continue;
         }
 
         for(auto it = it_remove; it != value.end(); ++it) {
             db_set[key].erase(*it);
-            ++cnt;
         }
-        value.erase(it_remove);
+        value.erase(it_remove, value.end());
+        //        db_set[key] = set<string>(value.begin(), value.end());
     }
 
     for(const auto& key : erase_vector) {
         db_vector.erase(key);
         db_set.erase(key);
     }
-
 
     return cnt;
 }
@@ -71,9 +66,6 @@ DBase Database::FindIf(std::function<bool(const Date& date, const std::string& e
     }
 
     DBase result;
-    //    copy_if(db.begin(), db.end(), back_inserter(result), [predicate](const DBaseUnit& unit) {
-    //        return predicate(unit.first, unit.second);
-    //    });
     for(const auto& [key, value] : db_vector) {
         for(const auto& e : value) {
             if(predicate(key, e)) {

@@ -11,6 +11,7 @@
 #include "date.h"
 
 using DBaseUnit = std::pair<Date, std::string>;
+using Entry = DBaseUnit;
 using DBase = std::vector<DBaseUnit>;
 
 class Database
@@ -24,6 +25,7 @@ public:
 private:
     std::map<Date, std::vector<std::string>> db_vector;
     std::map<Date, std::set<std::string>> db_set;
+    std::map<Date, std::map<std::string, bool>> db_exist;
 };
 
 std::ostream& operator<<(std::ostream& os, const DBase& data);
