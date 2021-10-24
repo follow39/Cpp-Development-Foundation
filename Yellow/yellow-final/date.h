@@ -11,9 +11,9 @@ public:
 
     time_t AsTimestamp() const;
 
-    int year;
-    int month;
-    int day;
+    const int year;
+    const int month;
+    const int day;
 };
 
 int ComputeDaysDiff(const Date& date_to, const Date& date_from);

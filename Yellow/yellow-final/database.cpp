@@ -1,76 +1,69 @@
 #include "database.h"
-#include <exception>
-#include <algorithm>
 
 using namespace std;
 
 void Database::Add(const Date& date, const string& event) {
-    if(db_set.empty() || db_set[date].count(event) == 0) {
-        db_set[date].emplace(event);
-        db_vector[date].push_back(event);
+    if(db.empty()) {
+        db[date].first.push_back(event);
+        db[date].second.emplace(event);
+    } else if(db[date].second.insert(event).second) {
+        db[date].first.push_back(event);
     }
 }
 
-DBaseUnit Database::Last(const Date& date) const {
-    if(db_vector.empty() || date < db_vector.begin()->first) {
+Entry Database::Last(const Date& date) const {
+    if(db.empty() || date < db.begin()->first) {
         throw invalid_argument("No entries");
     }
-    auto it = db_vector.upper_bound(date);
+    auto it = db.upper_bound(date);
     --it;
-    return DBaseUnit{it->first, {it->second.back()}};
+    return Entry{it->first, {it->second.first.back()}};
 }
 
 int Database::RemoveIf(std::function<bool(const Date& date, const std::string& event)> predicate) {
-    if(db_vector.empty()) {
+    if(db.empty()) {
         return 0;
     }
 
     int cnt = 0;
-    vector<Date> erase_vector;
+    auto it = db.begin();
 
-    for(auto& [key, value] : db_vector) {
-        auto& k = key;
-        const auto it_remove = stable_partition(value.begin(), value.end(), [&k, predicate](const string& event) {
-            return !predicate(k, event);
+    while(it != db.end()) {
+        auto& key = it->first;
+        auto& db_vector = it->second.first;
+        auto& db_set = it->second.second;
+        const auto it_border = stable_partition(db_vector.begin(), db_vector.end(), [&key, predicate](const string& event) {
+            return !predicate(key, event);
         });
+        if(it_border != db_vector.end()) {
+            cnt += db_vector.end() - it_border;
+            if(it_border == db_vector.begin()) {
+                auto it_erase = it;
+                ++it;
+                db.erase(it_erase);
+                continue;
+            }
 
-        if(it_remove == value.end()) {
-            continue;
+            for(auto it_remove = it_border; it_remove != db_vector.end(); ++it_remove) {
+                db_set.erase(*it_remove);
+            }
+            db_vector.erase(it_border, db_vector.end());
         }
-
-        cnt += value.end() - it_remove;
-
-        if(it_remove == value.begin()) {
-            erase_vector.push_back(key);
-            continue;
-        }
-
-        for(auto it = it_remove; it != value.end(); ++it) {
-            db_set[key].erase(*it);
-        }
-
-        value.erase(it_remove, value.end());
-        //        db_set[key] = set<string>(value.begin(), value.end());
-    }
-
-    for(const auto& key : erase_vector) {
-        db_vector.erase(key);
-        db_set.erase(key);
+        ++it;
     }
 
     return cnt;
 }
 
-DBase Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const {
-    if(db_vector.empty()) {
+EntryVector Database::FindIf(std::function<bool(const Date& date, const std::string& event)> predicate) const {
+    if(db.empty()) {
         return {};
     }
-
-    DBase result;
-    for(const auto& [key, value] : db_vector) {
-        for(const auto& e : value) {
+    EntryVector result;
+    for(const auto& [key, value] : db) {
+        for(const auto& e : value.first) {
             if(predicate(key, e)) {
-                result.push_back(DBaseUnit{key, e});
+                result.push_back(Entry{key, e});
             }
         }
     }
@@ -79,21 +72,21 @@ DBase Database::FindIf(std::function<bool(const Date& date, const std::string& e
 
 
 void Database::Print(std::ostream& os) const {
-    for(const auto& [key, value] : db_vector) {
-        for(const auto& e : value) {
-            os << DBaseUnit{key, e} << endl;
+    for(const auto& [key, value] : db) {
+        for(const auto& e : value.first) {
+            os << Entry{key, e} << endl;
         }
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const DBase& data) {
+std::ostream& operator<<(std::ostream& os, const EntryVector& data) {
     for(const auto& i : data) {
         os << i << endl;
     }
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const DBaseUnit& data) {
+std::ostream& operator<<(std::ostream& os, const Entry& data) {
     os << data.first << ' ' << data.second;
     return os;
 }
