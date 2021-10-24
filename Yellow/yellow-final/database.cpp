@@ -30,6 +30,10 @@ int Database::RemoveIf(std::function<bool(const Date& date, const std::string& e
     vector<Date> erase_vector;
 
     for(auto& [key, value] : db_vector) {
+        if(!predicate(key, "")) {
+            continue;
+        }
+
         auto k = key;
         const auto it_remove = remove_if(value.begin(), value.end(), [k, predicate](const auto& event) {
             return predicate(k, event);
