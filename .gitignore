@@ -40,6 +40,6 @@
 *.Debug
 *.Release
 Yellow/*Debug/
-Yellow/*Release/
 Yellow/build*/
-*/bulid*/
+Red/*Debug/
+Red/bulid*/
