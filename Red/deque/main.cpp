@@ -15,33 +15,39 @@ public:
         return vec_front.size() + vec_back.size();
     }
     T& operator[](size_t index) {
-
+        if(index < vec_front.size()) {
+            return vec_front[vec_front.size() - index];
+        }
+        return vec_back[index - vec_front.size()];
     }
     const T& operator[](size_t index) const {
-
+        if(index < vec_front.size()) {
+            return vec_front[vec_front.size() - index];
+        }
+        return vec_back[index - vec_front.size()];
     }
     T& At(size_t index) {
-        if(index >= Size()) {
-            throw out_of_range("out of range");
+        if(index < vec_front.size()) {
+            return vec_front.at(vec_front.size() - index);
         }
-
+        return vec_back.at(index - vec_front.size());
     }
     const T& At(size_t index) const {
-        if(index >= Size()) {
-            throw out_of_range("out of range");
+        if(index < vec_front.size()) {
+            return vec_front.at(vec_front.size() - index);
         }
-
+        return vec_back.at(index - vec_front.size());
     }
-    T& Front(size_t index) {
+    T& Front() {
         return vec_front.back();
     }
-    const T& Front(size_t index) const {
+    const T& Front() const {
         return vec_front.back();
     }
-    T& Back(size_t index) {
+    T& Back() {
         return vec_back.back();
     }
-    const T& Back(size_t index) const {
+    const T& Back() const {
         return vec_back.back();
     }
     void PushFront(const T& value) {
@@ -51,7 +57,6 @@ public:
         vec_back.push_back(value);
     }
 
-
 private:
     vector<T> vec_front;
     vector<T> vec_back;
@@ -59,13 +64,7 @@ private:
 
 
 
-
-
-
-
-
 int main()
 {
-    cout << "Hello World!" << endl;
     return 0;
 }
