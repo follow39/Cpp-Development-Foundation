@@ -244,6 +244,7 @@ Makefile: ..\macro-log\macro-log.pro ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\wi
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\qt_config.prf \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\win32-msvc\qmake.conf \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\spec_post.prf \
+		.qmake.stash \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\exclusive_builds.prf \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\common\msvc-version.conf \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\toolchain.prf \
@@ -264,7 +265,6 @@ Makefile: ..\macro-log\macro-log.pro ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\wi
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\yacc.prf \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\lex.prf \
 		..\macro-log\macro-log.pro \
-		.qmake.stash \
 		..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\build_pass.prf
 	$(QMAKE) -o Makefile ..\macro-log\macro-log.pro -spec win32-msvc "CONFIG+=debug" "CONFIG+=qml_debug"
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\spec_pre.prf:
@@ -427,6 +427,7 @@ Makefile: ..\macro-log\macro-log.pro ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\wi
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\qt_config.prf:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\win32-msvc\qmake.conf:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\spec_post.prf:
+.qmake.stash:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\exclusive_builds.prf:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\common\msvc-version.conf:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\toolchain.prf:
@@ -447,7 +448,6 @@ Makefile: ..\macro-log\macro-log.pro ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\wi
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\yacc.prf:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\lex.prf:
 ..\macro-log\macro-log.pro:
-.qmake.stash:
 ..\..\..\..\Qt\6.1.3\msvc2019_64\mkspecs\features\build_pass.prf:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\macro-log\macro-log.pro -spec win32-msvc "CONFIG+=debug" "CONFIG+=qml_debug"

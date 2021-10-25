@@ -13,13 +13,34 @@ public:
 
     void Log(const string& message);
 
+    bool GetLogLine() const { return log_line; }
+    bool GetLogFile() const { return log_file; }
+    template<class T>
+    void AddLog(T arg) { os << arg; }
+
 private:
     ostream& os;
     bool log_line = false;
     bool log_file = false;
 };
 
-#define LOG(logger, message) ...
+#define LOG(logger, message) {                      \
+    if(logger.GetLogFile()) {                       \
+        logger.AddLog(__FILE__);                    \
+        if(logger.GetLogLine()) {                   \
+            logger.AddLog(':');                     \
+            logger.AddLog(__LINE__);                \
+        }                                           \
+        logger.AddLog(' ');                         \
+    } else if(logger.GetLogLine()) {                \
+        logger.AddLog("Line ");                     \
+        logger.AddLog(__LINE__);                    \
+        logger.AddLog(' ');                         \
+    }                                               \
+    logger.AddLog(message);                         \
+    logger.AddLog('\n');                            \
+}
+
 
 void TestLog() {
     /* Для написания юнит-тестов в этой задаче нам нужно фиксировать конкретные
