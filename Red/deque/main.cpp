@@ -39,15 +39,35 @@ public:
         return vec_back.at(index - vec_front.size());
     }
     T& Front() {
+        if(vec_front.empty()) {
+            if(!vec_back.empty()) {
+                return vec_back.front();
+            }
+        }
         return vec_front.back();
     }
     const T& Front() const {
+        if(vec_front.empty()) {
+            if(!vec_back.empty()) {
+                return vec_back.front();
+            }
+        }
         return vec_front.back();
     }
     T& Back() {
+        if(vec_back.empty()) {
+            if(!vec_front.empty()) {
+                return vec_front.front();
+            }
+        }
         return vec_back.back();
     }
     const T& Back() const {
+        if(vec_back.empty()) {
+            if(!vec_front.empty()) {
+                return vec_front.front();
+            }
+        }
         return vec_back.back();
     }
     void PushFront(const T& value) {
