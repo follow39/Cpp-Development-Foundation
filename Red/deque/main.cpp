@@ -14,30 +14,27 @@ public:
     size_t Size() const {
         return vec_front.size() + vec_back.size();
     }
+
     T& operator[](size_t index) {
-        if(index < vec_front.size()) {
-            return vec_front[vec_front.size() - index];
-        }
-        return vec_back[index - vec_front.size()];
+        return Get(index);
     }
     const T& operator[](size_t index) const {
-        if(index < vec_front.size()) {
-            return vec_front[vec_front.size() - index];
-        }
-        return vec_back[index - vec_front.size()];
+        return Get(index);
     }
+
     T& At(size_t index) {
-        if(index < vec_front.size()) {
-            return vec_front.at(vec_front.size() - index);
+        if(index >= Size()) {
+            throw out_of_range("out of range");
         }
-        return vec_back.at(index - vec_front.size());
+        return Get(index);
     }
     const T& At(size_t index) const {
-        if(index < vec_front.size()) {
-            return vec_front.at(vec_front.size() - index);
+        if(index >= Size()) {
+            throw out_of_range("out of range");
         }
-        return vec_back.at(index - vec_front.size());
+        return Get(index);
     }
+
     T& Front() {
         if(vec_front.empty()) {
             if(!vec_back.empty()) {
@@ -54,6 +51,7 @@ public:
         }
         return vec_front.back();
     }
+
     T& Back() {
         if(vec_back.empty()) {
             if(!vec_front.empty()) {
@@ -70,6 +68,7 @@ public:
         }
         return vec_back.back();
     }
+
     void PushFront(const T& value) {
         vec_front.push_back(value);
     }
@@ -78,13 +77,32 @@ public:
     }
 
 private:
+    T& Get(size_t index) {
+        if(index < vec_front.size()) {
+            return vec_front[vec_front.size() - index - 1];
+        }
+        return vec_back[index - vec_front.size()];
+    }
+    const T& Get(size_t index) const {
+        if(index < vec_front.size()) {
+            return vec_front[vec_front.size() - index - 1];
+        }
+        return vec_back[index - vec_front.size()];
+    }
     vector<T> vec_front;
     vector<T> vec_back;
 };
 
 
+void foo(Deque<int> const& d) {
+    for (int i = 0; i < d.Size(); ++i) {
+        printf("%d ", d.At(i));
 
-int main()
-{
-    return 0;
+    }
+}
+int main() {
+    Deque<int> deque;
+    deque.PushFront(1);
+    deque.PushBack(2);
+    foo(deque);
 }
