@@ -4,7 +4,42 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
+#include <utility>
+#include <iomanip>
 using namespace std;
+
+bool operator<(const Date& lhs, const Date& rhs) {
+    return tie(lhs.year, lhs.month, lhs.day) < tie(rhs.year, rhs.month, rhs.day);
+}
+
+bool operator==(const Date& lhs, const Date& rhs) {
+    return tie(lhs.year, lhs.month, lhs.day) == tie(rhs.year, rhs.month, rhs.day);
+}
+
+ostream& operator<<(ostream& os, const Date& date) {
+    char prev = os.fill('0');
+    os << setw(4) << date.year << ':' <<
+          setw(2) << date.month << '-' <<
+          setw(2) << date.day;
+    os.fill(prev);
+    return os;
+}
+
+bool operator<(const Time& lhs, const Time& rhs) {
+    return tie(lhs.hours, lhs.minutes) < tie(rhs.hours, rhs.minutes);
+}
+
+bool operator==(const Time& lhs, const Time& rhs) {
+    return tie(lhs.hours, lhs.minutes) == tie(rhs.hours, rhs.minutes);
+}
+
+ostream& operator<<(ostream& os, const Time& time) {
+    char prev = os.fill('0');
+    os << setw(2) << time.hours << '-' <<
+          setw(2) << time.minutes;
+    os.fill(prev);
+    return os;
+}
 
 #define SORT_BY(field)                                              \
     [](const AirlineTicket& lhs, const AirlineTicket& rhs) {        \
