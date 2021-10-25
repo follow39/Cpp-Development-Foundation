@@ -7,8 +7,8 @@
 using namespace std;
 
 bool Compare(Student first, Student second) {
-    LOG_DURATION("Compare");
-//    return first.Less(second);
+//    LOG_DURATION("Compare");
+    //    return first.Less(second);
     return first.rating > second.rating;
 }
 
@@ -49,7 +49,10 @@ void TestSorting() {
         {"Petr", "Petrov", {{"maths", 3.}}, 3.},
         {"Alexander", "Alexandrov", {{"maths", 1.}}, 1.}
     };
-    sort(students.begin(), students.end(), Compare);
+    {
+        LOG_DURATION("Sort");
+        sort(students.begin(), students.end(), Compare);
+    }
     ASSERT(is_sorted(students.begin(), students.end(),
                      [](Student first, Student second) {
                return first.Less(second);
