@@ -6,10 +6,8 @@
 
 using namespace std;
 
-bool Compare(Student first, Student second) {
-//    LOG_DURATION("Compare");
-    //    return first.Less(second);
-    return first.rating > second.rating;
+bool Compare(const Student& first, const Student& second) {
+    return first.Less(second);
 }
 
 void TestComparison() {
