@@ -33,7 +33,7 @@ public:
                 result = min(result, abs(*it_lower - finish));
             } else {
                 --it_lower;
-                result = min(result, abs(*it_lower - start));
+                result = min(result, abs(*it_lower - finish));
             }
             if(it_upper != reachable_lists_.at(start).end()) {
                 result = min(result, abs(*it_upper - finish));
