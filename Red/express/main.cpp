@@ -20,7 +20,7 @@ public:
             return result;
         }
 
-        auto [it_lower, it_upper] = reachable_lists_.at(start).equal_range(finish);
+        auto it_lower = reachable_lists_.at(start).lower_bound(finish);
 
         if(it_lower == reachable_lists_.at(start).end()) {
             --it_lower;
@@ -34,9 +34,6 @@ public:
             } else {
                 --it_lower;
                 result = min(result, abs(*it_lower - finish));
-            }
-            if(it_upper != reachable_lists_.at(start).end()) {
-                result = min(result, abs(*it_upper - finish));
             }
         }
         return result;
