@@ -22,24 +22,21 @@ public:
 
         auto [it_lower, it_upper] = reachable_lists_.at(start).equal_range(finish);
 
-        if(it_lower != reachable_lists_.at(start).end() && *it_lower == finish) {
-            result = 0;
-        } else if(it_lower == reachable_lists_.at(start).begin()) {
-            auto temp = abs(*it_lower - start);
-            if(temp < result) {
-                result = temp;
-            }
-        } else {
+        if(it_lower == reachable_lists_.at(start).end()) {
             --it_lower;
-            auto temp = abs(*it_lower - start);
-            if(temp < result) {
-                result = temp;
+            result = min(result, abs(*it_lower - finish));
+        } else {
+            if(*it_lower == finish) {
+                result = 0;
+            }
+            if(it_lower == reachable_lists_.at(start).begin()) {
+                result = min(result, abs(*it_lower - finish));
+            } else {
+                --it_lower;
+                result = min(result, abs(*it_lower - start));
             }
             if(it_upper != reachable_lists_.at(start).end()) {
-                temp = abs(*it_upper - start);
-                if(temp < result) {
-                    result = temp;
-                }
+                result = min(result, abs(*it_upper - finish));
             }
         }
         return result;
