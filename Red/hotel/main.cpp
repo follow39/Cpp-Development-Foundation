@@ -7,11 +7,6 @@
 
 using namespace std;
 
-struct Client {
-    int64_t client_id;
-    int64_t room_count;
-    int64_t time;
-};
 struct BookUnit {
     string hotel_name;
     int64_t client_id;
