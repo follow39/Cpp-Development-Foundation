@@ -1,25 +1,88 @@
 #include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+#include <string>
 
 using namespace std;
 
+struct Client {
+    long client_id;
+    int room_count;
+    long long time;
+};
 
 class HotelSystem {
-
-    void Book(int client_id, int room_count, string hotel_name, int time) {
-
+public:
+    void Book(long client_id, int room_count, const string& hotel_name, long long time) {
+        hotels[hotel_name].push({client_id, room_count, time});
+        ++unique_clients[client_id];
+        lastTime = time;
+        rooms_reserved[hotel_name] += room_count;
     }
-    int Clients(string hotel_name) {
-        return 0;
+    long Clients(const string& hotel_name) {
+        RefreshAllHotels();
+        return unique_clients.size();
     }
-    int Rooms(string hotel_name) {
-        return 0;
+    long Rooms(string& hotel_name) {
+        auto& clients = hotels[hotel_name];
+        RefreshHotel(hotel_name, clients);
+        return rooms_reserved[hotel_name];
     }
 private:
     static const int SECONDS_IN_DAY = 86400;
+
+    void RefreshAllHotels() {
+        for(auto& h : hotels) {
+            RefreshHotel(h.first, h.second);
+        }
+    }
+
+    void RefreshHotel(const string& hotel_name, queue<Client>& clients) {
+        if(clients.size() == 0) {
+            return;
+        }
+        while(clients.front().time <= (lastTime - SECONDS_IN_DAY)) {
+            --unique_clients[clients.front().client_id];
+            rooms_reserved[hotel_name] -= clients.front().room_count;
+            clients.pop();
+        }
+
+    }
+
+    long long lastTime = 0;
+    map<string, queue<Client>> hotels;
+    map<long, int> unique_clients;
+    map<string, int> rooms_reserved;
 };
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    int q = 0;
+    cin >> q;
+
+    HotelSystem hs;
+
+    long client_id;
+    int room_count;
+    string hotel_name;
+    long long time;
+    string cmd;
+    while(q-- > 0) {
+        cin >> cmd;
+        if(cmd == "BOOK") {
+            cin >> time >> hotel_name >> client_id >> room_count;
+            hs.Book(client_id, room_count, hotel_name, time);
+        } else if(cmd == "CLIENTS") {
+            cin >> hotel_name;
+            cout << hs.Clients(hotel_name) << '\n';
+        } else if(cmd == "ROOMS") {
+            cin >> hotel_name;
+            cout << hs.Rooms(hotel_name) << '\n';
+        }
+
+    }
+
+
     return 0;
 }
