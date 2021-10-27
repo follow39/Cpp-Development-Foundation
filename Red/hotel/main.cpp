@@ -16,13 +16,13 @@ class HotelSystem {
 public:
     void Book(long client_id, int room_count, const string& hotel_name, long long time) {
         hotels[hotel_name].push({client_id, room_count, time});
-        ++unique_clients[client_id];
+        ++unique_clients[hotel_name][client_id];
         lastTime = time;
         rooms_reserved[hotel_name] += room_count;
     }
     long Clients(const string& hotel_name) {
         RefreshAllHotels();
-        return unique_clients.size();
+        return unique_clients[hotel_name].size();
     }
     long Rooms(string& hotel_name) {
         auto& clients = hotels[hotel_name];
@@ -43,7 +43,10 @@ private:
             return;
         }
         while(clients.front().time <= (lastTime - SECONDS_IN_DAY)) {
-            --unique_clients[clients.front().client_id];
+            --unique_clients[hotel_name][clients.front().client_id];
+            if(unique_clients[hotel_name][clients.front().client_id] == 0) {
+                unique_clients[hotel_name].erase(clients.front().client_id);
+            }
             rooms_reserved[hotel_name] -= clients.front().room_count;
             clients.pop();
         }
@@ -52,7 +55,7 @@ private:
 
     long long lastTime = 0;
     map<string, queue<Client>> hotels;
-    map<long, int> unique_clients;
+    map<string, map<long, int>> unique_clients;
     map<string, int> rooms_reserved;
 };
 
