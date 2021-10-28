@@ -21,16 +21,16 @@ public:
     }
 
     T* begin() {
-        return data[0];
+        return &data[0];
     }
     T* end() {
-        return data[size-1];
+        return &data[size];
     }
     const T* begin() const {
-        return data[0];
+        return &data[0];
     }
     const T* end() const {
-        return data[size-1];
+        return &data[size];
     }
 
     size_t Size() const {
