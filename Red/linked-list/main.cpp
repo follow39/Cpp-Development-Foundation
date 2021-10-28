@@ -12,11 +12,8 @@ public:
     };
 
     ~LinkedList() {
-        Node* currentNode = head;
-        while(currentNode != nullptr) {
-            Node* temp = currentNode;
-            currentNode = currentNode->next;
-            delete temp;
+        while(head != nullptr) {
+            PopFront();
         }
     }
 
