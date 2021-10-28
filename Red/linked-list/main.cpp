@@ -34,7 +34,7 @@ public:
         node->next = new_node;
     }
     void RemoveAfter(Node* node) {
-        if(node->next == nullptr) {
+        if(node == nullptr || node->next == nullptr) {
             PopFront();
             return;
         }
