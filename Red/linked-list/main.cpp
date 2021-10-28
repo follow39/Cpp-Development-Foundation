@@ -27,6 +27,10 @@ public:
         head = new_node;
     }
     void InsertAfter(Node* node, const T& value) {
+        if(node == nullptr) {
+            PushFront(value);
+            return;
+        }
         Node* new_node = new Node();
         new_node->value = value;
         new_node->next = node->next;
@@ -34,6 +38,7 @@ public:
     }
     void RemoveAfter(Node* node) {
         if(node->next == nullptr) {
+            PopFront();
             return;
         }
         Node* temp = node->next;
@@ -41,6 +46,9 @@ public:
         delete temp;
     }
     void PopFront() {
+        if(head == nullptr) {
+            return;
+        }
         Node* temp = head;
         head = head->next;
         delete temp;
