@@ -13,45 +13,57 @@ using namespace std;
 template <typename TAirport>
 class AirportCounter {
 public:
-    AirportCounter();
+    AirportCounter() {
+        generateArray();
+    }
 
     template <typename TIterator>
-    AirportCounter(TIterator begin, TIterator end);
+    AirportCounter(TIterator begin, TIterator end) {
+        generateArray();
+        for(auto it = begin; it != end; ++it) {
+            Insert(*it);
+        }
+    }
 
     size_t Get(TAirport airport) const {
-        if(m.count(airport) == 0) {
-            return 0;
-        }
-        return m.at(airport);
+        return airports[static_cast<size_t>(airport)].second;
     }
 
     void Insert(TAirport airport) {
-        ++m[airport];
+        ++airports[static_cast<size_t>(airport)].second;
     }
 
     void EraseOne(TAirport airport) {
-        if(m.count(airport) == 0) {
-            return;
-        }
-        --m[airport];
-        if(m[airport] == 0) {
-            EraseAll(airport);
-        }
+        --airports[static_cast<size_t>(airport)].second;
     }
 
     void EraseAll(TAirport airport) {
-        m.erase(airport);
+        airports[static_cast<size_t>(airport)].second = 0;
     }
 
     using Item = pair<TAirport, size_t>;
-    using Items = vector<Item>;
+    using Items = array<Item, static_cast<size_t>(TAirport::Last_)>;
 
-    Items GetItems() const;
+    Items GetItems() const {
+        return airports;
+    }
 
 private:
+    void generateArray() {
+        for(auto it = 0; it < static_cast<size_t>(TAirport::Last_); ++it) {
+            airports[it].first = static_cast<TAirport>(it);
+            airports[it].second = 0;
+        }
+    }
+
     Items airports;
-    map<TAirport, size_t> m;
 };
+
+//template <typename TAirport>
+//ostream& operator<<(ostream& os, pair<TAirport, size_t> item) {
+//    os << '[' << static_cast<size_t>(item.first) << ' ' << item.second << ']';
+//    return os;
+//}
 
 void TestMoscow() {
     enum class MoscowAirport {
@@ -189,22 +201,22 @@ void TestMostPopularAirport() {
 
     vector<SmallCountryAirports> most_popular(days_to_explore);
 
-    for (int day = 0; day < days_to_explore; ++day) {
-        AirportCounter<SmallCountryAirports> counter;
-        for (const auto& [source, dest] : dayly_flight_report) {
-            counter.Insert(source);
-            counter.Insert(dest);
-        }
+//    for (int day = 0; day < days_to_explore; ++day) {
+//        AirportCounter<SmallCountryAirports> counter;
+//        for (const auto& [source, dest] : dayly_flight_report) {
+//            counter.Insert(source);
+//            counter.Insert(dest);
+//        }
 
-        const auto items = counter.GetItems();
-        most_popular[day] = max_element(begin(items), end(items), [](auto lhs, auto rhs) {
-            return lhs.second < rhs.second;
-        })->first;
-    }
+//        const auto items = counter.GetItems();
+//        most_popular[day] = max_element(begin(items), end(items), [](auto lhs, auto rhs) {
+//            return lhs.second < rhs.second;
+//        })->first;
+//    }
 
-    ASSERT(all_of(begin(most_popular), end(most_popular), [&](SmallCountryAirports a) {
-               return a == most_popular.front();
-           }));
+//    ASSERT(all_of(begin(most_popular), end(most_popular), [&](SmallCountryAirports a) {
+//               return a == most_popular.front();
+//           }));
 }
 
 int main() {
