@@ -1,30 +1,57 @@
 #include <string>
 #include <list>
+#include <algorithm>
 #include "test_runner.h"
 using namespace std;
 
 class Editor {
 public:
-    Editor();
+    Editor() {
+        cursor = text.begin();
+    }
     void Left() {
+        if(cursor == text.begin()) {
+            return;
+        }
         --cursor;
     }
     void Right() {
+        if(cursor == text.end()) {
+            return;
+        }
         ++cursor;
     }
     void Insert(char token) {
         text.insert(cursor, token);
     }
-    void Cut(size_t tokens = 1);
-    void Copy(size_t tokens = 1);
-    void Paste();
+    void Cut(size_t tokens = 1) {
+        buffer.clear();
+        size_t cnt = 0;
+        auto it = cursor;
+        while(it != text.end() && cnt < tokens) {
+            buffer.push_back(*it);
+            ++it;
+            text.erase(cursor);
+            cursor = it;
+        }
+    }
+    void Copy(size_t tokens = 1) {
+        buffer.clear();
+        size_t cnt = 0;
+        auto it = cursor;
+        while(it != text.end() && cnt < tokens) {
+            buffer.push_back(*it);
+            ++it;
+        }
+    }
+    void Paste() {
+        text.insert(cursor, buffer.begin(), buffer.end());
+    }
     string GetText() const {
         string result;
-        result.reserve(text.size() + 1);
+        result.reserve(text.size());
         for(auto it = text.begin(); it != text.end(); ++it) {
-            if(it == cursor) {
-                result += CURSOR_SYMBOL;
-            }
+
             result+= *it;
         }
         return result;
@@ -32,6 +59,7 @@ public:
 private:
     static const char CURSOR_SYMBOL = '|';
     list<char> text;
+    list<char> buffer;
     list<char>::iterator cursor;
 };
 
