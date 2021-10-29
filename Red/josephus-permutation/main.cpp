@@ -114,7 +114,5 @@ int main() {
     TestRunner tr;
     RUN_TEST(tr, TestIntVector);
     RUN_TEST(tr, TestAvoidsCopying);
-    vector<int> numbers = MakeTestVector(100000);
-    MakeJosephusPermutation(begin(numbers), end(numbers), 100);
     return 0;
 }
