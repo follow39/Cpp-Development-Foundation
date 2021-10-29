@@ -10,8 +10,8 @@ using namespace std;
 class Translator {
 public:
     void Add(string_view source, string_view target) {
-        auto it_source = words.insert({source.begin(), source.end()});
-        auto it_target = words.insert({target.begin(), target.end()});
+        auto it_source = words.insert(string{source.begin(), source.end()});
+        auto it_target = words.insert(string{target.begin(), target.end()});
 
         string_view sv_source{*it_source.first};
         string_view sv_target{*it_target.first};
