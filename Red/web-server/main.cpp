@@ -58,9 +58,6 @@ void TestBasic() {
 }
 
 void TestAbsentParts() {
-  // п°п╣я┌п╬п╢я▀ GetMethodStats п╦ GetUriStats п╢п╬п╩п╤п╫я▀ п╡п╬п╥п╡я─п╟я┴п╟я┌я▄ я│п╩п╬п╡п╟я─п╦
-  // я│ п©п╬п╩п╫я▀п╪ п╫п╟п╠п╬я─п╬п╪ п╨п╩я▌я┤п╣п╧, п╢п╟п╤п╣ п╣я│п╩п╦ п╨п╟п╨п╬п╧-я┌п╬ п╦п╥ п╫п╦я┘ п╫п╣ п╡я│я┌я─п╣я┤п╟п╩я│я▐
-
   const map<string_view, int> expected_method_count = {
     {"GET", 0},
     {"PUT", 0},
