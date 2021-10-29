@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 #include <list>
 #include <algorithm>
 #include "test_runner.h"
@@ -31,6 +32,7 @@ public:
         while(it != text.end() && cnt < tokens) {
             buffer.push_back(*it);
             ++it;
+            ++cnt;
             text.erase(cursor);
             cursor = it;
         }
@@ -42,6 +44,7 @@ public:
         while(it != text.end() && cnt < tokens) {
             buffer.push_back(*it);
             ++it;
+            ++cnt;
         }
     }
     void Paste() {
