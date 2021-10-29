@@ -59,12 +59,6 @@ private:
     Items airports;
 };
 
-//template <typename TAirport>
-//ostream& operator<<(ostream& os, pair<TAirport, size_t> item) {
-//    os << '[' << static_cast<size_t>(item.first) << ' ' << item.second << ']';
-//    return os;
-//}
-
 void TestMoscow() {
     enum class MoscowAirport {
         VKO,
