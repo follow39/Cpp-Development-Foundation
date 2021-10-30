@@ -49,6 +49,10 @@ public:
         return object_collection.at(id);
     }
 
+    const T& operator[](Id id) const {
+        return Get(id);
+    }
+
     // Увеличить приоритет объекта на 1
     void Promote(Id id) {
         priority_collection[object_collection[id].second].erase(id);
@@ -156,6 +160,6 @@ int main() {
     TestRunner tr;
     RUN_TEST(tr, TestNoCopy);
     RUN_TEST(tr, TestGoodForMe);
-    RUN_TEST(tr, TestId5);
+//    RUN_TEST(tr, TestId5);
     return 0;
 }
