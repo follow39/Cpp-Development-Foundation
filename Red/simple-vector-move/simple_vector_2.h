@@ -13,14 +13,6 @@ public:
         : data(new T[new_size]),
           size(new_size),
           capacity(new_size) {}
-    explicit SimpleVector(const SimpleVector& other) = delete;
-    explicit SimpleVector(SimpleVector&& other) {
-        data = other.data;
-        size = other.size;
-        capacity = other.capacity;
-        other.data = nullptr;
-        other.size = other.capacity = 0;
-    }
     ~SimpleVector() {
         delete [] data;
     }
@@ -62,15 +54,6 @@ public:
         }
         data[size] = std::move(value);
         ++size;
-    }
-    void operator=(const SimpleVector& other) = delete;
-    void operator=(SimpleVector&& other) {
-        delete [] data;
-        data = other.data;
-        size = other.size;
-        capacity = other.capacity;
-        other.data = nullptr;
-        other.size = other.capacity = 0;
     }
 
 private:
