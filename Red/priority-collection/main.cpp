@@ -8,20 +8,20 @@
 #include <vector>
 #include <list>
 #include <stack>
-#include <chrono>
 
 using namespace std;
-using namespace std::chrono;
 
 template <typename T>
 class PriorityCollection {
 public:
-    using Id = time_point<steady_clock>;
+    using Id = uint64_t;
+
 
     // Добавить объект с нулевым приоритетом
     // с помощью перемещения и вернуть его идентификатор
     Id Add(T object) {
-        Id id = steady_clock::now();
+        ++current_id;
+        Id id = current_id;
         object_collection[id] = {move(object), 0};
         priority_collection[0].insert(id);
         return id;
@@ -46,11 +46,7 @@ public:
 
     // Получить объект по идентификатору
     const T& Get(Id id) const {
-        return object_collection.at(id);
-    }
-
-    const T& operator[](Id id) const {
-        return Get(id);
+        return object_collection.at(id).first;
     }
 
     // Увеличить приоритет объекта на 1
@@ -65,8 +61,8 @@ public:
 
     // Получить объект с максимальным приоритетом и его приоритет
     pair<const T&, int> GetMax() const {
-        Id id = *((priority_collection.rbegin()->second).rbegin());
-        return object_collection[id];
+        Id id = *((priority_collection.crbegin()->second).crbegin());
+        return object_collection.at(id);
     }
 
     // Аналогично GetMax, но удаляет элемент из контейнера
@@ -86,6 +82,7 @@ private:
     // Приватные поля и методы
     map<Id, pair<T, int>> object_collection;
     map<int, set<Id>> priority_collection;
+    Id current_id = 0;
 };
 
 
@@ -160,6 +157,6 @@ int main() {
     TestRunner tr;
     RUN_TEST(tr, TestNoCopy);
     RUN_TEST(tr, TestGoodForMe);
-//    RUN_TEST(tr, TestId5);
+    //    RUN_TEST(tr, TestId5);
     return 0;
 }
