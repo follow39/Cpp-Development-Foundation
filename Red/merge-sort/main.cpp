@@ -14,20 +14,18 @@ void MergeSort(RandomIt range_begin, RandomIt range_end) {
     RandomIt mid = vec.begin() + vec.size()/2;
     MergeSort(vec.begin(), mid);
     MergeSort(mid, vec.end());
-    merge(vec.begin(), mid, make_move_iterator(mid),
+    merge(make_move_iterator(vec.begin()), make_move_iterator(mid), make_move_iterator(mid),
           make_move_iterator(vec.end()), range_begin);
-//    merge(make_move_iterator(vec.begin()), make_move_iterator(mid), make_move_iterator(mid),
-//          make_move_iterator(vec.end()), range_begin);
 }
 
 void TestIntVector() {
-  vector<int> numbers = {6, 1, 3, 9, 1, 9, 8, 12, 1};
-  MergeSort(begin(numbers), end(numbers));
-  ASSERT(is_sorted(begin(numbers), end(numbers)));
+    vector<int> numbers = {6, 1, 3, 9, 1, 9, 8, 12, 1};
+    MergeSort(begin(numbers), end(numbers));
+    ASSERT(is_sorted(begin(numbers), end(numbers)));
 }
 
 int main() {
-  TestRunner tr;
-  RUN_TEST(tr, TestIntVector);
-  return 0;
+    TestRunner tr;
+    RUN_TEST(tr, TestIntVector);
+    return 0;
 }
