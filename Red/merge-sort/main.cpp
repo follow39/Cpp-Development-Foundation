@@ -19,8 +19,8 @@ void MergeSort(RandomIt range_begin, RandomIt range_end) {
     MergeSort(mid2, vec.end());
     merge(make_move_iterator(vec.begin()), make_move_iterator(mid1),
           make_move_iterator(mid1), make_move_iterator(mid2), back_inserter(temp));
-    merge(make_move_iterator(mid2), make_move_iterator(vec.end()),
-          make_move_iterator(temp.begin()), make_move_iterator(temp.end()), range_begin);
+    merge(make_move_iterator(temp.begin()), make_move_iterator(temp.end()),
+          make_move_iterator(mid2), make_move_iterator(vec.end()), range_begin);
 }
 
 void TestIntVector() {
