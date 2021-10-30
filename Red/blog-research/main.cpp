@@ -24,11 +24,11 @@ struct Stats {
     }
 };
 
-Stats ExploreLine(const set<string>& key_words, istream& input) {
-    //    cout << line << endl;
+Stats ExploreLine(const set<string>& key_words, const string& line) {
     Stats result;
     string word;
-    while(input >> word) {
+    istringstream ss(line);
+    while(ss >> word) {
         if(key_words.count(word)) {
             ++result.word_frequences[word];
         }
@@ -36,14 +36,14 @@ Stats ExploreLine(const set<string>& key_words, istream& input) {
     return result;
 }
 
-Stats ExploreKeyWordsSingleThread(
-        const set<string>& key_words, istream& input
-        ) {
-//        cout << "ExploreKeyWordsSingleThread" << endl;
+Stats ExploreKeyWordsSingleThread(const set<string>& key_words, const string& input) {
     Stats result;
-    result += ExploreLine(key_words, input);
-    //    }
-    return result;
+    istringstream ss(input);
+
+    for(string line; getline(ss, line);) {
+      result += ExploreLine(key_words, line);
+    }
+    return ExploreLine(key_words, input);
 }
 
 Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
@@ -54,15 +54,13 @@ Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
 
     while(input) {
         temp.clear();
-        for(int i = 0; i < 3 && input; ++i) {
+        for(int i = 0; i < 10 && input; ++i) {
             string line;
             getline(input, line);
-            if(!line.empty()) {
-                temp += line;
-            }
+            temp += line + ' ';
         }
-        istringstream ss(temp);
-        futures.push_back(async(ExploreKeyWordsSingleThread, ref(key_words), ref(ss)));
+
+        futures.push_back(async(ExploreKeyWordsSingleThread, ref(key_words), ref(temp)));
     }
 
     for(auto& x : futures) {
@@ -70,7 +68,6 @@ Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
     }
 
     return result;
-    //    return ExploreKeyWordsSingleThread(key_words, input);
 }
 
 void TestBasic() {
