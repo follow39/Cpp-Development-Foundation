@@ -41,7 +41,7 @@ Stats ExploreKeyWordsSingleThread(const set<string>& key_words, const string& in
     istringstream ss(input);
 
     for(string line; getline(ss, line);) {
-      result += ExploreLine(key_words, line);
+        result += ExploreLine(key_words, line);
     }
     return ExploreLine(key_words, input);
 }
@@ -50,17 +50,17 @@ Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
     vector<future<Stats>> futures;
     Stats result;
 
-    string temp;
-
     while(input) {
-        temp.clear();
-        for(int i = 0; i < 10 && input; ++i) {
+        string temp;
+        for(int i = 0; i < 1; ++i) {
             string line;
             getline(input, line);
-            temp += line + ' ';
+            if(!line.empty()) {
+                temp += line + ' ';
+            }
         }
 
-        futures.push_back(async(ExploreKeyWordsSingleThread, ref(key_words), ref(temp)));
+        futures.push_back(async(ExploreKeyWordsSingleThread, ref(key_words), move(temp)));
     }
 
     for(auto& x : futures) {
