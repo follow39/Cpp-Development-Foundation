@@ -13,7 +13,7 @@ public:
         : data(new T[new_size]),
           size(new_size),
           capacity(new_size) {}
-    SimpleVector(const SimpleVector& other) = delete;
+    explicit SimpleVector(const SimpleVector& other) = delete;
     explicit SimpleVector(SimpleVector&& other) {
         data = other.data;
         size = other.size;
