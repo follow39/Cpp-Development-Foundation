@@ -11,11 +11,16 @@ void MergeSort(RandomIt range_begin, RandomIt range_end) {
     if((range_end - range_begin) < 2)
         return;
     vector<typename  RandomIt::value_type> vec(make_move_iterator(range_begin), make_move_iterator(range_end));
-    RandomIt mid = vec.begin() + vec.size()/2;
-    MergeSort(vec.begin(), mid);
-    MergeSort(mid, vec.end());
-    merge(make_move_iterator(vec.begin()), make_move_iterator(mid), make_move_iterator(mid),
-          make_move_iterator(vec.end()), range_begin);
+    vector<typename  RandomIt::value_type> temp;
+    RandomIt mid1 = vec.begin() + vec.size()/3;
+    RandomIt mid2 = vec.begin() + vec.size()*2/3;
+    MergeSort(vec.begin(), mid1);
+    MergeSort(mid1, mid2);
+    MergeSort(mid2, vec.end());
+    merge(make_move_iterator(vec.begin()), make_move_iterator(mid1),
+          make_move_iterator(mid1), make_move_iterator(mid2), back_inserter(temp));
+    merge(make_move_iterator(mid2), make_move_iterator(vec.end()),
+          make_move_iterator(temp.begin()), make_move_iterator(temp.end()), range_begin);
 }
 
 void TestIntVector() {
