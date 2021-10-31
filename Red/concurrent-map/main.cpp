@@ -7,109 +7,138 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <thread>
+#include <mutex>
+#include <numeric>
+#include <cmath>
+
 using namespace std;
 
 template <typename K, typename V>
 class ConcurrentMap {
 public:
-  static_assert(is_integral_v<K>, "ConcurrentMap supports only integer keys");
+    static_assert(is_integral_v<K>, "ConcurrentMap supports only integer keys");
 
-  struct Access {
-    V& ref_to_value;
-  };
+    struct Access {
+        V& ref_to_value;
+        lock_guard<mutex> g;
+    };
 
-  explicit ConcurrentMap(size_t bucket_count);
+    explicit ConcurrentMap(size_t bucket_count)
+        : buckets(bucket_count),
+          mutex_vector(vector<mutex>(bucket_count)),
+          collection_maps(vector<map<K, V>>(bucket_count)),
+          keys_vector(vector<set<K>>(bucket_count)) {}
 
-  Access operator[](const K& key);
+    Access operator[](const K& key) {
+        lock_guard<mutex> g(keys_mutex);
+        keys_vector[llabs(key)%buckets].insert(key);
+        return Access{collection_maps[llabs(key)%buckets][key],
+                    lock_guard(mutex_vector[llabs(key)%buckets])};
+    }
 
-  map<K, V> BuildOrdinaryMap();
+    map<K, V> BuildOrdinaryMap() {
+        map<K, V> result;
+        for(const auto& keys_set : keys_vector) {
+            for(const auto& key : keys_set) {
+                result[key] = operator[](key).ref_to_value;
+            }
+        }
+        return result;
+    }
+private:
+    size_t buckets;
+    vector<mutex> mutex_vector;
+    vector<map<K, V>> collection_maps;
+    vector<set<K>> keys_vector;
+    mutex keys_mutex;
 };
 
 void RunConcurrentUpdates(
-    ConcurrentMap<int, int>& cm, size_t thread_count, int key_count
-) {
-  auto kernel = [&cm, key_count](int seed) {
-    vector<int> updates(key_count);
-    iota(begin(updates), end(updates), -key_count / 2);
-    shuffle(begin(updates), end(updates), default_random_engine(seed));
+        ConcurrentMap<int, int>& cm, size_t thread_count, int key_count
+        ) {
+    auto kernel = [&cm, key_count](int seed) {
+        vector<int> updates(key_count);
+        iota(begin(updates), end(updates), -key_count / 2);
+        shuffle(begin(updates), end(updates), default_random_engine(seed));
 
-    for (int i = 0; i < 2; ++i) {
-      for (auto key : updates) {
-        cm[key].ref_to_value++;
-      }
+        for (int i = 0; i < 2; ++i) {
+            for (auto key : updates) {
+                cm[key].ref_to_value++;
+            }
+        }
+    };
+
+    vector<future<void>> futures;
+    for (size_t i = 0; i < thread_count; ++i) {
+        futures.push_back(async(kernel, i));
     }
-  };
-
-  vector<future<void>> futures;
-  for (size_t i = 0; i < thread_count; ++i) {
-    futures.push_back(async(kernel, i));
-  }
 }
 
 void TestConcurrentUpdate() {
-  const size_t thread_count = 3;
-  const size_t key_count = 50000;
+    const size_t thread_count = 3;
+    const size_t key_count = 50000;
 
-  ConcurrentMap<int, int> cm(thread_count);
-  RunConcurrentUpdates(cm, thread_count, key_count);
+    ConcurrentMap<int, int> cm(thread_count);
+    RunConcurrentUpdates(cm, thread_count, key_count);
 
-  const auto result = cm.BuildOrdinaryMap();
-  ASSERT_EQUAL(result.size(), key_count);
-  for (auto& [k, v] : result) {
-    AssertEqual(v, 6, "Key = " + to_string(k));
-  }
+    const auto result = cm.BuildOrdinaryMap();
+    ASSERT_EQUAL(result.size(), key_count);
+    for (auto& [k, v] : result) {
+        AssertEqual(v, 6, "Key = " + to_string(k));
+    }
 }
 
 void TestReadAndWrite() {
-  ConcurrentMap<size_t, string> cm(5);
+    ConcurrentMap<size_t, string> cm(5);
 
-  auto updater = [&cm] {
-    for (size_t i = 0; i < 50000; ++i) {
-      cm[i].ref_to_value += 'a';
+    auto updater = [&cm] {
+        for (size_t i = 0; i < 50000; ++i) {
+            cm[i].ref_to_value += 'a';
+        }
+    };
+    auto reader = [&cm] {
+        vector<string> result(50000);
+        for (size_t i = 0; i < result.size(); ++i) {
+            result[i] = cm[i].ref_to_value;
+        }
+        return result;
+    };
+
+    auto u1 = async(updater);
+    auto r1 = async(reader);
+    auto u2 = async(updater);
+    auto r2 = async(reader);
+
+    u1.get();
+    u2.get();
+
+    for (auto f : {&r1, &r2}) {
+        auto result = f->get();
+        ASSERT(all_of(result.begin(), result.end(), [](const string& s) {
+            return s.empty() || s == "a" || s == "aa";
+        }));
     }
-  };
-  auto reader = [&cm] {
-    vector<string> result(50000);
-    for (size_t i = 0; i < result.size(); ++i) {
-      result[i] = cm[i].ref_to_value;
-    }
-    return result;
-  };
-
-  auto u1 = async(updater);
-  auto r1 = async(reader);
-  auto u2 = async(updater);
-  auto r2 = async(reader);
-
-  u1.get();
-  u2.get();
-
-  for (auto f : {&r1, &r2}) {
-    auto result = f->get();
-    ASSERT(all_of(result.begin(), result.end(), [](const string& s) {
-      return s.empty() || s == "a" || s == "aa";
-    }));
-  }
 }
 
 void TestSpeedup() {
-  {
-    ConcurrentMap<int, int> single_lock(1);
+    {
+        ConcurrentMap<int, int> single_lock(1);
 
-    LOG_DURATION("Single lock");
-    RunConcurrentUpdates(single_lock, 4, 50000);
-  }
-  {
-    ConcurrentMap<int, int> many_locks(100);
+        LOG_DURATION("Single lock");
+        RunConcurrentUpdates(single_lock, 4, 50000);
+    }
+    {
+        ConcurrentMap<int, int> many_locks(100);
 
-    LOG_DURATION("100 locks");
-    RunConcurrentUpdates(many_locks, 4, 50000);
-  }
+        LOG_DURATION("100 locks");
+        RunConcurrentUpdates(many_locks, 4, 50000);
+    }
 }
 
 int main() {
-  TestRunner tr;
-  RUN_TEST(tr, TestConcurrentUpdate);
-  RUN_TEST(tr, TestReadAndWrite);
-  RUN_TEST(tr, TestSpeedup);
+    TestRunner tr;
+    RUN_TEST(tr, TestConcurrentUpdate);
+    RUN_TEST(tr, TestReadAndWrite);
+    RUN_TEST(tr, TestSpeedup);
 }
