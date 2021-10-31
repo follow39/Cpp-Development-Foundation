@@ -32,6 +32,8 @@ public:
 
     Access operator[](const K& key) {
         lock_guard<mutex> g(collection_mutex);
+//        return Access{collection_maps[llabs(key)%buckets][key],
+//                    lock_guard(mutex_vector[llabs(key)%buckets])};
         return Access{collection_maps[llabs(key)%buckets][key],
                     lock_guard(mutex_vector[llabs(key)%buckets])};
     }
@@ -47,6 +49,7 @@ public:
     }
 private:
     size_t buckets;
+    size_t page_size;
     vector<mutex> mutex_vector;
     vector<map<K, V>> collection_maps;
     vector<set<K>> keys_vector;
