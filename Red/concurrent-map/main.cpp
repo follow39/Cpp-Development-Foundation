@@ -49,7 +49,7 @@ public:
     }
 private:
     size_t buckets;
-    size_t page_size;
+    size_t page_size = numeric_limits<K>::;
     vector<mutex> mutex_vector;
     vector<map<K, V>> collection_maps;
     vector<set<K>> keys_vector;
