@@ -48,6 +48,7 @@ private:
     size_t buckets;
     vector<mutex> mutex_vector;
     vector<map<K, V>> collection_maps;
+    vector<vector<V>> collection;
     mutex collection_mutex;
 };
 
