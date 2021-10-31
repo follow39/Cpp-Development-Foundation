@@ -95,21 +95,32 @@ Stats ExploreKeyWordsSingleThread(const set<string>& key_words, const ContainerO
             ++result.word_frequences[word];
         }
     }
+//    for(const auto& word : key_words) {
+//        size_t cnt = count(words.begin(), words.end(), word);
+//        if(cnt) {
+//            result.word_frequences[word] = cnt;
+//        }
+//    }
     return result;
 }
 
 Stats ExploreKeyWords(const set<string>& key_words, istream& input) {
     vector<future<Stats>> futures;
+//    futures.reserve(key_words.size());
     vector<string> words;
+//    words.reserve(key_words.size());
     Stats result;
 
     while(input) {
         string temp;
         input >> temp;
-        words.push_back(temp);
+        if(!temp.empty()) {
+            words.push_back(temp);
+        }
     }
 
-    const auto pages = Paginate(words, 1000);
+    const auto pages = Paginate(words, words.size()/8);
+//    futures.reserve(pages.size());
     for(const auto& page : pages) {
         futures.push_back(async([=] { return ExploreKeyWordsSingleThread(key_words, page); }));
     }
@@ -141,6 +152,7 @@ void TestBasic() {
 }
 
 int main() {
+//    LOG_DURATION("Total");
     TestRunner tr;
     RUN_TEST(tr, TestBasic);
 }
