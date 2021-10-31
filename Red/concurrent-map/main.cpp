@@ -31,7 +31,7 @@ public:
           keys_vector(vector<set<K>>(bucket_count)) {}
 
     Access operator[](const K& key) {
-            lock_guard<mutex> g(collection_mutex);
+        lock_guard<mutex> g(collection_mutex);
         return Access{collection_maps[llabs(key)%buckets][key],
                     lock_guard(mutex_vector[llabs(key)%buckets])};
     }
