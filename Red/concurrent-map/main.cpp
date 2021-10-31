@@ -27,20 +27,18 @@ public:
     explicit ConcurrentMap(size_t bucket_count)
         : buckets(bucket_count),
           mutex_vector(vector<mutex>(bucket_count)),
-          collection_maps(vector<map<K, V>>(bucket_count)),
-          keys_vector(vector<set<K>>(bucket_count)) {}
+          collection_maps(vector<map<K, V>>(bucket_count)) {}
 
     Access operator[](const K& key) {
-        lock_guard<mutex> g(keys_mutex);
-        keys_vector[llabs(key)%buckets].insert(key);
+        lock_guard<mutex> g(collection_mutex);
         return Access{collection_maps[llabs(key)%buckets][key],
                     lock_guard(mutex_vector[llabs(key)%buckets])};
     }
 
     map<K, V> BuildOrdinaryMap() {
         map<K, V> result;
-        for(const auto& keys_set : keys_vector) {
-            for(const auto& key : keys_set) {
+        for(const auto& m : collection_maps) {
+            for(const auto& [key, value] : m) {
                 result[key] = operator[](key).ref_to_value;
             }
         }
@@ -50,8 +48,7 @@ private:
     size_t buckets;
     vector<mutex> mutex_vector;
     vector<map<K, V>> collection_maps;
-    vector<set<K>> keys_vector;
-    mutex keys_mutex;
+    mutex collection_mutex;
 };
 
 void RunConcurrentUpdates(
