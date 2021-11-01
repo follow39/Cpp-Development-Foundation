@@ -29,9 +29,8 @@ public:
           collection_maps(vector<map<K, V>>(bucket_count)) {}
 
     Access operator[](const K& key) {
-        uint64_t bucket_idx = llabs(key)%buckets;
-        //        lock_guard<mutex> g(mutex_collection_maps[bucket_idx]);
-        lock_guard<mutex> g(mutex_main);
+        const uint64_t bucket_idx = llabs(key)%buckets;
+        lock_guard<mutex> g(mutex_op);
         return Access{collection_maps[bucket_idx][key],
                     lock_guard(mutex_collection_maps[bucket_idx])};
     }
@@ -52,7 +51,7 @@ private:
     const size_t buckets;
     vector<mutex> mutex_collection_maps;
     vector<map<K, V>> collection_maps;
-    mutex mutex_main;
+    mutex mutex_op;
 };
 
 void RunConcurrentUpdates(
