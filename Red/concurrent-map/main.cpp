@@ -45,11 +45,14 @@ public:
                 result[key] = operator[](key).ref_to_value;
             }
         }
+//        for(K i = numeric_limits<K>::min(); i < numeric_limits<K>::max(); ++i) {
+//            result[i] = operator[](i).ref_to_value;
+//        }
         return result;
     }
 private:
     size_t buckets;
-    size_t page_size = numeric_limits<K>::;
+//    size_t page_size = numeric_limits<K>::;
     vector<mutex> mutex_vector;
     vector<map<K, V>> collection_maps;
     vector<set<K>> keys_vector;
