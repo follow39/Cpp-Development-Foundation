@@ -26,11 +26,12 @@ public:
     explicit ConcurrentMap(size_t bucket_count)
         : buckets(bucket_count),
           mutex_collection_maps(vector<mutex>(bucket_count)),
+          mutex_maps(vector<mutex>(bucket_count)),
           collection_maps(vector<map<K, V>>(bucket_count)) {}
 
     Access operator[](const K& key) {
         const uint64_t bucket_idx = llabs(key)%buckets;
-        lock_guard<mutex> g(mutex_op);
+        lock_guard<mutex> g(mutex_maps[bucket_idx]);
         return Access{collection_maps[bucket_idx][key],
                     lock_guard(mutex_collection_maps[bucket_idx])};
     }
@@ -40,16 +41,20 @@ public:
         for(size_t i = 0; i < buckets; ++i) {
             map<K, V> temp;
             {
-                lock_guard<mutex> g(mutex_collection_maps[i]);
-                temp = collection_maps[i];
+//                lock_guard<mutex> g(mutex_maps[i]);
+//                temp = collection_maps[i];
+                for(const auto& [key, value] : collection_maps[i]) {
+                    result[key] = operator[](key).ref_to_value;
+                }
             }
-            result.merge(temp);
+//            result.merge(temp);
         }
         return result;
     }
 private:
     const size_t buckets;
     vector<mutex> mutex_collection_maps;
+    vector<mutex> mutex_maps;
     vector<map<K, V>> collection_maps;
     mutex mutex_op;
 };
