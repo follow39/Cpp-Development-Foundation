@@ -9,7 +9,6 @@
 #include <random>
 #include <thread>
 #include <mutex>
-#include <numeric>
 #include <cmath>
 
 using namespace std;
@@ -26,37 +25,34 @@ public:
 
     explicit ConcurrentMap(size_t bucket_count)
         : buckets(bucket_count),
-          mutex_vector(vector<mutex>(bucket_count)),
-          collection_maps(vector<map<K, V>>(bucket_count)),
-          keys_vector(vector<set<K>>(bucket_count)) {}
+          mutex_collection_maps(vector<mutex>(bucket_count)),
+          collection_maps(vector<map<K, V>>(bucket_count)) {}
 
     Access operator[](const K& key) {
-        lock_guard<mutex> g(collection_mutex);
-//        return Access{collection_maps[llabs(key)%buckets][key],
-//                    lock_guard(mutex_vector[llabs(key)%buckets])};
-        return Access{collection_maps[llabs(key)%buckets][key],
-                    lock_guard(mutex_vector[llabs(key)%buckets])};
+        uint64_t bucket_idx = llabs(key)%buckets;
+        //        lock_guard<mutex> g(mutex_collection_maps[bucket_idx]);
+        lock_guard<mutex> g(mutex_main);
+        return Access{collection_maps[bucket_idx][key],
+                    lock_guard(mutex_collection_maps[bucket_idx])};
     }
 
     map<K, V> BuildOrdinaryMap() {
         map<K, V> result;
-        for(const auto& m : collection_maps) {
-            for(const auto& [key, value] : m) {
-                result[key] = operator[](key).ref_to_value;
+        for(size_t i = 0; i < buckets; ++i) {
+            map<K, V> temp;
+            {
+                lock_guard<mutex> g(mutex_collection_maps[i]);
+                temp = collection_maps[i];
             }
+            result.merge(temp);
         }
-//        for(K i = numeric_limits<K>::min(); i < numeric_limits<K>::max(); ++i) {
-//            result[i] = operator[](i).ref_to_value;
-//        }
         return result;
     }
 private:
-    size_t buckets;
-//    size_t page_size = numeric_limits<K>::;
-    vector<mutex> mutex_vector;
+    const size_t buckets;
+    vector<mutex> mutex_collection_maps;
     vector<map<K, V>> collection_maps;
-    vector<set<K>> keys_vector;
-    mutex collection_mutex;
+    mutex mutex_main;
 };
 
 void RunConcurrentUpdates(
