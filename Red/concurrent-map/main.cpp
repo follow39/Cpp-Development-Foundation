@@ -41,13 +41,10 @@ public:
         for(size_t i = 0; i < buckets; ++i) {
             map<K, V> temp;
             {
-//                lock_guard<mutex> g(mutex_maps[i]);
-//                temp = collection_maps[i];
                 for(const auto& [key, value] : collection_maps[i]) {
                     result[key] = operator[](key).ref_to_value;
                 }
             }
-//            result.merge(temp);
         }
         return result;
     }
