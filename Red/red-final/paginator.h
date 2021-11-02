@@ -9,62 +9,63 @@
 using namespace std;
 
 template <typename Iterator>
-class PaginatorPage {
+class IteratorRange {
 public:
-    PaginatorPage(Iterator begin, Iterator end, size_t size)
-        : page_size(min(static_cast<size_t>(end - begin), size)),
-          first(begin),
-          last(begin + page_size) {}
-    Iterator begin() {
+    IteratorRange(Iterator begin, Iterator end)
+            : first(begin)
+            , last(end)
+            , size_(distance(first, last))
+    {
+    }
+
+    Iterator begin() const {
         return first;
     }
-    const Iterator begin() const {
-        return first;
-    }
-    Iterator end() {
+
+    Iterator end() const {
         return last;
     }
-    const Iterator end() const {
-        return last;
-    }
+
     size_t size() const {
-        return page_size;
+        return size_;
     }
 
 private:
-    size_t page_size;
-    Iterator first;
-    Iterator last;
+    Iterator first, last;
+    size_t size_;
 };
 
 template <typename Iterator>
 class Paginator {
+private:
+    vector<IteratorRange<Iterator>> pages;
+
 public:
-    Paginator(Iterator begin, Iterator end, size_t size) {
-        for(auto it = begin; it != end; it+=size) {
-            pages.push_back({it, end, size});
-            if(pages.back().size() < size) {
-                break;
-            }
+    Paginator(Iterator begin, Iterator end, size_t page_size) {
+        for (size_t left = distance(begin, end); left > 0; ) {
+            size_t current_page_size = min(page_size, left);
+            Iterator current_page_end = next(begin, current_page_size);
+            pages.push_back({begin, current_page_end});
+
+            left -= current_page_size;
+            begin = current_page_end;
         }
     }
+
     auto begin() const {
         return pages.begin();
     }
+
     auto end() const {
         return pages.end();
     }
+
     size_t size() const {
         return pages.size();
     }
-
-private:
-    vector<PaginatorPage<Iterator>> pages;
-    size_t page_size;
 };
 
 template <typename C>
 auto Paginate(C& c, size_t page_size) {
-    return Paginator{c.begin(), c.end(), page_size};
+    return Paginator(begin(c), end(c), page_size);
 }
-
