@@ -32,4 +32,9 @@ public:
 
 private:
   InvertedIndex index;
+  map<size_t, map<string_view, size_t>> m; // map<doc_id, map<word, count>>
+  // map<word, map<doc_id, count>>
+  // 2 maps with swap
+  // size_t current_database {0 , 1}
+  // vector<pages> = Paginator(docs, docs.size()/8)
 };
