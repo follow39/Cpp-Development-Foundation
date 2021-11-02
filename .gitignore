@@ -43,3 +43,7 @@ Yellow/*Debug/
 Yellow/build*/
 Red/*Debug/
 Red/bulid*/
+
+# CMAKE
+*/*/cmake-build-debug/
+*/*/.idea/
