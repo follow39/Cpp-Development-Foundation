@@ -23,7 +23,7 @@ public:
 private:
     size_t doc_id_start;
     set<string> words_set; // all words in this page. it save words for string_view in map
-    map<string_view, vector<size_t>> words_map;  // map<word, vector[doc_id]<count>>
+    map<string_view, map<size_t, size_t>> words_map;  // map<word, vector[doc_id]<count>>
 };
 
 
@@ -38,6 +38,7 @@ public:
     void AddQueriesStream(istream &query_input, ostream &search_results_output);
 
 private:
+    string SearchRequest(const string& line);
     // size_t current_database {0 , 1}
     // vector<pages> = Paginator(docs, docs.size()/8)
     size_t current_base = 0;

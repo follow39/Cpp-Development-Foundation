@@ -9,9 +9,9 @@
 using namespace std;
 
 template <typename Iterator>
-class IteratorRange {
+class PaginatorPage {
 public:
-    IteratorRange(Iterator begin, Iterator end)
+    PaginatorPage(Iterator begin, Iterator end)
             : first(begin)
             , last(end)
             , size_(distance(first, last))
@@ -38,7 +38,7 @@ private:
 template <typename Iterator>
 class Paginator {
 private:
-    vector<IteratorRange<Iterator>> pages;
+    vector<PaginatorPage<Iterator>> pages;
 
 public:
     Paginator(Iterator begin, Iterator end, size_t page_size) {

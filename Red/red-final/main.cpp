@@ -1,4 +1,5 @@
-#include "search_server.h"
+//#include "search_server.h"
+#include "search_server_test.h"
 #include "parse.h"
 #include "test_runner.h"
 #include "profile.h"
@@ -15,6 +16,8 @@
 
 using namespace std;
 
+using SearchServer = SearchServerTest;
+
 void TestFunctionality(
         const vector<string> &docs,
         const vector<string> &queries,
@@ -30,6 +33,8 @@ void TestFunctionality(
 
     const string result = queries_output.str();
     const auto lines = SplitBy(Strip(result), '\n');
+    cerr << "---------------------------" << endl << result << endl;
+    cerr << "---------------------------" << endl << lines << endl;
     ASSERT_EQUAL(lines.size(), expected.size());
     for (size_t i = 0; i < lines.size(); ++i) {
         ASSERT_EQUAL(lines[i], expected[i]);
@@ -207,8 +212,8 @@ int main() {
     LOG_DURATION("Total")
     TestRunner tr;
     RUN_TEST(tr, TestSerpFormat);
-    RUN_TEST(tr, TestTop5);
-    RUN_TEST(tr, TestHitcount);
-    RUN_TEST(tr, TestRanking);
-    RUN_TEST(tr, TestBasicSearch);
+//    RUN_TEST(tr, TestTop5);
+//    RUN_TEST(tr, TestHitcount);
+//    RUN_TEST(tr, TestRanking);
+//    RUN_TEST(tr, TestBasicSearch);
 }
