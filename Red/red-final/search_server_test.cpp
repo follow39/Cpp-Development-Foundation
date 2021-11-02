@@ -94,7 +94,7 @@ void SearchServerTest::AddQueriesStream(istream &query_input, ostream &search_re
         string line;
         getline(query_input, line);
         if (!line.empty()) {
-            search_results_output << '{' << SearchRequest(line) << '}' << ' ';
+            search_results_output << SearchRequest(line) << endl;
         }
     }
 }
@@ -111,7 +111,7 @@ string SearchServerTest::SearchRequest(const string &line) {
     for (const auto &word: request_words) {
         for (const auto &page: base) {
 //            futures.push_back(async([=] { return page.GetStats(word); }));
-            futures_sync.push_back(page.GetStats(word));
+            futures_sync.push_back(page.GetStats(word)); // problem
         }
     }
 //    for (auto &f: futures) {
@@ -122,9 +122,9 @@ string SearchServerTest::SearchRequest(const string &line) {
     }
 
     for (auto it = result_map.rbegin(); it != result_map.rend(); ++it) {
-        if (it->second == 0) {
-            break;
-        }
+//        if (it->second == 0) {
+//            break;
+//        }
         result += " {docid: " + to_string(it->first) + ", hitcount: " + to_string(it->second) + "}";
     }
 

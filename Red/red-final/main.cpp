@@ -33,10 +33,10 @@ void TestFunctionality(
 
     const string result = queries_output.str();
     const auto lines = SplitBy(Strip(result), '\n');
-    cerr << "---------------------------" << endl << result << endl;
-    cerr << "---------------------------" << endl << lines << endl;
     ASSERT_EQUAL(lines.size(), expected.size());
     for (size_t i = 0; i < lines.size(); ++i) {
+        cout << "---------------------------" << endl << lines[i] << endl;
+        cout << "---------------------------" << endl << expected[i] << endl;
         ASSERT_EQUAL(lines[i], expected[i]);
     }
 }
