@@ -37,18 +37,32 @@ DocsContainer::DocsContainer(const ContainerOfVectors &page, const size_t new_do
     for (const auto &doc: page) {
         auto temp_vector = ParseWordsVectorFromLine(doc);
         for (auto &word: temp_vector) {
-            const auto it_word = words_set.insert(word);
-            ++words_map[*it_word.first][current_id];
+            ++words_map[word][current_id];
         }
         ++current_id;
     }
 }
 
-map<size_t, size_t> DocsContainer::GetStats(const string_view word) const {
+map<size_t, size_t> DocsContainer::GetStatsByWord(const string &word) const {
     if (words_map.count(word) == 0) {
         return {};
     }
     return words_map.at(word);
+}
+
+map<size_t, size_t> DocsContainer::GetStats(const set<string> &request_words) const {
+    map<size_t, size_t> result;
+
+    for (const auto &word: request_words) {
+        if (words_map.count(word) == 0) {
+            continue;
+        }
+        for (const auto&[doc_id, count]: words_map.at(word)) {
+            result[doc_id_start + doc_id] += count;
+        }
+    }
+
+    return result;
 }
 
 SearchServerTest::SearchServerTest(istream &document_input) {
@@ -108,11 +122,9 @@ string SearchServerTest::SearchRequest(const string &line) {
     map<size_t, size_t> result_map;
 //    vector<future<map<size_t, size_t>>> futures;
     vector<map<size_t, size_t>> futures_sync;
-    for (const auto &word: request_words) {
-        for (const auto &page: base) {
-//            futures.push_back(async([=] { return page.GetStats(word); }));
-            futures_sync.push_back(page.GetStats(word)); // problem
-        }
+    for (const auto &page: base) {
+//            futures.push_back(async([=] { return page.GetStats(request_words); }));
+        futures_sync.push_back(page.GetStats(request_words)); // problem
     }
 //    for (auto &f: futures) {
 //        result_map.merge(f.get());
@@ -121,11 +133,19 @@ string SearchServerTest::SearchRequest(const string &line) {
         result_map.merge(f);
     }
 
-    for (auto it = result_map.rbegin(); it != result_map.rend(); ++it) {
-//        if (it->second == 0) {
-//            break;
-//        }
-        result += " {docid: " + to_string(it->first) + ", hitcount: " + to_string(it->second) + "}";
+    vector<pair<size_t, size_t>> result_vector{result_map.begin(), result_map.end()};
+    sort(result_vector.begin(), result_vector.end(), [](const auto &lhs, const auto &rhs) {
+        if (lhs.second != rhs.second) {
+            return lhs.second > rhs.second;
+        }
+        return lhs.first < rhs.first;
+    });
+    size_t cnt = 0;
+    for (const auto &p: result_vector) {
+        if (cnt++ >= 5) {
+            break;
+        }
+        result += " {docid: " + to_string(p.first) + ", hitcount: " + to_string(p.second) + "}";
     }
 
     return result;

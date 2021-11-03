@@ -35,8 +35,6 @@ void TestFunctionality(
     const auto lines = SplitBy(Strip(result), '\n');
     ASSERT_EQUAL(lines.size(), expected.size());
     for (size_t i = 0; i < lines.size(); ++i) {
-        cout << "---------------------------" << endl << lines[i] << endl;
-        cout << "---------------------------" << endl << expected[i] << endl;
         ASSERT_EQUAL(lines[i], expected[i]);
     }
 }
@@ -212,8 +210,8 @@ int main() {
     LOG_DURATION("Total")
     TestRunner tr;
     RUN_TEST(tr, TestSerpFormat);
-//    RUN_TEST(tr, TestTop5);
-//    RUN_TEST(tr, TestHitcount);
-//    RUN_TEST(tr, TestRanking);
-//    RUN_TEST(tr, TestBasicSearch);
+    RUN_TEST(tr, TestTop5);
+    RUN_TEST(tr, TestHitcount);
+    RUN_TEST(tr, TestRanking);
+    RUN_TEST(tr, TestBasicSearch);
 }
