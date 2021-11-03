@@ -37,7 +37,8 @@ DocsContainer::DocsContainer(const ContainerOfVectors &page, const size_t new_do
     for (const auto &doc: page) {
         auto temp_vector = ParseWordsVectorFromLine(doc);
         for (auto &word: temp_vector) {
-            ++words_map[word][local_id];
+//            ++words_map[word][local_id];
+            ++docs_map[local_id][word];
         }
         ++local_id;
     }
@@ -45,12 +46,23 @@ DocsContainer::DocsContainer(const ContainerOfVectors &page, const size_t new_do
 
 map<size_t, size_t> DocsContainer::GetStats(const set<string> &request_words) const {
     map<size_t, size_t> result;
-    for (const auto &word: request_words) {
-        if (words_map.count(word) == 0) {
-            continue;
+//    for (const auto &word: request_words) {
+//        if (words_map.count(word) == 0) {
+//            continue;
+//        }
+//        for (const auto&[local_id, count]: words_map.at(word)) {
+//            result[doc_id_start + local_id] += count;
+//        }
+//    }
+    for (const auto &doc: docs_map) {
+        size_t cnt = 0;
+        for (const auto &word: request_words) {
+            if (doc.second.count(word)) {
+                cnt += doc.second.at(word);
+            }
         }
-        for (const auto&[local_id, count]: words_map.at(word)) {
-            result[doc_id_start + local_id] += count;
+        if (cnt) {
+            result[doc_id_start + doc.first] = cnt;
         }
     }
     return move(result);

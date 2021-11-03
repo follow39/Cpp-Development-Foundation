@@ -21,9 +21,8 @@ public:
 
 private:
     size_t doc_id_start;
-//    set<string> words_set; // all words in this page. it save words for string_view in map
-    map<string, map<size_t, size_t>> words_map;  // map<word, vector[doc_id]<count>>
-//    map<size_t, map<string, size_t>> docs_map; // map<doc_id, map<word, count>>
+//    map<string, map<size_t, size_t>> words_map;  // map<word, vector[doc_id]<count>>
+    map<size_t, map<string, size_t>> docs_map; // map<doc_id, map<word, count>>
 };
 
 
