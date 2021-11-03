@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 void TestFunctionality(
         const vector<string> &docs,
         const vector<string> &queries,
@@ -165,8 +164,7 @@ void TestBasicSearch() {
             "we are ready to go",
             "come on everybody shake you hands",
             "i love this game",
-            "just like exception safety is not about writing try catch everywhere in your code move semantics are not "
-            "about typing double ampersand everywhere in your code",
+            "just like exception safety is not about writing try catch everywhere in your code move semantics are not about typing double ampersand everywhere in your code",
             "daddy daddy daddy dad dad dad",
             "tell me the meaning of being lonely",
             "just keep track of it",
