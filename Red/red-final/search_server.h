@@ -1,29 +1,34 @@
 #pragma once
 
-#include "paginator.h"
-#include <iostream>
+#include <istream>
+#include <ostream>
+#include <set>
+#include <list>
 #include <vector>
-#include <string>
 #include <map>
-#include <string_view>
+#include <string>
 #include <future>
 #include <mutex>
-#include <iterator>
-#include <set>
-#include <sstream>
 
-class DocsContainer {
+using namespace std;
+
+class InvertedIndex {
 public:
-    template<typename ContainerOfVectors>
-    explicit DocsContainer(const ContainerOfVectors &page, const size_t new_doc_id_start);
+    InvertedIndex& operator=(InvertedIndex &&other)  noexcept;
 
-    vector<pair<size_t, size_t>> GetStats(const set<string> &request_words) const; // return map<doc_id, count>
+    void Add(const string& document);
+
+    map<size_t, size_t> Lookup(const string &word);
+
+    const string &GetDocument(size_t id) const {
+        return docs[id];
+    }
 
 private:
-    size_t doc_id_start;
-    vector<map<string, size_t>> docs; // map<doc_id, map<word, count>>
-};
+    map<string, pair<mutex, map<size_t, size_t>>> index;
 
+    vector<string> docs;
+};
 
 class SearchServer {
 public:
@@ -36,15 +41,5 @@ public:
     void AddQueriesStream(istream &query_input, ostream &search_results_output);
 
 private:
-    string SearchRequest(const string &line);
-
-    // size_t current_database {0 , 1}
-    // vector<pages> = Paginator(docs, docs.size()/8)
-    size_t current_base = 0;
-    mutex base_update_mutex;
-    vector<DocsContainer> base0;
-//    vector<mutex> base0_mutex;
-    vector<DocsContainer> base1;
-//    vector<mutex> base1_mutex;
+    InvertedIndex index;
 };
-
