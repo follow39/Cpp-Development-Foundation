@@ -1,5 +1,4 @@
-//#include "search_server.h"
-#include "search_server_test.h"
+#include "search_server.h"
 #include "parse.h"
 #include "test_runner.h"
 #include "profile.h"
@@ -16,7 +15,6 @@
 
 using namespace std;
 
-using SearchServer = SearchServerTest;
 
 void TestFunctionality(
         const vector<string> &docs,

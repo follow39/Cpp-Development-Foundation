@@ -1,81 +1,144 @@
 #include "search_server.h"
-#include "iterator_range.h"
 
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <iostream>
+using namespace std;
 
-vector<string> SplitIntoWords(const string& line) {
-  istringstream words_input(line);
-  return {istream_iterator<string>(words_input), istream_iterator<string>()};
+vector<string> ParseWordsVectorFromLine(const string &doc) {
+    stringstream ss(doc);
+    vector<string> result;
+    while (ss) {
+        ss >> ws;
+        string temp;
+        ss >> temp;
+        if (!temp.empty()) {
+            result.push_back(temp);
+        }
+    }
+    return move(result);
 }
 
-SearchServer::SearchServer(istream& document_input) {
-  UpdateDocumentBase(document_input);
+set<string> ParseWordsSetFromLine(const string &doc) {
+    stringstream ss(doc);
+    set<string> result;
+    while (ss) {
+        ss >> ws;
+        string temp;
+        ss >> temp;
+        if (!temp.empty()) {
+            result.insert(temp);
+        }
+    }
+    return move(result);
 }
 
-void SearchServer::UpdateDocumentBase(istream& document_input) {
-  InvertedIndex new_index;
-
-  for (string current_document; getline(document_input, current_document); ) {
-    new_index.Add(move(current_document));
-  }
-
-  index = move(new_index);
+template<typename ContainerOfVectors>
+DocsContainer::DocsContainer(const ContainerOfVectors &page, const size_t new_doc_id_start)
+        : doc_id_start(new_doc_id_start) {
+    size_t current_id = 0;
+    for (const auto &doc: page) {
+        auto temp_vector = ParseWordsVectorFromLine(doc);
+        for (auto &word: temp_vector) {
+            ++words_map[word][current_id];
+        }
+        ++current_id;
+    }
 }
 
-void SearchServer::AddQueriesStream(
-  istream& query_input, ostream& search_results_output
-) {
-  for (string current_query; getline(query_input, current_query); ) {
-    const auto words = SplitIntoWords(current_query);
+map<size_t, size_t> DocsContainer::GetStats(const set<string> &request_words) const {
+    map<size_t, size_t> result;
 
-    map<size_t, size_t> docid_count;
-    for (const auto& word : words) {
-      for (const size_t docid : index.Lookup(word)) {
-        docid_count[docid]++;
-      }
+    for (const auto &word: request_words) {
+        if (words_map.count(word) == 0) {
+            continue;
+        }
+        for (const auto&[doc_id, count]: words_map.at(word)) {
+            result[doc_id_start + doc_id] += count;
+        }
     }
 
-    vector<pair<size_t, size_t>> search_results(
-      docid_count.begin(), docid_count.end()
-    );
-    sort(
-      begin(search_results),
-      end(search_results),
-      [](pair<size_t, size_t> lhs, pair<size_t, size_t> rhs) {
-        int64_t lhs_docid = lhs.first;
-        auto lhs_hit_count = lhs.second;
-        int64_t rhs_docid = rhs.first;
-        auto rhs_hit_count = rhs.second;
-        return make_pair(lhs_hit_count, -lhs_docid) > make_pair(rhs_hit_count, -rhs_docid);
-      }
-    );
+    return result;
+}
 
-    search_results_output << current_query << ':';
-    for (auto [docid, hitcount] : Head(search_results, 5)) {
-      search_results_output << " {"
-        << "docid: " << docid << ", "
-        << "hitcount: " << hitcount << '}';
+SearchServer::SearchServer(istream &document_input) {
+    UpdateDocumentBase(document_input);
+}
+
+void SearchServer::UpdateDocumentBase(istream &document_input) {
+    lock_guard<mutex> g(base_update_mutex);
+    current_base ^= 1;
+    auto &base = current_base ? base1 : base0;
+
+    vector<string> docs;
+    while (document_input) {
+        string temp;
+        getline(document_input, temp);
+        if (!temp.empty()) {
+            docs.push_back(temp);
+        }
     }
-    search_results_output << endl;
-  }
+
+    const size_t page_size = max(docs.size() / 8, static_cast<size_t>(1));
+    size_t current_page = 0;
+    const auto pages = Paginate(docs, page_size);
+    vector<future<DocsContainer>> futures;
+//    vector<DocsContainer> futures_sync;
+    for (const auto &page: pages) {
+        futures.push_back(async([=] { return DocsContainer(page, current_page * page_size); }));
+//        futures_sync.push_back(DocsContainer(page, current_page * page_size));
+        ++current_page;
+    }
+
+    base.clear();
+    for (auto &f: futures) {
+        base.push_back(f.get());
+    }
+//    for (auto &f: futures_sync) {
+//        base.push_back(f);
+//    }
 }
 
-void InvertedIndex::Add(const string& document) {
-  docs.push_back(document);
-
-  const size_t docid = docs.size() - 1;
-  for (const auto& word : SplitIntoWords(document)) {
-    index[word].push_back(docid);
-  }
+void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
+    while (query_input) {
+        string line;
+        getline(query_input, line);
+        if (!line.empty()) {
+            search_results_output << SearchRequest(line) << endl;
+        }
+    }
 }
 
-list<size_t> InvertedIndex::Lookup(const string& word) const {
-  if (auto it = index.find(word); it != index.end()) {
-    return it->second;
-  } else {
-    return {};
-  }
+string SearchServer::SearchRequest(const string &line) {
+    const auto &base = current_base ? base1 : base0;
+    string result = line + ':';
+    set<string> request_words = ParseWordsSetFromLine(line);
+
+    map<size_t, size_t> result_map;
+    vector<future<map<size_t, size_t>>> futures;
+//    vector<map<size_t, size_t>> futures_sync;
+    for (const auto &page: base) {
+        futures.push_back(async([=] { return page.GetStats(request_words); }));
+//        futures_sync.push_back(page.GetStats(request_words));
+    }
+    for (auto &f: futures) {
+        result_map.merge(f.get());
+    }
+//    for (auto &f: futures_sync) {
+//        result_map.merge(f);
+//    }
+
+    vector<pair<size_t, size_t>> result_vector{result_map.begin(), result_map.end()};
+    sort(result_vector.begin(), result_vector.end(), [](const auto &lhs, const auto &rhs) {
+        if (lhs.second != rhs.second) {
+            return lhs.second > rhs.second;
+        }
+        return lhs.first < rhs.first;
+    });
+    size_t cnt = 0;
+    for (const auto &p: result_vector) {
+        if (cnt++ >= 5) {
+            break;
+        }
+        result += " {docid: " + to_string(p.first) + ", hitcount: " + to_string(p.second) + "}";
+    }
+
+    return result;
 }
