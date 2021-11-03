@@ -17,12 +17,11 @@ public:
     template<typename ContainerOfVectors>
     explicit DocsContainer(const ContainerOfVectors &page, const size_t new_doc_id_start);
 
-    map<size_t, size_t> GetStats(const set<string> &request_words) const; // return map<doc_id, count>
+    vector<pair<size_t, size_t>> GetStats(const set<string> &request_words) const; // return map<doc_id, count>
 
 private:
     size_t doc_id_start;
-//    map<string, map<size_t, size_t>> words_map;  // map<word, vector[doc_id]<count>>
-    map<size_t, map<string, size_t>> docs_map; // map<doc_id, map<word, count>>
+    vector<map<string, size_t>> docs; // map<doc_id, map<word, count>>
 };
 
 

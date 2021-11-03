@@ -34,35 +34,28 @@ template<typename ContainerOfVectors>
 DocsContainer::DocsContainer(const ContainerOfVectors &page, const size_t new_doc_id_start)
         : doc_id_start(new_doc_id_start) {
     size_t local_id = 0;
+    docs.resize(page.size());
     for (const auto &doc: page) {
         auto temp_vector = ParseWordsVectorFromLine(doc);
         for (auto &word: temp_vector) {
-//            ++words_map[word][local_id];
-            ++docs_map[local_id][word];
+            ++docs[local_id][word];
         }
         ++local_id;
     }
 }
 
-map<size_t, size_t> DocsContainer::GetStats(const set<string> &request_words) const {
-    map<size_t, size_t> result;
-//    for (const auto &word: request_words) {
-//        if (words_map.count(word) == 0) {
-//            continue;
-//        }
-//        for (const auto&[local_id, count]: words_map.at(word)) {
-//            result[doc_id_start + local_id] += count;
-//        }
-//    }
-    for (const auto &doc: docs_map) {
+vector<pair<size_t, size_t>> DocsContainer::GetStats(const set<string> &request_words) const {
+    vector<pair<size_t, size_t>> result; // vector<pair<doc_id, count>>;
+    for (size_t i = 0; i < docs.size(); ++i) {
+        const auto &doc = docs[i];
         size_t cnt = 0;
         for (const auto &word: request_words) {
-            if (doc.second.count(word)) {
-                cnt += doc.second.at(word);
+            if (doc.count(word)) {
+                cnt += doc.at(word);
             }
         }
         if (cnt) {
-            result[doc_id_start + doc.first] = cnt;
+            result.emplace_back(doc_id_start + i, cnt);
         }
     }
     return move(result);
@@ -114,20 +107,20 @@ void SearchServer::AddQueriesStream(istream &query_input, ostream &search_result
 
 string SearchServer::SearchRequest(const string &line) {
     const auto &base = current_base ? base1 : base0;
-    string result = line + ':';
+    string result_line = line + ':';
     set<string> request_words = ParseWordsSetFromLine(line);
 
-    map<size_t, size_t> result_map;
-    vector<future<map<size_t, size_t>>> futures;
+    vector<pair<size_t, size_t>> result_vector;
+    vector<future<vector<pair<size_t, size_t>>>> futures;
     futures.reserve(base.size());
     for (const auto &page: base) {
         futures.push_back(async([=] { return page.GetStats(request_words); }));
     }
     for (auto &f: futures) {
-        result_map.merge(f.get());
+        auto temp = f.get();
+        result_vector.insert(result_vector.end(), temp.begin(), temp.end());
     }
 
-    vector<pair<size_t, size_t>> result_vector{result_map.begin(), result_map.end()};
     sort(result_vector.begin(), result_vector.end(), [](const auto &lhs, const auto &rhs) {
         if (lhs.second != rhs.second) {
             return lhs.second > rhs.second;
@@ -138,8 +131,8 @@ string SearchServer::SearchRequest(const string &line) {
         result_vector.erase(next(result_vector.begin(), 5), result_vector.end());
     }
     for (const auto &p: result_vector) {
-        result += " {docid: " + to_string(p.first) + ", hitcount: " + to_string(p.second) + "}";
+        result_line += " {docid: " + to_string(p.first) + ", hitcount: " + to_string(p.second) + "}";
     }
 
-    return result;
+    return result_line;
 }
