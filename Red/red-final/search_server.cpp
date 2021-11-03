@@ -49,7 +49,7 @@ void SearchServer::AddQueriesStream(
 
 //        vector<pair<size_t, size_t>> search_results(docid_count.begin(), docid_count.end());
         auto it_mid = Head(search_results, 5ul).end();
-        partial_sort(begin(search_results), it_mid, end(search_results),
+        partial_sort(search_results.begin(), it_mid, search_results.end(),
                      [](pair<int, int> lhs, pair<int, int> rhs) {
                          if (lhs.second != rhs.second) {
                              return lhs.second > rhs.second;
