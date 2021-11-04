@@ -23,6 +23,7 @@ public:
 private:
     map<string, vector<pair<int, int>>> index;
     vector<string> docs;
+    vector<pair<int, int>> empty_vector = {};
 };
 
 class SearchServer {
