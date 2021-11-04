@@ -14,7 +14,7 @@ using namespace std;
 
 class InvertedIndex {
 public:
-    void Add(const string &document);
+    void Add(string document);
 
     const vector<pair<int, int>> &Lookup(const string &word) const;
 
@@ -52,5 +52,4 @@ private:
     mutex index_mutex;
     InvertedIndex index;
     int docs_count = 0;
-//    vector<future<void>> futures_queries;
 };

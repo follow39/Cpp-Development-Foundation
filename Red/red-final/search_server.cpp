@@ -96,11 +96,10 @@ Access SearchServer::GetAccessIndex() {
     return Access{Lock(index_mutex), index};
 }
 
-void InvertedIndex::Add(const string &document) {
-    docs.push_back(document);
-
+void InvertedIndex::Add(string document) {
+    docs.push_back(move(document));
     const int docid = docs.size() - 1;
-    for (const auto &word: SplitIntoWords(document)) {
+    for (const auto &word: SplitIntoWords(docs[docid])) {
         if (index[word].empty() || index[word].back().first != docid) {
             index[word].push_back({docid, 1});
         } else {
