@@ -20,6 +20,7 @@ SearchServer::SearchServer(istream &document_input) {
 }
 
 void SearchServer::UpdateDocumentBase(istream &document_input) {
+//    UpdateDocumentBaseThread(document_input);
     if (!first) {
         first = true;
         UpdateDocumentBaseThread(document_input);
@@ -48,7 +49,7 @@ void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
 //    auto g = Lock(search_mutex);
-    if (futures_queries_vector.size() > 10) {
+    if (futures_queries_vector.size() > 8) {
         futures_queries_vector.clear();
     }
     futures_queries_vector.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));

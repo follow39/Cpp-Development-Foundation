@@ -47,7 +47,7 @@ public:
     Access GetAccessIndex();
 
 private:
-    mutex search_mutex;
+//    mutex search_mutex;
     mutex index_mutex;
     InvertedIndex index;
     vector<future<void>> futures_update_vector;
