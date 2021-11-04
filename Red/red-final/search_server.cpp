@@ -22,34 +22,36 @@ SearchServer::SearchServer(istream &document_input) {
 void SearchServer::UpdateDocumentBase(istream &document_input) {
     if (!first) {
         first = true;
-        UpdateDocumentBaseThread(document_input, 0);
+        UpdateDocumentBaseThread(document_input);
     } else {
-        futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input, futures.size() - 1); }));
+        futures_update_vector.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
     }
 }
 
-void SearchServer::UpdateDocumentBaseThread(istream &document_input, int this_future_idx) {
+void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
     InvertedIndex new_index;
 
     for (string current_document; getline(document_input, current_document);) {
         new_index.Add(current_document);
     }
 
-//    auto access = GetAccessIndex();
-    for(int i = 0; i < futures.size(); ++i) {
-        if(i != this_future_idx) {
-            futures[i].get();
-        }
-    }
-    index = new_index;
-//    access.ref_to_value = move(new_index);
+//    auto g = Lock(search_mutex);
+//    for (auto &f: futures_queries_vector) {
+//        f.get();
+//    }
+//    futures_queries_vector.clear();
+//    index = new_index;
+
+    auto access = GetAccessIndex();
+    access.ref_to_value = move(new_index);
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
-    if (futures.size() > 32) {
-        futures.clear();
+//    auto g = Lock(search_mutex);
+    if (futures_queries_vector.size() > 10) {
+        futures_queries_vector.clear();
     }
-    futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
+    futures_queries_vector.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
 }
 
 void SearchServer::AddQueriesThread(istream &query_input, ostream &search_results_output) {
@@ -67,7 +69,13 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
 
         vector<int> docid_count = vector<int>(50000);
         for (const auto &word: words) {
-            auto temp = index.Lookup(word);
+            vector<pair<int, int>> temp;
+            {
+                temp = GetAccessIndex().ref_to_value.Lookup(word);
+
+            }
+//            auto temp = GetAccessIndex().ref_to_value.Lookup(word);
+//            for (const auto&[docid, count]: index.Lookup(word)) {
             for (const auto&[docid, count]: temp) {
                 docid_count[docid] += count;
             }
@@ -88,8 +96,7 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
                              return lhs.second > rhs.second;
                          }
                          return lhs.first < rhs.first;
-                     }
-        );
+                     });
 
         search_results_output << current_query << ':';
         for (auto[docid, hitcount]: Head(search_results, 5)) {
@@ -101,9 +108,9 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
     }
 }
 
-//Access SearchServer::GetAccessIndex() {
-//    return Access{Lock(index_mutex), index};
-//}
+Access SearchServer::GetAccessIndex() {
+    return Access{Lock(index_mutex), index};
+}
 
 void InvertedIndex::Add(string &document) {
     const int docid = current_docid++;
