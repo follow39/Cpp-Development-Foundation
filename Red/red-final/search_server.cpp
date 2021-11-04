@@ -20,8 +20,12 @@ SearchServer::SearchServer(istream &document_input) {
 }
 
 void SearchServer::UpdateDocumentBase(istream &document_input) {
-
+//    vector<future<void>> futures;
     futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
+    if(!first) {
+        first = true;
+        this_thread::sleep_for(static_cast<chrono::nanoseconds>(1000000));
+    }
 }
 
 void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
@@ -37,6 +41,8 @@ void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
+//    vector<future<void>> futures_local;
+//    futures_local.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
     futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
 }
 

@@ -54,4 +54,5 @@ private:
     InvertedIndex index;
     int docs_count = 0;
     vector<future<void>> futures;
+    bool first = false;
 };
