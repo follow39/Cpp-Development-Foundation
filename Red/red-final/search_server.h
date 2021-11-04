@@ -14,14 +14,14 @@ class InvertedIndex {
 public:
     void Add(const string &document);
 
-    vector<int> Lookup(const string &word) const;
+    const vector<pair<int, int>>& Lookup(const string &word) const;
 
     const string &GetDocument(int id) const {
         return docs[id];
     }
 
 private:
-    map<string, vector<int>> index;
+    map<string, vector<pair<int, int>>> index;
     vector<string> docs;
 };
 

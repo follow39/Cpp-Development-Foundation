@@ -34,8 +34,8 @@ void SearchServer::AddQueriesStream(
 
         vector<int> docid_count = vector<int>(docs_count);
         for (const auto &word: words) {
-            for (const int docid: index.Lookup(word)) {
-                ++docid_count[docid];
+            for (const auto& [docid, count]: index.Lookup(word)) {
+                docid_count[docid] += count;
             }
         }
 
@@ -47,7 +47,6 @@ void SearchServer::AddQueriesStream(
             }
         }
 
-//        vector<pair<size_t, size_t>> search_results(docid_count.begin(), docid_count.end());
         auto it_mid = Head(search_results, 5ul).end();
         partial_sort(search_results.begin(), it_mid, search_results.end(),
                      [](pair<int, int> lhs, pair<int, int> rhs) {
@@ -73,11 +72,15 @@ void InvertedIndex::Add(const string &document) {
 
     const int docid = docs.size() - 1;
     for (const auto &word: SplitIntoWords(document)) {
-        index[word].push_back(docid);
+        if (index[word].empty() || index[word].back().first != docid) {
+            index[word].push_back({docid, 1});
+        } else {
+            ++index[word].back().second;
+        }
     }
 }
 
-vector<int> InvertedIndex::Lookup(const string &word) const {
+const vector<pair<int, int>> &InvertedIndex::Lookup(const string &word) const {
     if (auto it = index.find(word); it != index.end()) {
         return it->second;
     } else {
