@@ -20,35 +20,30 @@ SearchServer::SearchServer(istream &document_input) {
 }
 
 void SearchServer::UpdateDocumentBase(istream &document_input) {
-//    vector<future<void>> futures;
     if (!first) {
         first = true;
         UpdateDocumentBaseThread(document_input);
-//        this_thread::sleep_for(static_cast<chrono::nanoseconds>(1000));
     } else {
-        futures.clear();
         futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
     }
 }
 
 void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
     InvertedIndex new_index;
-    int new_docs_count = 0;
 
     for (string current_document; getline(document_input, current_document);) {
         new_index.Add(current_document);
-        ++new_docs_count;
     }
 
     auto access = GetAccessIndex();
     access.ref_to_value = move(new_index);
-    docs_count = new_docs_count;
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
-    vector<future<void>> futures_local;
-    futures_local.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
-//    futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
+    if (futures.size() > 32) {
+        futures.clear();
+    }
+    futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
 }
 
 void SearchServer::AddQueriesThread(istream &query_input, ostream &search_results_output) {
@@ -64,7 +59,7 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
     for (string &current_query: query_vector) {
         const auto words = SplitIntoWords(current_query);
 
-        vector<int> docid_count = vector<int>(docs_count);
+        vector<int> docid_count = vector<int>(50000);
         for (const auto &word: words) {
             auto temp = GetAccessIndex().ref_to_value.Lookup(word);
             for (const auto&[docid, count]: temp) {
@@ -73,8 +68,8 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
         }
 
         vector<pair<int, int>> search_results;
-        search_results.reserve(docs_count);
-        for (int i = 0; i < docs_count; ++i) {
+        search_results.reserve(50000);
+        for (int i = 0; i < 50000; ++i) {
             if (docid_count[i] != 0) {
                 search_results.emplace_back(i, docid_count[i]);
             }

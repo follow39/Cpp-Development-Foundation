@@ -25,10 +25,10 @@ void TestFunctionality(
 
     SearchServer srv;
     srv.UpdateDocumentBase(docs_input);
-    this_thread::sleep_for(static_cast<nanoseconds>(1000000));
+    this_thread::sleep_for(static_cast<nanoseconds>(10000000));
     ostringstream queries_output;
     srv.AddQueriesStream(queries_input, queries_output);
-    this_thread::sleep_for(static_cast<nanoseconds>(1000000));
+    this_thread::sleep_for(static_cast<nanoseconds>(10000000));
 
     const string result = queries_output.str();
     const auto lines = SplitBy(Strip(result), '\n');

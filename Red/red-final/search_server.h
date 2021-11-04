@@ -37,6 +37,7 @@ public:
     explicit SearchServer(istream &document_input);
 
     void UpdateDocumentBase(istream &document_input);
+
     void UpdateDocumentBaseThread(istream &document_input);
 
     void AddQueriesStream(istream &query_input, ostream &search_results_output);
@@ -48,7 +49,6 @@ public:
 private:
     mutex index_mutex;
     InvertedIndex index;
-    int docs_count = 0;
     vector<future<void>> futures;
     bool first = false;
 };
