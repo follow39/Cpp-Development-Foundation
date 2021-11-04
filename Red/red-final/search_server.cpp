@@ -21,38 +21,53 @@ SearchServer::SearchServer(istream &document_input) {
 
 void SearchServer::UpdateDocumentBase(istream &document_input) {
 //    vector<future<void>> futures;
-    futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
-    if(!first) {
+    if (!first) {
         first = true;
-        this_thread::sleep_for(static_cast<chrono::nanoseconds>(1000000));
+        UpdateDocumentBaseThread(document_input);
+//        this_thread::sleep_for(static_cast<chrono::nanoseconds>(1000));
+    } else {
+        futures.clear();
+        futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
     }
 }
 
 void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
     InvertedIndex new_index;
+    int new_docs_count = 0;
 
     for (string current_document; getline(document_input, current_document);) {
-        new_index.Add(move(current_document));
-        ++docs_count;
+        new_index.Add(current_document);
+        ++new_docs_count;
     }
 
     auto access = GetAccessIndex();
     access.ref_to_value = move(new_index);
+    docs_count = new_docs_count;
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
-//    vector<future<void>> futures_local;
-//    futures_local.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
-    futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
+    vector<future<void>> futures_local;
+    futures_local.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
+//    futures.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
 }
 
 void SearchServer::AddQueriesThread(istream &query_input, ostream &search_results_output) {
-    for (string current_query; getline(query_input, current_query);) {
+    vector<string> query_vector;
+
+    while (query_input) {
+        string temp;
+        getline(query_input, temp);
+        if (!temp.empty()) {
+            query_vector.push_back(move(temp));
+        }
+    }
+    for (string &current_query: query_vector) {
         const auto words = SplitIntoWords(current_query);
 
         vector<int> docid_count = vector<int>(docs_count);
         for (const auto &word: words) {
-            for (const auto&[docid, count]: GetAccessIndex().ref_to_value.Lookup(word)) {
+            auto temp = GetAccessIndex().ref_to_value.Lookup(word);
+            for (const auto&[docid, count]: temp) {
                 docid_count[docid] += count;
             }
         }
@@ -89,10 +104,9 @@ Access SearchServer::GetAccessIndex() {
     return Access{Lock(index_mutex), index};
 }
 
-void InvertedIndex::Add(string document) {
-    docs.push_back(move(document));
-    const int docid = docs.size() - 1;
-    for (const auto &word: SplitIntoWords(docs[docid])) {
+void InvertedIndex::Add(string &document) {
+    const int docid = current_docid++;
+    for (const auto &word: SplitIntoWords(document)) {
         if (index[word].empty() || index[word].back().first != docid) {
             index[word].push_back({docid, 1});
         } else {

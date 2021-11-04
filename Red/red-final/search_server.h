@@ -14,17 +14,13 @@ using namespace std;
 
 class InvertedIndex {
 public:
-    void Add(string document);
+    void Add(string &document);
 
     const vector<pair<int, int>> &Lookup(const string &word) const;
 
-    const string &GetDocument(int id) const {
-        return docs[id];
-    }
-
 private:
     map<string, vector<pair<int, int>>> index;
-    vector<string> docs;
+    int current_docid = 0;
     vector<pair<int, int>> empty_vector = {};
 };
 
