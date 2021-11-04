@@ -22,21 +22,27 @@ SearchServer::SearchServer(istream &document_input) {
 void SearchServer::UpdateDocumentBase(istream &document_input) {
     if (!first) {
         first = true;
-        UpdateDocumentBaseThread(document_input);
+        UpdateDocumentBaseThread(document_input, 0);
     } else {
-        futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input); }));
+        futures.push_back(async([&] { return UpdateDocumentBaseThread(document_input, futures.size() - 1); }));
     }
 }
 
-void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
+void SearchServer::UpdateDocumentBaseThread(istream &document_input, int this_future_idx) {
     InvertedIndex new_index;
 
     for (string current_document; getline(document_input, current_document);) {
         new_index.Add(current_document);
     }
 
-    auto access = GetAccessIndex();
-    access.ref_to_value = move(new_index);
+//    auto access = GetAccessIndex();
+    for(int i = 0; i < futures.size(); ++i) {
+        if(i != this_future_idx) {
+            futures[i].get();
+        }
+    }
+    index = new_index;
+//    access.ref_to_value = move(new_index);
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
@@ -61,7 +67,7 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
 
         vector<int> docid_count = vector<int>(50000);
         for (const auto &word: words) {
-            auto temp = GetAccessIndex().ref_to_value.Lookup(word);
+            auto temp = index.Lookup(word);
             for (const auto&[docid, count]: temp) {
                 docid_count[docid] += count;
             }
@@ -95,9 +101,9 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
     }
 }
 
-Access SearchServer::GetAccessIndex() {
-    return Access{Lock(index_mutex), index};
-}
+//Access SearchServer::GetAccessIndex() {
+//    return Access{Lock(index_mutex), index};
+//}
 
 void InvertedIndex::Add(string &document) {
     const int docid = current_docid++;

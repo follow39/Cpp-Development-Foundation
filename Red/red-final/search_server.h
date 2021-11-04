@@ -24,30 +24,29 @@ private:
     vector<pair<int, int>> empty_vector = {};
 };
 
-
-struct Access {
-    lock_guard<mutex> guard;
-    InvertedIndex &ref_to_value;
-};
+//struct Access {
+//    lock_guard<mutex> guard;
+//    InvertedIndex &ref_to_value;
+//};
 
 class SearchServer {
 public:
     SearchServer() = default;
 
-    explicit SearchServer(istream &document_input);
-
     void UpdateDocumentBase(istream &document_input);
 
-    void UpdateDocumentBaseThread(istream &document_input);
+    explicit SearchServer(istream &document_input);
+
+    void UpdateDocumentBaseThread(istream &document_input, int this_future_idx);
 
     void AddQueriesStream(istream &query_input, ostream &search_results_output);
 
     void AddQueriesThread(istream &query_input, ostream &search_results_output);
 
-    Access GetAccessIndex();
+//    Access GetAccessIndex();
 
 private:
-    mutex index_mutex;
+//    mutex index_mutex;
     InvertedIndex index;
     vector<future<void>> futures;
     bool first = false;
