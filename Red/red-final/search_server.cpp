@@ -14,13 +14,28 @@ vector<string> SplitIntoWords(const string &line) {
     istringstream words_input(line);
     return {istream_iterator<string>(words_input), istream_iterator<string>()};
 }
+//vector<string_view> SplitIntoWords(string_view line) {
+//    vector<string_view> result;
+//    size_t space = line.find_first_not_of(' ');
+//    line.remove_prefix(space);
+//    while (true) {
+//        space = line.find(' ');
+//        result.push_back(line.substr(0, space));
+//        space = line.find_first_not_of(' ', space);
+//        if (space == std::string_view::npos) {
+//            break;
+//        } else {
+//            line.remove_prefix(space);
+//        }
+//    }
+//    return move(result);
+//}
 
 SearchServer::SearchServer(istream &document_input) {
     UpdateDocumentBase(document_input);
 }
 
 void SearchServer::UpdateDocumentBase(istream &document_input) {
-//    UpdateDocumentBaseThread(document_input);
     if (!first) {
         first = true;
         UpdateDocumentBaseThread(document_input);
@@ -33,23 +48,18 @@ void SearchServer::UpdateDocumentBaseThread(istream &document_input) {
     InvertedIndex new_index;
 
     for (string current_document; getline(document_input, current_document);) {
-        new_index.Add(current_document);
+        if (!current_document.empty()) {
+            new_index.Add(move(current_document));
+        }
     }
 
-//    auto g = Lock(search_mutex);
-//    for (auto &f: futures_queries_vector) {
-//        f.get();
-//    }
-//    futures_queries_vector.clear();
-//    index = new_index;
-
     auto access = GetAccessIndex();
-    access.ref_to_value = move(new_index);
+//    access.ref_to_value = move(new_index);
+    swap(access.ref_to_value, new_index);
 }
 
 void SearchServer::AddQueriesStream(istream &query_input, ostream &search_results_output) {
-//    auto g = Lock(search_mutex);
-    if (futures_queries_vector.size() > 8) {
+    if (futures_queries_vector.size() > 10) {
         futures_queries_vector.clear();
     }
     futures_queries_vector.push_back(async([&] { return AddQueriesThread(query_input, search_results_output); }));
@@ -57,7 +67,6 @@ void SearchServer::AddQueriesStream(istream &query_input, ostream &search_result
 
 void SearchServer::AddQueriesThread(istream &query_input, ostream &search_results_output) {
     vector<string> query_vector;
-
     while (query_input) {
         string temp;
         getline(query_input, temp);
@@ -68,23 +77,24 @@ void SearchServer::AddQueriesThread(istream &query_input, ostream &search_result
     for (string &current_query: query_vector) {
         const auto words = SplitIntoWords(current_query);
 
+        int max_docid = 0;
         vector<int> docid_count = vector<int>(50000);
         for (const auto &word: words) {
-            vector<pair<int, int>> temp;
-            {
-                temp = GetAccessIndex().ref_to_value.Lookup(word);
-
-            }
-//            auto temp = GetAccessIndex().ref_to_value.Lookup(word);
-//            for (const auto&[docid, count]: index.Lookup(word)) {
-            for (const auto&[docid, count]: temp) {
+//            vector<pair<int, int>> temp;
+//            {
+//                temp = GetAccessIndex().ref_to_value.Lookup(word);
+//
+//            }
+            for (const auto&[docid, count]: GetAccessIndex().ref_to_value.Lookup(word)) {
+//            for (const auto&[docid, count]: temp) {
+                max_docid = max(docid, max_docid);
                 docid_count[docid] += count;
             }
         }
 
         vector<pair<int, int>> search_results;
-        search_results.reserve(50000);
-        for (int i = 0; i < 50000; ++i) {
+        search_results.reserve(max_docid);
+        for (int i = 0; i <= max_docid; ++i) {
             if (docid_count[i] != 0) {
                 search_results.emplace_back(i, docid_count[i]);
             }
@@ -113,9 +123,10 @@ Access SearchServer::GetAccessIndex() {
     return Access{Lock(index_mutex), index};
 }
 
-void InvertedIndex::Add(string &document) {
+void InvertedIndex::Add(string document) {
     const int docid = current_docid++;
-    for (const auto &word: SplitIntoWords(document)) {
+    auto it_doc = documents.insert(documents.end(), move(document));
+    for (const auto &word: SplitIntoWords(*it_doc)) {
         if (index[word].empty() || index[word].back().first != docid) {
             index[word].push_back({docid, 1});
         } else {

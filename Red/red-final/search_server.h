@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <string_view>
 #include <future>
 #include <mutex>
 
@@ -14,12 +15,13 @@ using namespace std;
 
 class InvertedIndex {
 public:
-    void Add(string &document);
+    void Add(string document);
 
-    const vector<pair<int, int>> &Lookup(const string &word) const;
+    const vector<pair<int, int>> &Lookup(const string& word) const;
 
 private:
-    map<string, vector<pair<int, int>>> index;
+    list<string> documents;
+    map<string , vector<pair<int, int>>> index;
     int current_docid = 0;
     vector<pair<int, int>> empty_vector = {};
 };
