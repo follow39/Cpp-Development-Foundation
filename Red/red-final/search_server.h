@@ -17,11 +17,13 @@ class InvertedIndex {
 public:
     void Add(string document);
 
-    const vector<pair<int, int>> &Lookup(const string& word) const;
+//    const vector<pair<int, int>> &Lookup(const string& word) const;
+    const vector<pair<int, int>> &Lookup(const string_view word) const;
 
 private:
     list<string> documents;
-    map<string , vector<pair<int, int>>> index;
+//    map<string , vector<pair<int, int>>> index;
+    map<string_view, vector<pair<int, int>>> index;
     int current_docid = 0;
     vector<pair<int, int>> empty_vector = {};
 };
