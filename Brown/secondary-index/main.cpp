@@ -30,7 +30,7 @@ struct Record {
 class Database {
 public:
     bool Put(const Record &record) {
-        auto temp = id_map.insert({record.id, record});
+        const auto temp = id_map.insert({record.id, record});
         if (temp.second) {
             timestamp_map.insert({record.timestamp, &temp.first->second});
             karma_map.insert({record.karma, &temp.first->second});
@@ -41,7 +41,7 @@ public:
     }
 
     const Record *GetById(const string &id) const {
-        auto it = id_map.find(id);
+        const auto it = id_map.find(id);
         if (it != id_map.end()) {
             return &it->second;
         }
@@ -52,17 +52,17 @@ public:
         const auto it = id_map.find(id);
         if (it != id_map.end()) {
             auto it_timestamp_remove = timestamp_map.lower_bound(it->second.timestamp);
-            while (*it_timestamp_remove->second != it->second) {
+            while (*(it_timestamp_remove->second) != it->second) {
                 ++it_timestamp_remove;
             }
             timestamp_map.erase(it_timestamp_remove);
-            auto it_karma_remove = karma_map.lower_bound(it->second.timestamp);
-            while (*it_karma_remove->second != it->second) {
+            auto it_karma_remove = karma_map.lower_bound(it->second.karma);
+            while (*(it_karma_remove->second) != it->second) {
                 ++it_karma_remove;
             }
             karma_map.erase(it_karma_remove);
             auto it_user_remove = user_map.lower_bound(it->second.user);
-            while (*it_user_remove->second != it->second) {
+            while (*(it_user_remove->second) != it->second) {
                 ++it_user_remove;
             }
             user_map.erase(it_user_remove);
