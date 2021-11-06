@@ -2,9 +2,11 @@
 
 #include <iostream>
 #include <map>
+#include <iterator>
 #include <set>
 #include <string>
 #include <unordered_map>
+#include <list>
 
 using namespace std;
 
@@ -29,44 +31,41 @@ struct Record {
 // Реализуйте этот класс
 class Database {
 public:
+    struct SecondaryIt {
+        list<Record>::iterator it_records;
+        multimap<int, list<Record>::iterator>::iterator it_timestamp;
+        multimap<int, list<Record>::iterator>::iterator it_karma;
+        multimap<string, list<Record>::iterator>::iterator it_user;
+    };
+
     bool Put(const Record &record) {
-        const auto temp = id_map.insert({record.id, record});
-        if (temp.second) {
-            timestamp_map.insert({record.timestamp, &temp.first->second});
-            karma_map.insert({record.karma, &temp.first->second});
-            user_map.insert({record.user, &temp.first->second});
+        if (main_map.find(record.id) == main_map.end()) {
+            records.push_front(record);
+            auto it_records = records.begin();
+            auto it_timestamp = timestamp_map.insert({record.timestamp, it_records});
+            auto it_karma = karma_map.insert({record.karma, it_records});
+            auto it_user = user_map.insert({record.user, it_records});
+            main_map.insert({record.id, {it_records, it_timestamp, it_karma, it_user}});
             return true;
         }
         return false;
     }
 
     const Record *GetById(const string &id) const {
-        const auto it = id_map.find(id);
-        if (it != id_map.end()) {
-            return &it->second;
+        if (main_map.find(id) != main_map.end()) {
+            return &(*main_map.at(id).it_records);
         }
         return nullptr;
     }
 
     bool Erase(const string &id) {
-        const auto it = id_map.find(id);
-        if (it != id_map.end()) {
-            auto it_timestamp_remove = timestamp_map.lower_bound(it->second.timestamp);
-            while (*(it_timestamp_remove->second) != it->second) {
-                ++it_timestamp_remove;
-            }
-            timestamp_map.erase(it_timestamp_remove);
-            auto it_karma_remove = karma_map.lower_bound(it->second.karma);
-            while (*(it_karma_remove->second) != it->second) {
-                ++it_karma_remove;
-            }
-            karma_map.erase(it_karma_remove);
-            auto it_user_remove = user_map.lower_bound(it->second.user);
-            while (*(it_user_remove->second) != it->second) {
-                ++it_user_remove;
-            }
-            user_map.erase(it_user_remove);
-            id_map.erase(it);
+        if (main_map.find(id) != main_map.end()) {
+            SecondaryIt it = main_map.at(id);
+            records.erase(it.it_records);
+            timestamp_map.erase(it.it_timestamp);
+            karma_map.erase(it.it_karma);
+            user_map.erase(it.it_user);
+            main_map.erase(id);
             return true;
         }
         return false;
@@ -88,8 +87,7 @@ public:
 
     template<typename Callback>
     void AllByUser(const string &user, Callback callback) const {
-        const auto it_first = user_map.lower_bound(user);
-        const auto it_last = user_map.upper_bound(user);
+        const auto[it_first, it_last] = user_map.equal_range(user);
         RangeBy(it_first, it_last, callback);
     }
 
@@ -102,10 +100,12 @@ private:
         }
     }
 
-    multimap<int, Record *> timestamp_map;
-    multimap<int, Record *> karma_map;
-    multimap<string, Record *> user_map;
-    map<string, Record> id_map;
+    list<Record> records;
+    multimap<int, list<Record>::iterator> timestamp_map;
+    multimap<int, list<Record>::iterator> karma_map;
+    multimap<string, list<Record>::iterator> user_map;
+//    unordered_map<string, pair<Record, SecondaryIt>> id_map;
+    unordered_map<string, SecondaryIt> main_map;
 };
 
 void TestRangeBoundaries() {
