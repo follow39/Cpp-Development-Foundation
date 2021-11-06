@@ -14,6 +14,16 @@ struct Record {
     string user;
     int timestamp;
     int karma;
+
+    bool operator==(const Record &other) {
+        return tie(id, title, user, timestamp, karma) ==
+               tie(other.id, other.title, other.user, other.timestamp, other.karma);
+    }
+
+    bool operator!=(const Record &other) {
+        return tie(id, title, user, timestamp, karma) !=
+               tie(other.id, other.title, other.user, other.timestamp, other.karma);
+    }
 };
 
 // Реализуйте этот класс
@@ -42,17 +52,17 @@ public:
         const auto it = id_map.find(id);
         if (it != id_map.end()) {
             auto it_timestamp_remove = timestamp_map.lower_bound(it->second.timestamp);
-            while (it_timestamp_remove->second != &it->second) {
+            while (*it_timestamp_remove->second != it->second) {
                 ++it_timestamp_remove;
             }
             timestamp_map.erase(it_timestamp_remove);
             auto it_karma_remove = karma_map.lower_bound(it->second.timestamp);
-            while (it_karma_remove->second != &it->second) {
+            while (*it_karma_remove->second != it->second) {
                 ++it_karma_remove;
             }
             karma_map.erase(it_karma_remove);
             auto it_user_remove = user_map.lower_bound(it->second.user);
-            while (it_user_remove->second != &it->second) {
+            while (*it_user_remove->second != it->second) {
                 ++it_user_remove;
             }
             user_map.erase(it_user_remove);
