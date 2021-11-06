@@ -57,6 +57,7 @@ public:
             }
             user_map.erase(it_user_remove);
             id_map.erase(it);
+            return true;
         }
         return false;
     }
