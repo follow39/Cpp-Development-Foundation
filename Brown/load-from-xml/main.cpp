@@ -49,6 +49,7 @@ vector<Spending> LoadFromXml(istream &input) {
         result.emplace_back(Spending{ch.AttributeValue<string>("category"),
                                      ch.AttributeValue<int>("amount")});
     }
+    return result;
 }
 
 void TestLoadFromXml() {
