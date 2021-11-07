@@ -13,7 +13,7 @@ namespace StatsAggregators {
         return output.str();
     }
 
-    void TestSumStatsAggregator() {
+    void TestSum() {
         Sum aggr;
         ASSERT_EQUAL(PrintedValue(aggr), "Sum is 0");
 
@@ -25,7 +25,7 @@ namespace StatsAggregators {
         ASSERT_EQUAL(PrintedValue(aggr), "Sum is 26");
     }
 
-    void TestMinStatsAggregator() {
+    void TestMin() {
         Min aggr;
         ASSERT_EQUAL(PrintedValue(aggr), "Min is undefined");
 
@@ -37,7 +37,7 @@ namespace StatsAggregators {
         ASSERT_EQUAL(PrintedValue(aggr), "Min is -1");
     }
 
-    void TestMaxStatsAggregator() {
+    void TestMax() {
         Max aggr;
         ASSERT_EQUAL(PrintedValue(aggr), "Max is undefined");
 
@@ -49,7 +49,7 @@ namespace StatsAggregators {
         ASSERT_EQUAL(PrintedValue(aggr), "Max is 16");
     }
 
-    void TestAverageStatsAggregator() {
+    void TestAverage() {
         Average aggr;
         ASSERT_EQUAL(PrintedValue(aggr), "Average is undefined");
 
@@ -61,7 +61,7 @@ namespace StatsAggregators {
         ASSERT_EQUAL(PrintedValue(aggr), "Average is 6");
     }
 
-    void TestModeStatsAggregator() {
+    void TestMode() {
         Mode aggr;
         ASSERT_EQUAL(PrintedValue(aggr), "Mode is undefined");
 
@@ -79,7 +79,7 @@ namespace StatsAggregators {
         ASSERT_EQUAL(PrintedValue(aggr), "Mode is 8");
     }
 
-    void TestCompositeStatsAggregator() {
+    void TestComposite() {
         Composite aggr;
         aggr.Add(make_unique<Sum>());
         aggr.Add(make_unique<Min>());
