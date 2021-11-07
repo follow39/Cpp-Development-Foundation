@@ -87,9 +87,10 @@ public:
         if (!resp.content.empty()) {
             output << "Content-Length: " << resp.content.size() << '\n';
             output << '\n';
-            output << resp.content << '\n';
+            output << resp.content;
+        } else {
+            output << '\n';
         }
-//        output << endl;
         return output;
     }
 
