@@ -1,12 +1,12 @@
 #include "json.h"
+
 using namespace std;
 
 namespace Json {
-
     Node::Node(vector<Node> array) : as_array(move(array)) {
     }
 
-    Node::Node(map<string, Node> map) : as_map(move(map)){
+    Node::Node(map<string, Node> map) : as_map(move(map)) {
     }
 
     Node::Node(int value) : as_int(value) {
@@ -15,11 +15,11 @@ namespace Json {
     Node::Node(string value) : as_string(move(value)) {
     }
 
-    const vector<Node>& Node::AsArray() const {
+    const vector<Node> &Node::AsArray() const {
         return as_array;
     }
 
-    const map<string, Node>& Node::AsMap() const {
+    const map<string, Node> &Node::AsMap() const {
         return as_map;
     }
 
@@ -27,23 +27,23 @@ namespace Json {
         return as_int;
     }
 
-    const string& Node::AsString() const {
+    const string &Node::AsString() const {
         return as_string;
     }
 
     Document::Document(Node root) : root(move(root)) {
     }
 
-    const Node& Document::GetRoot() const {
+    const Node &Document::GetRoot() const {
         return root;
     }
 
-    Node LoadNode(istream& input);
+    Node LoadNode(istream &input);
 
-    Node LoadArray(istream& input) {
+    Node LoadArray(istream &input) {
         vector<Node> result;
 
-        for (char c; input >> c && c != ']'; ) {
+        for (char c; input >> c && c != ']';) {
             if (c != ',') {
                 input.putback(c);
             }
@@ -53,7 +53,7 @@ namespace Json {
         return Node(move(result));
     }
 
-    Node LoadInt(istream& input) {
+    Node LoadInt(istream &input) {
         int result = 0;
         while (isdigit(input.peek())) {
             result *= 10;
@@ -62,16 +62,16 @@ namespace Json {
         return Node(result);
     }
 
-    Node LoadString(istream& input) {
+    Node LoadString(istream &input) {
         string line;
         getline(input, line, '"');
         return Node(move(line));
     }
 
-    Node LoadDict(istream& input) {
+    Node LoadDict(istream &input) {
         map<string, Node> result;
 
-        for (char c; input >> c && c != '}'; ) {
+        for (char c; input >> c && c != '}';) {
             if (c == ',') {
                 input >> c;
             }
@@ -84,7 +84,7 @@ namespace Json {
         return Node(move(result));
     }
 
-    Node LoadNode(istream& input) {
+    Node LoadNode(istream &input) {
         char c;
         input >> c;
 
@@ -100,8 +100,7 @@ namespace Json {
         }
     }
 
-    Document Load(istream& input) {
+    Document Load(istream &input) {
         return Document{LoadNode(input)};
     }
-
 }
