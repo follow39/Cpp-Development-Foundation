@@ -39,20 +39,14 @@ namespace Ini {
 
     Document Load(istream &input) {
         Document result;
-        while (input) {
-            string section_name;
-            getline(input, section_name);
-            if (section_name[0] == '[') {
-                Section& current_section = result.AddSection(Unquote(section_name));
-                while (input) {
-                    string section_line;
-                    getline(input, section_line);
-                    if (section_line.empty()) {
-                        break;
-                    }
-                    auto temp = Split(section_line, '=');
-                    current_section.insert(temp);
-                }
+        Section *current_section = nullptr;
+        for (string line; getline(input, line);) {
+            if (line.empty()) {
+                continue;
+            } else if (line[0] == '[') {
+                current_section = &result.AddSection(Unquote(line));
+            } else if (current_section != nullptr) {
+                current_section->insert(Split(line, '='));
             }
         }
         return result;
