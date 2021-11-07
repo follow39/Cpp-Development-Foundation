@@ -106,12 +106,12 @@ private:
     unordered_set<size_t> banned_users;
 
 public:
-    void ServeRequest(const HttpRequest &req, ostream &os) {
+    HttpResponse ServeRequest(const HttpRequest &req) {
         if (req.method == "POST") {
             if (req.path == "/add_user") {
                 comments_.emplace_back();
                 auto response = to_string(comments_.size() - 1);
-                os << HttpResponse(HttpCode::Ok).SetContent(response) << endl;
+                return HttpResponse(HttpCode::Ok).SetContent(response);
             } else if (req.path == "/add_comment") {
                 auto[user_id, comment] = ParseIdAndContent(req.body);
                 if (!last_comment || last_comment->user_id != user_id) {
@@ -121,9 +121,9 @@ public:
                 }
                 if (banned_users.count(user_id) == 0) {
                     comments_[user_id].push_back(string(comment));
-                    os << HttpResponse(HttpCode::Ok) << endl;
+                    return HttpResponse(HttpCode::Ok);
                 } else {
-                    os << HttpResponse(HttpCode::Found).AddHeader("Location", "/captcha") << endl;
+                    return HttpResponse(HttpCode::Found).AddHeader("Location", "/captcha");
                 }
             } else if (req.path == "/checkcaptcha") {
                 if (auto[id, response] = ParseIdAndContent(req.body); response == "42") {
@@ -131,12 +131,12 @@ public:
                     if (last_comment && last_comment->user_id == id) {
                         last_comment.reset();
                     }
-                    os << HttpResponse(HttpCode::Ok) << endl;
+                    return HttpResponse(HttpCode::Ok);
                 } else {
-                    os << HttpResponse(HttpCode::Found).AddHeader("Location", "/captcha") << endl;
+                    return HttpResponse(HttpCode::Found).AddHeader("Location", "/captcha");
                 }
             } else {
-                os << HttpResponse(HttpCode::NotFound) << endl;
+                return HttpResponse(HttpCode::NotFound);
             }
         } else if (req.method == "GET") {
             if (req.path == "/user_comments") {
@@ -145,14 +145,18 @@ public:
                 for (const string &c: comments_[user_id]) {
                     response += c + '\n';
                 }
-                os << HttpResponse(HttpCode::Ok).SetContent(response) << endl;
+                return HttpResponse(HttpCode::Ok).SetContent(response);
             } else if (req.path == "/captcha") {
                 string response = "What's the answer for The Ultimate Question of Life, the Universe, and Everything?";
-                os << HttpResponse(HttpCode::Ok).SetContent(response) << endl;
+                return HttpResponse(HttpCode::Ok).SetContent(response);
             } else {
-                os << HttpResponse(HttpCode::NotFound) << endl;
+                return HttpResponse(HttpCode::NotFound);
             }
         }
+    }
+
+    void ServeRequest(const HttpRequest &req, ostream &os) {
+        os << ServeRequest(req) << endl;
     }
 };
 
