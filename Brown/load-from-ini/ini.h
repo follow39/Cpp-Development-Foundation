@@ -21,5 +21,4 @@ namespace Ini {
     };
 
     Document Load(istream &input);
-
 }
