@@ -16,41 +16,43 @@ class ConcurrentMap {
 public:
     using MapType = unordered_map<K, V, Hash>;
 
-    template<typename U>
-    struct Access {
+    struct WriteAccess {
         lock_guard<mutex> guard;
-        U &ref_to_value;
+        V &ref_to_value;
 
-        Access(mutex &m, U &value)
-                : guard(m), ref_to_value(value) {}
+        WriteAccess(const K &key, pair<mutex, MapType> &bucket_content)
+                : guard(bucket_content.first), ref_to_value(bucket_content.second[key]) {}
+    };
+
+    struct ReadAccess {
+        lock_guard<mutex> guard;
+        const V &ref_to_value;
+
+        ReadAccess(const K &key, pair<mutex, MapType> &bucket_content)
+                : guard(bucket_content.first), ref_to_value(bucket_content.second.at(key)) {}
     };
 
     explicit ConcurrentMap(size_t bucket_count)
-            : data_mutex_vector(bucket_count),
-              data(bucket_count) {}
+            : data(bucket_count) {}
 
-    Access<V> operator[](const K &key) {
-        return Access<V>(data_mutex_vector[GetBucketByKey(key)],
-                         data[GetBucketByKey(key)][key]);
+    WriteAccess operator[](const K &key) {
+        return WriteAccess(key, data[GetBucketByKey(key)]);
     }
 
-    Access<const V> At(const K &key) const {
-        return Access<const V>(data_mutex_vector[GetBucketByKey(key)],
-                               data[GetBucketByKey(key)].at(key));
+    ReadAccess At(const K &key) const {
+        return ReadAccess(key, data[GetBucketByKey(key)]);
     }
 
     bool Has(const K &key) const {
-        lock_guard<mutex> g(data_mutex_vector[GetBucketByKey(key)]);
-        return data[GetBucketByKey(key)].count(key);
+        lock_guard<mutex> g(data[GetBucketByKey(key)].first);
+        return data[GetBucketByKey(key)].second.count(key);
     }
 
     MapType BuildOrdinaryMap() const {
         MapType result;
-        for (size_t i = 0; i < data.size(); ++i) {
-            lock_guard<mutex> g(data_mutex_vector[i]);
-            for (const auto&[key, value]: data[i]) {
-                result.insert({key, value});
-            }
+        for (auto&[mtx, mapping]: data) {
+            lock_guard<mutex> g(mtx);
+            result.insert(begin(mapping), end(mapping));
         }
         return result;
     }
@@ -61,8 +63,7 @@ private:
     }
 
     Hash hasher;
-    mutable vector<mutex> data_mutex_vector;
-    vector<MapType> data;
+    mutable vector<pair<mutex, MapType>> data;
 };
 
 void RunConcurrentUpdates(
@@ -248,6 +249,10 @@ void TestHas() {
 }
 
 int main() {
+//    hash<int> hasher;
+//    for (int i = 0; i < 100; ++i) {
+//        cout << i << ' ' << hasher(i) << ' ' << hasher(i) % 3 << endl;
+//    }
     TestRunner tr;
     RUN_TEST(tr, TestConcurrentUpdate);
     RUN_TEST(tr, TestReadAndWrite);
