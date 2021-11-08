@@ -77,7 +77,29 @@ int main() {
         sort(begin(people), end(people), [](const Person &lhs, const Person &rhs) {
             return lhs.age < rhs.age;
         });
-        return people;
+        return move(people);
+    }();
+
+    const vector<int> age_vector = [people] {
+        vector<int> age_vector(150);
+        vector<int> result;
+        for (const auto &person: people) {
+            ++age_vector[person.age];
+        }
+        partial_sum(age_vector.rbegin(), age_vector.rend(), back_inserter(result));
+        reverse(result.begin(), result.end());
+        return move(result);
+    }();
+    const vector<int> wealthy_vector = [people] {
+        vector<int> wealthy_vector;
+        vector<int> result;
+        wealthy_vector.reserve(people.size());
+        for (const auto &person: people) {
+            wealthy_vector.push_back(person.income);
+        }
+        sort(wealthy_vector.begin(), wealthy_vector.end());
+        partial_sum(wealthy_vector.rbegin(), wealthy_vector.rend(), back_inserter(result));
+        return move(result);
     }();
 
     const string most_popular_name_m = GetMostPopularName(people, 'M');
@@ -87,38 +109,15 @@ int main() {
         if (command == "AGE") {
             int adult_age;
             cin >> adult_age;
-
-            auto adult_begin = lower_bound(
-                    begin(people), end(people), adult_age, [](const Person &lhs, int age) {
-                        return lhs.age < age;
-                    }
-            );
-
-            cout << "There are " << std::distance(adult_begin, end(people))
+            cout << "There are " << age_vector[adult_age]
                  << " adult people for maturity age " << adult_age << '\n';
         } else if (command == "WEALTHY") {
             int count;
             cin >> count;
-
-            vector<Person> temp(count);
-            partial_sort_copy(
-                    people.begin(), people.end(),
-                    temp.begin(), temp.end(),
-                    [](const Person &lhs, const Person &rhs) {
-                        return lhs.income > rhs.income;
-                    });
-
-            int total_income = accumulate(
-                    temp.begin(), temp.end(), 0, [](int cur, Person &p) {
-                        return p.income += cur;
-                    }
-            );
-            cout << "Top-" << count << " people have total income " << total_income << '\n';
+            cout << "Top-" << count << " people have total income " << wealthy_vector[count - 1] << '\n';
         } else if (command == "POPULAR_NAME") {
             char gender;
             cin >> gender;
-
-
             cout << "Most popular name among people of gender " << gender << " is "
                  << ((gender == 'M') ? most_popular_name_m : most_popular_name_w) << '\n';
         }
