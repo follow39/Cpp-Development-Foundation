@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <iterator>
 #include <map>
 
 using namespace std;
@@ -121,17 +122,20 @@ int main() {
 //                    }
 //                    i = same_name_end;
 //                }
-            string most_popular_name;
-            int most_popular_name_count;
+
             map<string, int> names;
             for (const auto &person: people) {
                 if (person.is_male == (gender == 'M')) {
-                    auto name_count = names[person.name];
-                    ++name_count;
-                    if (name_count > most_popular_name_count) {
-                        most_popular_name = person.name;
-                        most_popular_name_count = name_count;
-                    }
+                    ++names[person.name];
+                }
+            }
+            string most_popular_name;
+            int most_popular_name_count = 0;
+            for (const auto&[name, count]: names) {
+                if ((count > most_popular_name_count) ||
+                    (count == most_popular_name_count && name < most_popular_name)) {
+                    most_popular_name = name;
+                    most_popular_name_count = count;
                 }
             }
             cout << "Most popular name among people of gender " << gender << " is "
