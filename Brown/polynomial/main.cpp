@@ -29,16 +29,52 @@ void PrintCoeff(std::ostream &out, int i, const T &coef, bool printed) {
     }
 }
 
+
 template<typename T>
 class Polynomial {
 private:
-    mutable std::vector<T> coeffs_ = {0};
+    std::vector<T> coeffs_ = {0};
 
-    void Shrink() const {
+    void Shrink() {
         while (coeffs_.size() > 1 && coeffs_.back() == 0) {
             coeffs_.pop_back();
         }
     }
+
+    class IndexProxy {
+    public:
+        explicit IndexProxy(size_t new_degree, std::vector<T> &coeff_ref)
+                : degree_(new_degree),
+                  ref_to_coef(coeff_ref) {}
+
+        T operator=(T value) {
+            if(value!= 0) {
+                if (ref_to_coef.size() <= degree_) {
+                    ref_to_coef.resize(degree_ + 1);
+                }
+                ref_to_coef[degree_] = value;
+            }
+            return value;
+        }
+
+        operator T() const {
+            return degree_ < ref_to_coef.size() ? ref_to_coef[degree_] : 0;
+        }
+
+        bool operator==(const T &value) {
+            T this_value = ref_to_coef[degree_];
+            return this_value == value;
+        }
+
+        friend ostream &operator<<(ostream &os, const IndexProxy &value) {
+            os << static_cast<T>(value);
+            return os;
+        }
+
+    private:
+        size_t degree_;
+        std::vector<T> &ref_to_coef;
+    };
 
 public:
     Polynomial() = default;
@@ -61,7 +97,6 @@ public:
     }
 
     int Degree() const {
-        Shrink();
         return coeffs_.size() - 1;
     }
 
@@ -91,11 +126,8 @@ public:
         return degree < coeffs_.size() ? coeffs_[degree] : 0;
     }
 
-    T &operator[](size_t degree) {
-        if (coeffs_.size() <= degree) {
-            coeffs_.resize(degree + 1);
-        }
-        return coeffs_[degree];
+    IndexProxy operator[](size_t degree) {
+        return IndexProxy(degree, coeffs_);
     }
 
     T operator()(const T &x) const {
