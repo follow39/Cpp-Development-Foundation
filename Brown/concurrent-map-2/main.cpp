@@ -16,41 +16,53 @@ class ConcurrentMap {
 public:
     using MapType = unordered_map<K, V, Hash>;
 
-    auto Lock(mutex &m) {
-        return lock_guard<mutex>{m};
-    }
-
+    template<typename U>
     struct Access {
         lock_guard<mutex> guard;
-        V &ref_to_value;
+        U &ref_to_value;
 
-        Access(const K &key, pair<mutex, unordered_map<K, V, Hash>> &bucket_content)
-                : guard(bucket_content.first), ref_to_value(bucket_content.second[key]) {}
-    };
-
-    struct WriteAccess {
-        V &ref_to_value;
-    };
-
-    struct ReadAccess {
-        const V &ref_to_value;
+        Access(mutex &m, U &value)
+                : guard(m), ref_to_value(value) {}
     };
 
     explicit ConcurrentMap(size_t bucket_count)
-            : data(bucket_count) {}
+            : data_mutex_vector(bucket_count),
+              data(bucket_count) {}
 
-    WriteAccess operator[](const K &key);
+    Access<V> operator[](const K &key) {
+        return Access<V>(data_mutex_vector[GetBucketByKey(key)],
+                         data[GetBucketByKey(key)][key]);
+    }
 
-    ReadAccess At(const K &key) const;
+    Access<const V> At(const K &key) const {
+        return Access<const V>(data_mutex_vector[GetBucketByKey(key)],
+                               data[GetBucketByKey(key)].at(key));
+    }
 
-    bool Has(const K &key) const;
+    bool Has(const K &key) const {
+        lock_guard<mutex> g(data_mutex_vector[GetBucketByKey(key)]);
+        return data[GetBucketByKey(key)].count(key);
+    }
 
-    MapType BuildOrdinaryMap() const;
+    MapType BuildOrdinaryMap() const {
+        MapType result;
+        for (size_t i = 0; i < data.size(); ++i) {
+            lock_guard<mutex> g(data_mutex_vector[i]);
+            for (const auto&[key, value]: data[i]) {
+                result.insert({key, value});
+            }
+        }
+        return result;
+    }
 
 private:
+    size_t GetBucketByKey(const K &key) const {
+        return hasher(key) % data.size();
+    }
+
     Hash hasher;
-    vector<pair<mutex, unordered_map<K, V, Hash>>> data;
-    mutex mutex_op;
+    mutable vector<mutex> data_mutex_vector;
+    vector<MapType> data;
 };
 
 void RunConcurrentUpdates(
