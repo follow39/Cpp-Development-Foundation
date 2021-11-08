@@ -52,6 +52,25 @@ vector<Person> ReadPeople(istream &input) {
     return result;
 }
 
+string GetMostPopularName(const vector<Person> &people, char gender) {
+    map<string, int> names;
+    for (const auto &person: people) {
+        if (person.is_male == (gender == 'M')) {
+            ++names[person.name];
+        }
+    }
+    string most_popular_name;
+    int most_popular_name_count = 0;
+    for (const auto&[name, count]: names) {
+        if ((count > most_popular_name_count) ||
+            (count == most_popular_name_count && name < most_popular_name)) {
+            most_popular_name = name;
+            most_popular_name_count = count;
+        }
+    }
+    return most_popular_name;
+}
+
 int main() {
     const vector<Person> people = [] {
         vector<Person> people = ReadPeople(cin);
@@ -61,6 +80,8 @@ int main() {
         return people;
     }();
 
+    const string most_popular_name_m = GetMostPopularName(people, 'M');
+    const string most_popular_name_w = GetMostPopularName(people, 'W');
 
     for (string command; cin >> command;) {
         if (command == "AGE") {
@@ -97,23 +118,9 @@ int main() {
             char gender;
             cin >> gender;
 
-            map<string, int> names;
-            for (const auto &person: people) {
-                if (person.is_male == (gender == 'M')) {
-                    ++names[person.name];
-                }
-            }
-            string most_popular_name;
-            int most_popular_name_count = 0;
-            for (const auto&[name, count]: names) {
-                if ((count > most_popular_name_count) ||
-                    (count == most_popular_name_count && name < most_popular_name)) {
-                    most_popular_name = name;
-                    most_popular_name_count = count;
-                }
-            }
+
             cout << "Most popular name among people of gender " << gender << " is "
-                 << most_popular_name << '\n';
+                 << ((gender == 'M') ? most_popular_name_m : most_popular_name_w) << '\n';
         }
     }
 }
