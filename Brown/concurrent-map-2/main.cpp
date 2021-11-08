@@ -16,20 +16,25 @@ class ConcurrentMap {
 public:
     using MapType = unordered_map<K, V, Hash>;
 
-    struct WriteAccess {
-        lock_guard<mutex> guard;
-        V &ref_to_value;
-
-        WriteAccess(const K &key, pair<mutex, MapType> &bucket_content)
-                : guard(bucket_content.first), ref_to_value(bucket_content.second[key]) {}
+    struct Bucket {
+        MapType data;
+        mutable mutex mtx;
     };
 
-    struct ReadAccess {
-        lock_guard<mutex> guard;
+    struct WriteAccess : lock_guard<mutex> {
+        V &ref_to_value;
+
+        WriteAccess(const K &key, Bucket &bucket_content)
+                : lock_guard<mutex>(bucket_content.mtx),
+                  ref_to_value(bucket_content.data[key]) {}
+    };
+
+    struct ReadAccess : lock_guard<mutex> {
         const V &ref_to_value;
 
-        ReadAccess(const K &key, pair<mutex, MapType> &bucket_content)
-                : guard(bucket_content.first), ref_to_value(bucket_content.second.at(key)) {}
+        ReadAccess(const K &key, const Bucket &bucket_content)
+                : lock_guard<mutex>(bucket_content.mtx),
+                  ref_to_value(bucket_content.data.at(key)) {}
     };
 
     explicit ConcurrentMap(size_t bucket_count)
@@ -44,15 +49,15 @@ public:
     }
 
     bool Has(const K &key) const {
-        lock_guard<mutex> g(data[GetBucketByKey(key)].first);
-        return data[GetBucketByKey(key)].second.count(key);
+        lock_guard<mutex> g(data[GetBucketByKey(key)].mtx);
+        return data[GetBucketByKey(key)].data.count(key);
     }
 
     MapType BuildOrdinaryMap() const {
         MapType result;
-        for (auto&[mtx, mapping]: data) {
-            lock_guard<mutex> g(mtx);
-            result.insert(begin(mapping), end(mapping));
+        for (auto &bucket: data) {
+            lock_guard<mutex> g(bucket.mtx);
+            result.insert(bucket.data.begin(), bucket.data.end());
         }
         return result;
     }
@@ -63,7 +68,7 @@ private:
     }
 
     Hash hasher;
-    mutable vector<pair<mutex, MapType>> data;
+    vector<Bucket> data;
 };
 
 void RunConcurrentUpdates(
