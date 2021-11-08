@@ -97,32 +97,6 @@ int main() {
             char gender;
             cin >> gender;
 
-//            IteratorRange range{
-//                    begin(people),
-//                    partition(begin(people), end(people), [gender](Person &p) {
-//                        return p.is_male = (gender == 'M');
-//                    })
-//            };
-//            if (range.begin() == range.end()) {
-//                cout << "No people of gender " << gender << '\n';
-//            } else {
-//                sort(range.begin(), range.end(), [](const Person &lhs, const Person &rhs) {
-//                    return lhs.name < rhs.name;
-//                });
-//                const string *most_popular_name = &range.begin()->name;
-//                int count = 1;
-//                for (auto i = range.begin(); i != range.end();) {
-//                    auto same_name_end = find_if_not(i, range.end(), [i](const Person &p) {
-//                        return p.name == i->name;
-//                    });
-//                    auto cur_name_count = std::distance(i, same_name_end);
-//                    if (cur_name_count > count) {
-//                        count = cur_name_count;
-//                        most_popular_name = &i->name;
-//                    }
-//                    i = same_name_end;
-//                }
-
             map<string, int> names;
             for (const auto &person: people) {
                 if (person.is_male == (gender == 'M')) {
