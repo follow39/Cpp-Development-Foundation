@@ -118,8 +118,13 @@ int main() {
         } else if (command == "POPULAR_NAME") {
             char gender;
             cin >> gender;
-            cout << "Most popular name among people of gender " << gender << " is "
-                 << ((gender == 'M') ? most_popular_name_m : most_popular_name_w) << '\n';
+            string most_popular_name = ((gender == 'M') ? most_popular_name_m : most_popular_name_w);
+            if(most_popular_name.empty()) {
+                cout << "No people of gender " << gender << '\n';
+            }else {
+                cout << "Most popular name among people of gender " << gender << " is "
+                     << most_popular_name << '\n';
+            }
         }
     }
 }
