@@ -48,15 +48,12 @@ private:
                   ref_to_coef(coeff_ref) {}
 
         T operator=(T value) {
-            if (value != 0) {
-                if (ref_to_coef.size() <= degree_) {
-                    ref_to_coef.resize(degree_ + 1);
-                }
-                ref_to_coef[degree_] = value;
-            } else {
-                while (ref_to_coef.size() > 1 && ref_to_coef.back() == 0) {
-                    ref_to_coef.pop_back();
-                }
+            if (ref_to_coef.size() <= degree_) {
+                ref_to_coef.resize(degree_ + 1);
+            }
+            ref_to_coef[degree_] = value;
+            while (ref_to_coef.size() > 1 && ref_to_coef.back() == 0) {
+                ref_to_coef.pop_back();
             }
             return value;
         }
