@@ -15,7 +15,7 @@ public:
     }
 
     string ToString() const override {
-        return "("s + to_string(value) + ")"s;
+        return to_string(value);
     }
 
 private:
@@ -28,18 +28,46 @@ public:
             : left(move(new_left)), right(move(new_right)) {}
 
     int Evaluate() const override {
-//        return Sum(left->Evaluate(), right->Evaluate())->Evaluate;
-        return 0; // !!!!!
+        return left->Evaluate() + right->Evaluate();
     }
 
     string ToString() const override {
-        return "("s + to_string(left->Evaluate()) + "+"s +
-               to_string(right->Evaluate()) + ")"s;
+        return "("s + left->ToString() + ")"s + "+"s + "("s + right->ToString() + ")"s;
     }
 
 private:
     ExpressionPtr left, right;
 };
+
+class ProductExpr : public Expression {
+public:
+    explicit ProductExpr(ExpressionPtr new_left, ExpressionPtr new_right)
+            : left(move(new_left)), right(move(new_right)) {}
+
+    int Evaluate() const override {
+        return left->Evaluate() * right->Evaluate();
+    }
+
+    string ToString() const override {
+        return "("s + left->ToString() + ")"s + "*"s + "("s + right->ToString() + ")"s;
+    }
+
+private:
+    ExpressionPtr left, right;
+};
+
+
+ExpressionPtr Value(int value) {
+    return make_unique<ValueExpr>(value);
+}
+
+ExpressionPtr Sum(ExpressionPtr left, ExpressionPtr right) {
+    return make_unique<SumExpr>(move(left), move(right));
+}
+
+ExpressionPtr Product(ExpressionPtr left, ExpressionPtr right) {
+    return make_unique<ProductExpr>(move(left), move(right));
+}
 
 
 string Print(const Expression *e) {
