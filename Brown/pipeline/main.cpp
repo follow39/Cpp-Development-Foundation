@@ -30,8 +30,6 @@ public:
     }
 
 protected:
-    unique_ptr<Worker> next = nullptr;
-
     // реализации должны вызывать PassOn, чтобы передать объект дальше
     // по цепочке обработчиков
     void PassOn(unique_ptr<Email> email) const {
@@ -44,6 +42,9 @@ public:
     void SetNext(unique_ptr<Worker> new_next) {
         next = move(new_next);
     }
+
+private:
+    unique_ptr<Worker> next = nullptr;
 };
 
 
@@ -53,7 +54,7 @@ public:
             : is(new_is) {}
 
     void Process(unique_ptr<Email> email) override {
-        PassOn(move(email));
+//        PassOn(move(email));
     }
 
     void Run() override {
@@ -62,6 +63,9 @@ public:
             getline(is, email.from);
             getline(is, email.to);
             getline(is, email.body);
+            if (!is) {
+                break;
+            }
             PassOn(make_unique<Email>(move(email)));
         }
     }
@@ -75,7 +79,6 @@ class Filter : public Worker {
 public:
     using Function = function<bool(const Email &)>;
 
-public:
     explicit Filter(Function pred)
             : predicate(move(pred)) {}
 
