@@ -30,7 +30,7 @@ public:
     }
 
 protected:
-    unique_ptr<Worker> next;
+    unique_ptr<Worker> next = nullptr;
 
     // реализации должны вызывать PassOn, чтобы передать объект дальше
     // по цепочке обработчиков
@@ -52,18 +52,18 @@ public:
     explicit Reader(istream &new_is)
             : is(new_is) {}
 
-    void Process(unique_ptr<Email> email) override {}
+    void Process(unique_ptr<Email> email) override {
+        PassOn(move(email));
+    }
 
     void Run() override {
         vector<unique_ptr<Email>> emails;
         while (is) {
-            string from, to, body;
-            is >> ws;
-            getline(is, from);
-            is >> ws;
-            getline(is, to);
-            getline(is, body);
-            emails.emplace_back(make_unique<Email>(Email{from, to, body}));
+            Email email;
+            getline(is, email.from);
+            getline(is, email.to);
+            getline(is, email.body);
+            emails.emplace_back(make_unique<Email>(move(email)));
         }
         for (auto &email: emails) {
             PassOn(move(email));
@@ -81,7 +81,7 @@ public:
 
 public:
     explicit Filter(Function pred)
-            : predicate(pred) {}
+            : predicate(move(pred)) {}
 
     void Process(unique_ptr<Email> email) override {
         if (predicate(*email)) {
@@ -90,7 +90,7 @@ public:
     }
 
 private:
-    const Function predicate;
+    Function predicate;
 };
 
 
@@ -121,7 +121,7 @@ public:
     void Process(unique_ptr<Email> email) override {
         os << email->from << '\n';
         os << email->to << '\n';
-        os << email->body << '\n';
+        os << email->body << endl;
         PassOn(move(email));
     }
 
@@ -158,7 +158,7 @@ public:
 
     // возвращает готовую цепочку обработчиков
     unique_ptr<Worker> Build() {
-        for (long i = workers.size() - 2; i >= 0; --i) {
+        for (long i = static_cast<long>(workers.size()) - 2; i >= 0; --i) {
             workers[i]->SetNext(move(workers[i + 1]));
         }
         return move(workers[0]);
