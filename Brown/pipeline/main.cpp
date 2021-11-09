@@ -57,16 +57,12 @@ public:
     }
 
     void Run() override {
-        vector<unique_ptr<Email>> emails;
         while (is) {
             Email email;
             getline(is, email.from);
             getline(is, email.to);
             getline(is, email.body);
-            emails.emplace_back(make_unique<Email>(move(email)));
-        }
-        for (auto &email: emails) {
-            PassOn(move(email));
+            PassOn(make_unique<Email>(move(email)));
         }
     }
 
