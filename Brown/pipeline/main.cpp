@@ -90,25 +90,26 @@ public:
     }
 
 private:
-    Function predicate;
+    const Function predicate;
 };
 
 
 class Copier : public Worker {
 public:
-    explicit Copier(string &new_receiver)
-            : receiver(new_receiver) {}
+    explicit Copier(string new_receiver)
+            : receiver(move(new_receiver)) {}
 
     void Process(unique_ptr<Email> email) override {
-        Email temp{email->from, email->to, email->body};
+        Email temp{*email};
         PassOn(move(email));
         if (temp.to != receiver) {
-            PassOn(make_unique<Email>(Email{temp.from, receiver, temp.body}));
+            temp.to = receiver;
+            PassOn(make_unique<Email>(move(temp)));
         }
     }
 
 private:
-    string receiver;
+    const string receiver;
 };
 
 
@@ -139,13 +140,13 @@ public:
 
     // добавляет новый обработчик Filter
     PipelineBuilder &FilterBy(Filter::Function filter) {
-        workers.emplace_back(make_unique<Filter>(filter));
+        workers.emplace_back(make_unique<Filter>(move(filter)));
         return *this;
     }
 
     // добавляет новый обработчик Copier
     PipelineBuilder &CopyTo(string recipient) {
-        workers.emplace_back(make_unique<Copier>(recipient));
+        workers.emplace_back(make_unique<Copier>(move(recipient)));
         return *this;
     }
 
