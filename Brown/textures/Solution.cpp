@@ -81,10 +81,13 @@ public:
     void Draw(Image &image) const override {
         for (int i = pos.y; i < image.size() && i < pos.y + size.height; ++i) {
             for (int j = pos.x; j < image[i].size() && j < pos.x + size.width; ++j) {
-                if (texture && IsPointInEllipse(pos, size)) {
-                    image[i][j] = texture->GetImage()[i - pos.y][j - pos.x];
-                } else {
-                    image[i][j] = '.';
+                if (IsPointInEllipse({j - pos.x, i - pos.y}, size)) {
+                    if (texture && i - pos.y < texture->GetSize().height &&
+                        j - pos.x < texture->GetSize().width) {
+                        image[i][j] = texture->GetImage()[i - pos.y][j - pos.x];
+                    } else {
+                        image[i][j] = '.';
+                    }
                 }
             }
         }
