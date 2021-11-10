@@ -17,22 +17,22 @@ public:
 
     UniquePtr(const UniquePtr &) = delete;
 
-    UniquePtr(UniquePtr &&other) : data(other.data) {
-        other.data = nullptr;
+    UniquePtr(UniquePtr &&other) {
+        data = other.Release();
     }
 
     UniquePtr &operator=(const UniquePtr &) = delete;
 
     UniquePtr &operator=(nullptr_t) {
         delete data;
+        data = nullptr;
         return *this;
     }
 
     UniquePtr &operator=(UniquePtr &&other) {
-        if (other != *this) {
+        if (other.data != data) {
             delete data;
-            data = other.data;
-            other.data = nullptr;
+            data = other.Release();
         }
         return *this;
     }
@@ -58,14 +58,16 @@ public:
     void Reset(T *ptr) {
         if (ptr != data) {
             delete data;
+            data = ptr;
         }
-        data = ptr;
     }
 
     void Swap(UniquePtr &other) {
-        T *temp = data;
-        data = other.data;
-        other.data = temp;
+        if (other.data != data) {
+            T *temp = data;
+            data = other.data;
+            other.data = temp;
+        }
     }
 
     T *Get() const {
