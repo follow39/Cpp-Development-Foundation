@@ -18,7 +18,6 @@ public:
     UniquePtr(const UniquePtr &) = delete;
 
     UniquePtr(UniquePtr &&other) {
-        delete data;
         data = other.data;
         other.data = nullptr;
     }
