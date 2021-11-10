@@ -8,7 +8,7 @@ using namespace std;
 template<typename T>
 class UniquePtr {
 private:
-    T *data;
+    T *data = nullptr;
 
 public:
     UniquePtr() : data(nullptr) {}
@@ -17,8 +17,7 @@ public:
 
     UniquePtr(const UniquePtr &) = delete;
 
-    UniquePtr(UniquePtr &&other) {
-        data = other.data;
+    UniquePtr(UniquePtr &&other) : data(other.data) {
         other.data = nullptr;
     }
 
@@ -26,13 +25,16 @@ public:
 
     UniquePtr &operator=(nullptr_t) {
         delete data;
-        data = nullptr;
+        return *this;
     }
 
     UniquePtr &operator=(UniquePtr &&other) {
-        delete data;
-        data = other.data;
-        other.data = nullptr;
+        if (other != *this) {
+            delete data;
+            data = other.data;
+            other.data = nullptr;
+        }
+        return *this;
     }
 
     ~UniquePtr() {
@@ -54,7 +56,9 @@ public:
     }
 
     void Reset(T *ptr) {
-        delete data;
+        if (ptr != data) {
+            delete data;
+        }
         data = ptr;
     }
 
