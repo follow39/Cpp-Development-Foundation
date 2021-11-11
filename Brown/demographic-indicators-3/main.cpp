@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <random>
 
 using namespace std;
 
@@ -132,13 +133,161 @@ void PrintStats(const AgeStats &stats,
                << stats.unemployed_males << endl;
 }
 
+void TestComputeMedianAge() {
+    {
+        std::random_device r;
+        std::default_random_engine e1(r());
+        std::uniform_int_distribution<int> random_0_1(0, 1);
+        std::uniform_int_distribution<int> random_0_74(0, 74);
+        std::uniform_int_distribution<int> random_76_150(76, 150);
+        int persons_count = 100'001;
+        vector<Person> persons;
+        persons.reserve(persons_count);
+        persons.push_back({75, Gender::FEMALE, true});
+        for (int i = 0; i < (persons_count - 1) / 2; ++i) {
+            persons.emplace_back(Person{random_0_74(e1), static_cast<Gender>(random_0_1(e1)),
+                                        static_cast<bool>(random_0_1(e1))});
+        }
+        for (int i = 0; i < (persons_count - 1) / 2; ++i) {
+            persons.emplace_back(Person{random_76_150(e1), static_cast<Gender>(random_0_1(e1)),
+                                        static_cast<bool>(random_0_1(e1))});
+        }
+
+        int attempts = 100;
+        for (int i = 0; i < attempts; ++i) {
+            shuffle(persons.begin(), persons.end(), r);
+            int result = ComputeMedianAge(persons.begin(), persons.end());
+            ASSERT_EQUAL(result, 75);
+        }
+    }
+}
+
+void TestReadPersons() {
+    {
+        vector<Person> expected;
+        stringstream ss("0");
+        vector<Person> result = ReadPersons(ss);
+        ASSERT_EQUAL(result, expected);
+    }
+    {
+        std::random_device r;
+        std::default_random_engine e1(r());
+        std::uniform_int_distribution<int> random_0_1(0, 1);
+        std::uniform_int_distribution<int> random_1_100(1, 100);
+        int persons_count = 100'000;
+        vector<Person> expected;
+        expected.reserve(persons_count);
+        for (int i = 0; i < persons_count; ++i) {
+            expected.emplace_back(Person{random_1_100(e1), static_cast<Gender>(random_0_1(e1)),
+                                         static_cast<bool>(random_0_1(e1))});
+        }
+        stringstream ss;
+        ss << expected.size() << '\n';
+        for (const auto &person: expected) {
+            ss << person.age << ' ' << static_cast<int>(person.gender) << ' '
+               << static_cast<int>(person.is_employed) << '\n';
+        }
+        vector<Person> result = ReadPersons(ss);
+        ASSERT_EQUAL(result, expected);
+    }
+}
+
+bool operator==(const AgeStats &lhs, const AgeStats &rhs) {
+    return lhs.total == rhs.total &&
+           lhs.females == rhs.females &&
+           lhs.males == rhs.males &&
+           lhs.employed_females == rhs.employed_females &&
+           lhs.unemployed_females == rhs.unemployed_females &&
+           lhs.employed_males == rhs.employed_males &&
+           lhs.unemployed_males == rhs.unemployed_males;
+}
+
+ostream &operator<<(ostream &os, const AgeStats &stats) {
+    os << '[' << stats.total << ", "
+       << to_string(stats.females) << ", "
+       << to_string(stats.males) << ", "
+       << to_string(stats.employed_females) << ", "
+       << to_string(stats.unemployed_females) << ", "
+       << to_string(stats.employed_males) << ", "
+       << to_string(stats.unemployed_males) << ']';
+    return os;
+}
+
+void TestComputeStats() {
+    {
+        vector<Person> persons = {
+                {31, Gender::MALE,   false},
+                {40, Gender::FEMALE, true},
+                {24, Gender::MALE,   true},
+                {20, Gender::FEMALE, true},
+                {80, Gender::FEMALE, false},
+                {78, Gender::MALE,   false},
+                {10, Gender::FEMALE, false},
+                {55, Gender::MALE,   true},
+        };
+
+        AgeStats expected = {
+                40,
+                40,
+                55,
+                40,
+                80,
+                55,
+                78
+        };
+        AgeStats result = ComputeStats(persons);
+        ASSERT_EQUAL(result, expected);
+    }
+}
+
+void TestPrintStats() {
+    {
+        AgeStats stats = {
+                40,
+                40,
+                55,
+                40,
+                80,
+                55,
+                78
+        };
+        stringstream expected;
+        expected << "Median age = " << stats.total << endl
+                 << "Median age for females = " << stats.females << endl
+                 << "Median age for males = " << stats.males << endl
+                 << "Median age for employed females = " << stats.employed_females << endl
+                 << "Median age for unemployed females = " << stats.unemployed_females << endl
+                 << "Median age for employed males = " << stats.employed_males << endl
+                 << "Median age for unemployed males = " << stats.unemployed_males << endl;
+        stringstream result;
+        PrintStats(stats, result);
+        ASSERT_EQUAL(result.str(), expected.str());
+    }
+}
 
 void TestAll() {
     TestRunner tr;
+    RUN_TEST(tr, TestComputeMedianAge);
+    RUN_TEST(tr, TestReadPersons);
+    RUN_TEST(tr, TestComputeStats);
+    RUN_TEST(tr, TestPrintStats);
 }
 
 int main() {
-    TestAll()
+    TestAll();
     PrintStats(ComputeStats(ReadPersons()));
     return 0;
 }
+
+/*
+  vector<Person> persons = {
+      {31, Gender::MALE, false},
+      {40, Gender::FEMALE, true},
+      {24, Gender::MALE, true},
+      {20, Gender::FEMALE, true},
+      {80, Gender::FEMALE, false},
+      {78, Gender::MALE, false},
+      {10, Gender::FEMALE, false},
+      {55, Gender::MALE, true},
+  };
+  */
