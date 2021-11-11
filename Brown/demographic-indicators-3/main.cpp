@@ -135,6 +135,11 @@ void PrintStats(const AgeStats &stats,
 
 void TestComputeMedianAge() {
     {
+        vector<Person> persons;
+        int result = ComputeMedianAge(begin(persons), end(persons));
+        ASSERT_EQUAL(result, 0);
+    }
+    {
         std::random_device r;
         std::default_random_engine e1(r());
         std::uniform_int_distribution<int> random_0_1(0, 1);
