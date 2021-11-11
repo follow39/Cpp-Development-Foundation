@@ -25,11 +25,11 @@ bool operator==(const Person &lhs, const Person &rhs) {
            && lhs.is_employed == rhs.is_employed;
 }
 
-ostream &operator<<(ostream &stream, const Person &person) {
-    return stream << "Person(age=" << person.age
-                  << ", gender=" << static_cast<int>(person.gender)
-                  << ", is_employed=" << boolalpha << person.is_employed << ")";
-}
+//ostream &operator<<(ostream &stream, const Person &person) {
+//    return stream << "Person(age=" << person.age
+//                  << ", gender=" << static_cast<int>(person.gender)
+//                  << ", is_employed=" << boolalpha << person.is_employed << ")";
+//}
 
 struct AgeStats {
     int total;
@@ -153,7 +153,7 @@ void TestComputeMedianAge() {
                                         static_cast<bool>(random_0_1(e1))});
         }
 
-        int attempts = 100;
+        int attempts = 5;
         for (int i = 0; i < attempts; ++i) {
             shuffle(persons.begin(), persons.end(), r);
             int result = ComputeMedianAge(persons.begin(), persons.end());
@@ -202,16 +202,16 @@ bool operator==(const AgeStats &lhs, const AgeStats &rhs) {
            lhs.unemployed_males == rhs.unemployed_males;
 }
 
-ostream &operator<<(ostream &os, const AgeStats &stats) {
-    os << '[' << stats.total << ", "
-       << to_string(stats.females) << ", "
-       << to_string(stats.males) << ", "
-       << to_string(stats.employed_females) << ", "
-       << to_string(stats.unemployed_females) << ", "
-       << to_string(stats.employed_males) << ", "
-       << to_string(stats.unemployed_males) << ']';
-    return os;
-}
+//ostream &operator<<(ostream &os, const AgeStats &stats) {
+//    os << '[' << stats.total << ", "
+//       << to_string(stats.females) << ", "
+//       << to_string(stats.males) << ", "
+//       << to_string(stats.employed_females) << ", "
+//       << to_string(stats.unemployed_females) << ", "
+//       << to_string(stats.employed_males) << ", "
+//       << to_string(stats.unemployed_males) << ']';
+//    return os;
+//}
 
 void TestComputeStats() {
     {
