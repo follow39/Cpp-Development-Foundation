@@ -4,6 +4,7 @@
 #include <string_view>
 #include <vector>
 #include <future>
+#include <functional>
 
 using namespace std;
 
@@ -39,20 +40,12 @@ bool EqualDomains(const Domain &domain_to_check, const Domain &banned_domain) {
 //    if (domain_to_check.size() == banned_domain.size()) {
 //        return domain_to_check == banned_domain;
 //    }
-    bool result = true;
     for (long i = 0; i < banned_domain.size(); ++i) {
-        result &= (domain_to_check[domain_to_check.size() - i - 1] == banned_domain[banned_domain.size() - i - 1]);
+        if (domain_to_check[domain_to_check.size() - i - 1] != banned_domain[banned_domain.size() - i - 1]) {
+            return false;
+        }
     }
-//    for (long i = 0; i <= (domain_to_check.size() - banned_domain.size()); ++i) {
-//        bool result = true;
-//        for (long j = 0; j < banned_domain.size(); ++j) {
-//            result &= (domain_to_check[i + j] == banned_domain[j]);
-//        }
-//        if (result) {
-//            return true;
-//        }
-//    }
-    return result;
+    return true;
 }
 
 bool SearchThread(const Domain &domain_to_check, const vector<Domain> &banned_domains) {
@@ -67,8 +60,8 @@ bool SearchThread(const Domain &domain_to_check, const vector<Domain> &banned_do
 void func(istream &is, ostream &os) {
     const vector<Domain> banned_domains = ReadDomains(is);
     const vector<Domain> domains_to_check = ReadDomains(is);
-    vector<future<bool>> futures;
-    futures.reserve(domains_to_check.size());
+//    vector<future<bool>> futures;
+//    futures.reserve(domains_to_check.size());
 
 //    for (const Domain &domain_to_check: domains_to_check) {
 //        for (const string &item: domain_to_check) {
@@ -78,13 +71,13 @@ void func(istream &is, ostream &os) {
 //    }
     for (const Domain &domain_to_check: domains_to_check) {
 //        futures.push_back(SearchThread(domain_to_check, banned_domains));
-        futures.push_back(async(SearchThread, domain_to_check, banned_domains));
-//        os << (SearchThread(domain_to_check, banned_domains) ? "Bad" : "Good") << endl;
+//        futures.push_back(async(SearchThread, ref(domain_to_check), ref(banned_domains)));
+        os << (SearchThread(domain_to_check, banned_domains) ? "Bad" : "Good") << '\n';
     }
 
-    for (auto &result: futures) {
-        os << (result.get() ? "Bad" : "Good") << '\n';
-    }
+//    for (auto &result: futures) {
+//        os << (result.get() ? "Bad" : "Good") << '\n';
+//    }
 }
 
 int main() {
