@@ -3,54 +3,61 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <iterator>
 #include <future>
 #include <functional>
 
 using namespace std;
 
-using Domain = vector<string>;
 
-vector<Domain> ReadDomains(istream &is) {
+bool IsSubdomain(string_view domain, string_view sub_domain) {
+    if (domain.size() < sub_domain.size()) {
+        return false;
+    }
+    domain.remove_prefix(domain.size() - sub_domain.size());
+    return domain == sub_domain;
+}
+
+vector<string> ReadDomains(istream &is) {
     size_t count;
     is >> count;
     is.ignore(1);
 
-    vector<Domain> domains(count);
+    vector<string> domains;
     for (size_t i = 0; i < count; ++i) {
         string domain;
         getline(is, domain);
-        domain.push_back('.');
-        string temp;
-        for (char c: domain) {
-            if (c == '.') {
-                domains[i].push_back(temp);
-                temp.clear();
-            } else {
-                temp.push_back(c);
-            }
-        }
+        domains.push_back(domain);
     }
     return move(domains);
 }
 
-bool EqualDomains(const Domain &domain_to_check, const Domain &banned_domain) {
-    if (domain_to_check.size() < banned_domain.size()) {
-        return false;
+vector<string> ReadBannedDomains(istream &is) {
+    vector<string> domains = ReadDomains(is);
+
+    for (string &domain: domains) {
+        reverse(begin(domain), end(domain));
     }
-//    if (domain_to_check.size() == banned_domain.size()) {
-//        return domain_to_check == banned_domain;
-//    }
-    for (long i = 0; i < banned_domain.size(); ++i) {
-        if (domain_to_check[domain_to_check.size() - i - 1] != banned_domain[banned_domain.size() - i - 1]) {
-            return false;
+    sort(begin(domains), end(domains));
+
+    size_t insert_pos = 0;
+    for (string &domain: domains) {
+        if (insert_pos == 0 || !IsSubdomain(domain, domains[insert_pos - 1])) {
+            swap(domains[insert_pos++], domain);
         }
     }
-    return true;
+    domains.resize(insert_pos);
+
+    for (string &domain: domains) {
+        reverse(begin(domain), end(domain));
+    }
+
+    return move(domains);
 }
 
-bool SearchThread(const Domain &domain_to_check, const vector<Domain> &banned_domains) {
-    for (const Domain &banned_domain: banned_domains) {
-        if (EqualDomains(domain_to_check, banned_domain)) {
+bool SearchThread(const string &domain_to_check, const vector<string> &banned_domains) {
+    for (const string &banned_domain: banned_domains) {
+        if (IsSubdomain(domain_to_check, banned_domain)) {
             return true;
         }
     }
@@ -58,26 +65,12 @@ bool SearchThread(const Domain &domain_to_check, const vector<Domain> &banned_do
 }
 
 void func(istream &is, ostream &os) {
-    const vector<Domain> banned_domains = ReadDomains(is);
-    const vector<Domain> domains_to_check = ReadDomains(is);
-//    vector<future<bool>> futures;
-//    futures.reserve(domains_to_check.size());
+    const vector<string> banned_domains = ReadDomains(is);
+    const vector<string> domains_to_check = ReadDomains(is);
 
-//    for (const Domain &domain_to_check: domains_to_check) {
-//        for (const string &item: domain_to_check) {
-//            cout << item << ' ';
-//        }
-//        cout << endl;
-//    }
-    for (const Domain &domain_to_check: domains_to_check) {
-//        futures.push_back(SearchThread(domain_to_check, banned_domains));
-//        futures.push_back(async(SearchThread, ref(domain_to_check), ref(banned_domains)));
+    for (const string &domain_to_check: domains_to_check) {
         os << (SearchThread(domain_to_check, banned_domains) ? "Bad" : "Good") << '\n';
     }
-
-//    for (auto &result: futures) {
-//        os << (result.get() ? "Bad" : "Good") << '\n';
-//    }
 }
 
 int main() {
