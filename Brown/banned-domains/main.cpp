@@ -143,7 +143,7 @@ string SearchPage(Page &page, const vector<string> &banned_domains) {
         result += (SearchThread(domain_to_check, banned_domains) ? "Bad" : "Good");
         result += '\n';
     }
-    return result;
+    return move(result);
 }
 
 void func(istream &is, ostream &os) {
@@ -159,7 +159,7 @@ void func(istream &is, ostream &os) {
     vector<future<string>> futures;
     futures.reserve(pages.size());
     for (const auto &page: pages) {
-        futures.push_back(async([&] { return SearchPage(page, banned_domains); }));
+        futures.push_back(async([&] { return SearchPage(page, ref(banned_domains)); }));
     }
 
     for (auto &result: futures) {
