@@ -8,6 +8,9 @@
 using namespace std;
 
 bool IsSubdomain(string_view domain, string_view sub_domain) {
+    if (domain.size() < sub_domain.size()) {
+        return false;
+    }
     domain.remove_prefix(domain.find_last_of('.', domain.size() - sub_domain.size()) + 1);
     return domain == sub_domain;
 }
@@ -27,16 +30,23 @@ vector<string> ReadDomains(istream &is) {
 }
 
 vector<string> ReadBannedDomains(istream &is) {
-    vector<string> domains = ReadDomains(is);
+    const vector<string> domains = ReadDomains(is);
     vector<string> result;
 
     for (size_t i = 0; i < domains.size(); ++i) {
         bool hasSubdomain = false;
-        for (size_t j = 0; j < domains.size() && !hasSubdomain; ++j) {
+        for (size_t j = 0; j < domains.size(); ++j) {
             if (i == j) {
                 continue;
             }
             hasSubdomain |= IsSubdomain(domains[i], domains[j]);
+            if (hasSubdomain) {
+                if (domains[i] == domains[j] &&
+                    std::find(result.begin(), result.end(), domains[i]) == result.end()) {
+                    hasSubdomain = false;
+                }
+                break;
+            }
         }
         if (!hasSubdomain) {
             result.push_back(domains[i]);
@@ -57,7 +67,6 @@ bool SearchThread(const string &domain_to_check, const vector<string> &banned_do
 
 void func(istream &is, ostream &os) {
     const vector<string> banned_domains = ReadBannedDomains(is);
-//    const vector<string> banned_domains = ReadDomains(is);
     const vector<string> domains_to_check = ReadDomains(is);
 
     for (const string &domain_to_check: domains_to_check) {
