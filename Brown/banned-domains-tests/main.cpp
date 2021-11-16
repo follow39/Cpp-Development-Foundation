@@ -9,7 +9,7 @@
 
 using namespace std;
 
-///*
+/*
 template<typename It>
 class Range {
 public:
@@ -187,7 +187,7 @@ void PrintCheckResults(const vector<bool> &check_results, ostream &out_stream = 
         out_stream << (check_result ? "Good" : "Bad") << "\n";
     }
 }
-//*/
+*/
 
 void Test1() {
     {
@@ -237,8 +237,8 @@ void Test6() {
         vector<Domain> banned_domains = {Domain("ya.ru")};
         vector<Domain> domains_to_check = {Domain("ru"), Domain("m.ya.ru")};
         vector<bool> result = CheckDomains(banned_domains, domains_to_check);
-        ASSERT(!result[0])
-        ASSERT(result[1])
+        ASSERT(result[0])
+        ASSERT(!result[1])
     }
 }
 
