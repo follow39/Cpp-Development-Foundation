@@ -199,14 +199,12 @@ void Test1() {
 void Test2() {
     {
         const string expected = "m.ya.ru";
-        const string expected_reverse = "ru.ya.m";
+        const string expected_reverse = "ruyam";
         Domain domain(expected);
         string result;
         for (const auto &i: domain.GetReversedParts()) {
             result += i;
-            result += '.';
         }
-        result.pop_back();
         ASSERT_EQUAL(expected_reverse, result)
     }
 }
@@ -228,15 +226,19 @@ void Test4() {
 
 void Test5() {
     {
-
+        const vector<Domain> v_test{Domain("test.com"), Domain("a.test.com"), Domain("com")};
+        bool test_t = DomainChecker(v_test.begin(), v_test.end()).IsSubdomain(Domain("b.test.com"));
+        ASSERT(test_t)
     }
 }
 
 void Test6() {
     {
-        vector<Domain> vec = {Domain("ya.ru")};
-        ASSERT(!DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("ru")))
-        ASSERT(DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("m.ya.ru")))
+        vector<Domain> banned_domains = {Domain("ya.ru")};
+        vector<Domain> domains_to_check = {Domain("ru"), Domain("m.ya.ru")};
+        vector<bool> result = CheckDomains(banned_domains, domains_to_check);
+        ASSERT(!result[0])
+        ASSERT(result[1])
     }
 }
 
