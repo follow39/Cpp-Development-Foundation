@@ -9,6 +9,7 @@
 
 using namespace std;
 
+///*
 template<typename It>
 class Range {
 public:
@@ -186,63 +187,89 @@ void PrintCheckResults(const vector<bool> &check_results, ostream &out_stream = 
         out_stream << (check_result ? "Good" : "Bad") << "\n";
     }
 }
+//*/
 
-void TestSimple() {
-    // 1
+void Test1() {
     {
         string test_string = "m.ya.ru";
         ASSERT(!Split(test_string, ".").front().empty())
     }
-    // 2
+}
+
+void Test2() {
     {
-        string domain = "m.ya.ru";
-        auto temp = Domain(domain).GetReversedParts();
+        const string expected = "m.ya.ru";
+        const string expected_reverse = "ru.ya.m";
+        Domain domain(expected);
         string result;
-        for (const auto &i: temp) {
+        for (const auto &i: domain.GetReversedParts()) {
             result += i;
             result += '.';
         }
         result.pop_back();
-        ASSERT_EQUAL(domain, result)
+        ASSERT_EQUAL(expected_reverse, result)
     }
-    // 3
+}
+
+void Test3() {
     {
         vector<Domain> vec = {Domain("ya.ru")};
         ASSERT(DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("ya.ru")))
     }
-    // 4
+}
+
+void Test4() {
     {
         vector<Domain> vec = {Domain("ya.ru")};
         ASSERT(!DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("ru")))
         ASSERT(DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("m.ya.ru")))
     }
-    // 5
+}
+
+void Test5() {
     {
 
     }
-    // 6
+}
+
+void Test6() {
     {
         vector<Domain> vec = {Domain("ya.ru")};
         ASSERT(!DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("ru")))
         ASSERT(DomainChecker(vec.begin(), vec.end()).IsSubdomain(Domain("m.ya.ru")))
     }
-    // 7
+}
+
+void Test7() {
     {
         const string excepted = "Bad\nGood\n";
         stringstream ss;
-        PrintCheckResults({true, false}, ss);
+        PrintCheckResults({false, true}, ss);
         ASSERT_EQUAL(ss.str(), excepted)
     }
-    // 8
+}
+
+void Test8() {
     {
         stringstream ss("2\nya.ru\nmaps.me");
         ASSERT(!ReadDomains(ss).begin()->GetParts().begin()->empty())
     }
 }
 
-int main() {
+void TestAll() {
     TestRunner tr;
-    RUN_TEST(tr, TestSimple);
+    RUN_TEST(tr, Test1);
+    RUN_TEST(tr, Test2);
+    RUN_TEST(tr, Test3);
+    RUN_TEST(tr, Test4);
+    RUN_TEST(tr, Test5);
+    RUN_TEST(tr, Test6);
+    RUN_TEST(tr, Test7);
+    RUN_TEST(tr, Test8);
+}
+
+int main() {
+    TestAll();
 
     const vector<Domain> banned_domains = ReadDomains();
     const vector<Domain> domains_to_check = ReadDomains();
