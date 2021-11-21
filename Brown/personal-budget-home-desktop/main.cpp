@@ -57,36 +57,24 @@ public:
     Budget() : budget(DAY_COUNT, 0) {}
 
     void AddIncome(const Date &from, const Date &to, double value) {
-//        auto it_from = ComputeDaysDiff(from, START_DATE);
-//        auto it_to = ComputeDaysDiff(to, START_DATE);
-//        for (auto i = it_from; i <= it_to && i < budget.size(); ++i) {
-//            budget[i] += value;
-//        }
-        ChangeBudget(from, to, [=](int64_t i) { budget[i] += value; });
+        double days_count = static_cast<double>(ComputeDaysDiff(to, from) + 1);
+        ChangeBudget(from, to, [&](int64_t i) { budget[i] += value / days_count; });
     }
 
     double ComputeIncome(const Date &from, const Date &to) const {
-        auto it_from = ComputeDaysDiff(from, START_DATE);
-        auto it_to = ComputeDaysDiff(to, START_DATE);
         double result = 0;
-        for (auto i = it_from; i <= it_to && i < budget.size(); ++i) {
-            result += budget[i];
-        }
+        ChangeBudget(from, to, [&](int64_t i) { result += budget[i]; });
         return result;
     }
 
     void PayTax(const Date &from, const Date &to, double value) {
-        auto it_from = ComputeDaysDiff(from, START_DATE);
-        auto it_to = ComputeDaysDiff(to, START_DATE);
-        for (auto i = it_from; i <= it_to && i < budget.size(); ++i) {
-            budget[i] *= (1 - value);
-        }
+        ChangeBudget(from, to, [&](int64_t i) { budget[i] *= (1 - value); });
     }
 
 
 private:
     template<typename Predicate>
-    void ChangeBudget(const Date &from, const Date &to, Predicate predicate) {
+    void ChangeBudget(const Date &from, const Date &to, Predicate predicate) const {
         auto it_from = ComputeDaysDiff(from, START_DATE);
         auto it_to = ComputeDaysDiff(to, START_DATE);
         for (auto i = it_from; i <= it_to && i < budget.size(); ++i) {
@@ -113,7 +101,7 @@ int main() {
             cin >> value;
             budget.AddIncome(Date{from}, Date{to}, value);
         } else if (cmd == "ComputeIncome") {
-            cout << cout.fixed << budget.ComputeIncome(Date{from}, Date{to}) << '\n';
+            cout << budget.ComputeIncome(Date{from}, Date{to}) << '\n';
         } else if (cmd == "PayTax") {
             budget.PayTax(Date{from}, Date{to}, 0.13);
         }
