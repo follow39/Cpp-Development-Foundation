@@ -134,11 +134,13 @@ public:
         return result;
     }
 
-    string GetStopInfo(string name) const {
+    [[nodiscard]] string GetStopInfo(string name) const {
         string result = "Stop " + name + ": ";
         auto it = buses_on_stop.find(name);
-        if (it == buses_on_stop.end() || it->second.empty()) {
+        if (it == buses_on_stop.end()) {
             result += "not found";
+        } else if (it->second.empty()) {
+            result += "no buses";
         } else {
             result += "buses";
             for(const auto& bus : it->second) {
@@ -148,7 +150,7 @@ public:
         return result;
     }
 
-    void UpdateLenghts() {
+    void UpdateLengths() {
         for (auto&[name, bus]: buses) {
             bus.UpdateLength(stops);
         }
@@ -156,6 +158,7 @@ public:
 
     void AddStop(Stop new_stop) {
         stops[new_stop.name] = new_stop;
+        buses_on_stop[new_stop.name];
     }
 
 private:
@@ -225,7 +228,7 @@ Manager BuildManager(vector<string> requests) {
     for (auto &request: requests) {
         ProcessCreationRequest(manager, request);
     }
-    manager.UpdateLenghts();
+    manager.UpdateLengths();
     return move(manager);
 }
 
