@@ -140,9 +140,9 @@ public:
         if (it == buses_on_stop.end() || it->second.empty()) {
             result += "not found";
         } else {
-            result += "buses ";
+            result += "buses";
             for(const auto& bus : it->second) {
-                result += bus + " ";
+                result += " " + bus;
             }
         }
         return result;
