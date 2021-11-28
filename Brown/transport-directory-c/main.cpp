@@ -43,8 +43,8 @@ struct Stop {
         longitude = stod(string(request.substr(0, request.find(','))));
         request.remove_prefix(request.find(',') + 2);
 
-//        while (request.find(" to ") != string_view::npos) {
-        while (!request.empty()) {
+        while (request.find(" to ") != string_view::npos) {
+//        while (!request.empty()) {
             double distance = stod(string(request.substr(0, request.find('m'))));
             request.remove_prefix(request.find("to") + 3);
             string stop_name = string(request.substr(0, request.find(',')));
