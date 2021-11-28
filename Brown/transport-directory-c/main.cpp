@@ -43,9 +43,10 @@ struct Stop {
         longitude = stod(string(request.substr(0, request.find(','))));
         request.remove_prefix(request.find(',') + 2);
 
-        while (request.find("to") != string_view::npos) {
-            double distance = stod(string(request.substr(0, request.find(' '))));
-            request.remove_prefix(request.find(' ') + 4);
+//        while (request.find(" to ") != string_view::npos) {
+        while (!request.empty()) {
+            double distance = stod(string(request.substr(0, request.find('m'))));
+            request.remove_prefix(request.find("to") + 3);
             string stop_name = string(request.substr(0, request.find(',')));
             request.remove_prefix(request.find(',') + 2);
 
@@ -76,7 +77,7 @@ struct Bus {
         return new_length;
     }
 
-    double CalculateCurLength(const vector<string>& stops, const unordered_map<string, Stop> &input_stops) {
+    double CalculateCurLength(const vector<string> &stops, const unordered_map<string, Stop> &input_stops) {
         if (stops.empty()) {
             return 0.0;
         }
