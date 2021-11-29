@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <fstream>
 
 #include "stop.h"
 #include "bus.h"
@@ -93,9 +94,9 @@ int main() {
 //    Manager manager = BuildManager(ReadRequests(cin));
 //    ProcessPrintRequests(cout, manager, ReadRequests(cin));
 
+    fstream f("input.json");
 
-
-    Json::Document document = Json::Load(cin);
+    Json::Document document = Json::Load(f);
 
     return 0;
 }
