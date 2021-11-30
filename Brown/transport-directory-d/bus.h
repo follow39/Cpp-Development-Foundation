@@ -111,12 +111,3 @@ struct Bus {
         UpdateStopsCounters();
     }
 };
-
-//std::string BuildJsonFromBusInfo(const BusInfo &busInfo) {
-//    std::string result;
-//    result += "\"stop_count\": " + std::to_string(busInfo.stops_count) + '\n';
-//    result += "\"unique_stop_count\": " + std::to_string(busInfo.unique_stops_count) + '\n';
-//    result += "\"route_length\": " + std::to_string(busInfo.length) + '\n';
-//    result += "\"curvature\": " + std::to_string(busInfo.curvature) + '\n';
-//    return result;
-//}

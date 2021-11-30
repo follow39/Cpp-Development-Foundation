@@ -49,21 +49,3 @@ struct Stop {
         }
     }
 };
-
-//std::string BuildJsonFromStopInfo(const StopInfo &stopInfo) {
-//    std::string result;
-//    result += R"("buses": )";
-//    result += "[";
-//    bool first = true;
-//    for (const auto &bus: stopInfo.buses) {
-//        if (!first) {
-//            result += ",";
-//        } else {
-//            first = false;
-//        }
-//        result += "\n";
-//        result += '\"' + bus + '\"';
-//    }
-//    result += "\n]";
-//    return result;
-//}

@@ -31,6 +31,11 @@ namespace Json {
     Node LoadNumber(istream &input) {
         int resulti = 0;
         double resultd = 0.0;
+        int sign = 1;
+        if (input.peek() == '-') {
+            sign = -1;
+            input.get();
+        }
         while (isdigit(input.peek())) {
             resulti *= 10;
             resulti += input.get() - '0';
@@ -45,10 +50,10 @@ namespace Json {
             }
             resultd /= pow(10, temp_pow);
         } else {
-            return Node(resulti);
+            return Node(sign * resulti);
         }
         resultd += static_cast<double>(resulti);
-        return Node(resultd);
+        return Node(sign * resultd);
     }
 
     Node LoadBool(istream &input) {
@@ -95,7 +100,7 @@ namespace Json {
             return LoadDict(input);
         } else if (c == '"') {
             return LoadString(input);
-        } else if (isdigit(c)) {
+        } else if (isdigit(c) || c == '-') {
             input.putback(c);
             return LoadNumber(input);
         } else {

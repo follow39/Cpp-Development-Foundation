@@ -26,6 +26,9 @@ namespace Json {
         }
 
         int AsInt() const {
+            if (!std::holds_alternative<int>(*this)) {
+                return static_cast<int>(std::get<double>(*this));
+            }
             return std::get<int>(*this);
         }
 
@@ -36,7 +39,7 @@ namespace Json {
             return std::get<double>(*this);
         }
 
-        double AsBool() const {
+        bool AsBool() const {
             return std::get<bool>(*this);
         }
 
