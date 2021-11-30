@@ -8,9 +8,11 @@
 
 namespace Json {
 
-    class Node : std::variant<std::vector<Node>,
+    class Node : public std::variant<std::vector<Node>,
             std::map<std::string, Node>,
             int,
+            double,
+            bool,
             std::string> {
     public:
         using variant::variant;
@@ -27,8 +29,23 @@ namespace Json {
             return std::get<int>(*this);
         }
 
+        double AsDouble() const {
+            if (!std::holds_alternative<double>(*this)) {
+                return std::get<int>(*this);
+            }
+            return std::get<double>(*this);
+        }
+
+        double AsBool() const {
+            return std::get<bool>(*this);
+        }
+
         const auto &AsString() const {
             return std::get<std::string>(*this);
+        }
+
+        void AddId(int id) {
+            std::get<std::map<std::string, Node>>(*this).emplace("request_id", id);
         }
     };
 
@@ -43,5 +60,7 @@ namespace Json {
     };
 
     Document Load(std::istream &input);
+
+    void Save(std::ostream &output, Document document);
 
 }

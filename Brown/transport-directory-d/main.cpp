@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <fstream>
+#include <iomanip>
 
 #include "stop.h"
 #include "bus.h"
@@ -21,20 +22,6 @@ enum class PrintRequestType {
     PRINT_STOP,
 };
 
-vector<string> ReadRequests(istream &is) {
-    size_t n = 0;
-    is >> n;
-    is.ignore(1);
-
-    vector<string> result;
-    while (n-- > 0) {
-        string line;
-        getline(is, line);
-        result.push_back(line);
-    }
-    return move(result);
-}
-
 CreationRequestType ParseCreationRequestType(const string &request) {
     CreationRequestType result;
     if (request[0] == 'S') {
@@ -43,24 +30,6 @@ CreationRequestType ParseCreationRequestType(const string &request) {
         result = CreationRequestType::ADD_BUS;
     }
     return result;
-}
-
-void ProcessCreationRequest(Manager &manager, const string &request) {
-    CreationRequestType type = ParseCreationRequestType(request);
-    if (type == CreationRequestType::ADD_BUS) {
-        manager.AddBus(Bus(request));
-    } else if (type == CreationRequestType::ADD_STOP) {
-        manager.AddStop(Stop(request));
-    }
-}
-
-Manager BuildManager(vector<string> requests) {
-    Manager manager;
-    for (auto &request: requests) {
-        ProcessCreationRequest(manager, request);
-    }
-    manager.UpdateLengths();
-    return move(manager);
 }
 
 PrintRequestType ParsePrintRequestType(const string &request) {
@@ -73,30 +42,77 @@ PrintRequestType ParsePrintRequestType(const string &request) {
     return result;
 }
 
-void ProcessPrintRequest(ostream &os, const Manager &manager, const string &request) {
-    PrintRequestType type = ParsePrintRequestType(request);
-    if (type == PrintRequestType::PRINT_BUS) {
-        os << manager.GetBusInfo(string(request.substr(request.find(' ') + 1, string_view::npos))) << '\n';
-    } else if (type == PrintRequestType::PRINT_STOP) {
-        os << manager.GetStopInfo(string(request.substr(request.find(' ') + 1, string_view::npos))) << '\n';
+Json::Node BuildError(const string &message) {
+    std::map<std::string, Json::Node> result;
+    result.emplace("error_message", Json::Node(message));
+    return result;
+}
+
+void ProcessCreationRequest(Manager &manager, const Json::Node &request) {
+    const std::map<std::string, Json::Node> &request_as_map = request.AsMap();
+    CreationRequestType type = ParseCreationRequestType(request_as_map.at("type").AsString());
+    if (type == CreationRequestType::ADD_BUS) {
+        manager.AddBus(Bus(request_as_map));
+    } else if (type == CreationRequestType::ADD_STOP) {
+        manager.AddStop(Stop(request_as_map));
     }
 }
 
-void ProcessPrintRequests(ostream &os, const Manager &manager, const vector<string> &requests) {
-    for (const auto &request: requests) {
-        ProcessPrintRequest(os, manager, request);
+Manager BuildManager(const vector<Json::Node> &node) {
+    Manager manager;
+    for (const auto &request: node) {
+        ProcessCreationRequest(manager, request);
     }
+    manager.UpdateLengths();
+    return move(manager);
+}
+
+Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &requests) {
+    vector<Json::Node> result;
+    result.reserve(requests.size());
+
+    for (const auto &request: requests) {
+        Json::Node temp;
+        PrintRequestType type = ParsePrintRequestType(request.AsMap().at("type").AsString());
+        if (type == PrintRequestType::PRINT_BUS) {
+            optional<BusInfo> busInfo = manager.GetBusInfo(request.AsMap().at("name").AsString());
+            if (busInfo) {
+                temp = busInfo->ToJson();
+            } else {
+                temp = BuildError("not found");
+            }
+        } else if (type == PrintRequestType::PRINT_STOP) {
+            optional<StopInfo> stopInfo = manager.GetStopInfo(request.AsMap().at("name").AsString());
+            if (stopInfo) {
+                temp = stopInfo->ToJson();
+            } else {
+                temp = BuildError("not found");
+            }
+        }
+        temp.AddId(request.AsMap().at("id").AsInt());
+        result.push_back(move(temp));
+    }
+
+    return Json::Document(Json::Node(move(result)));
 }
 
 int main() {
+    ifstream in("input.json");
+    ofstream out("output.json");
+    out << fixed;
+    out.precision(6);
+
+    Json::Document document = Json::Load(in);
+    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
+    Json::Save(out, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
+
+    in.close();
+    out.close();
+
 //    cout.precision(6);
-
-//    Manager manager = BuildManager(ReadRequests(cin));
-//    ProcessPrintRequests(cout, manager, ReadRequests(cin));
-
-    fstream f("input.json");
-
-    Json::Document document = Json::Load(f);
+//    Json::Document documentы = Json::Load(cin);
+//    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
+//    Json::Save(cout, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
 
     return 0;
 }

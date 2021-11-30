@@ -6,6 +6,22 @@
 #include <unordered_map>
 #include <cmath>
 
+#include "json.h"
+
+struct StopInfo {
+    std::set<std::string> buses;
+
+    Json::Node ToJson() {
+        std::map<std::string, Json::Node> result;
+        std::vector<Json::Node> result_buses;
+        for (const auto &bus: buses) {
+            result_buses.emplace_back(bus);
+        }
+        result.emplace("buses", Json::Node(std::move(result_buses)));
+        return Json::Node(std::move(result));
+    }
+};
+
 struct Stop {
     std::string name;
     double latitude = 0.0;
@@ -24,23 +40,30 @@ struct Stop {
 
     Stop() = default;
 
-    explicit Stop(std::string_view request) {
-        request.remove_prefix(5);
-        name = std::string(request.substr(0, request.find(':')));
-        request.remove_prefix(request.find(':') + 2);
-        latitude = stod(std::string(request.substr(0, request.find(','))));
-        request.remove_prefix(request.find(',') + 2);
-        longitude = stod(std::string(request.substr(0, request.find(','))));
-        request.remove_prefix(request.find(',') + 2);
-
-        while (request.find(" to ") != std::string_view::npos) {
-//        while (!request.empty()) {
-            double distance = stod(std::string(request.substr(0, request.find('m'))));
-            request.remove_prefix(request.find("to") + 3);
-            std::string stop_name = std::string(request.substr(0, request.find(',')));
-            request.remove_prefix(request.find(',') + 2);
-
-            distance_to[stop_name] = distance;
+    explicit Stop(const std::map<std::string, Json::Node> &request) {
+        name = request.at("name").AsString();
+        latitude = request.at("latitude").AsDouble();
+        longitude = request.at("longitude").AsDouble();
+        for (const auto&[stop_name, length]: request.at("road_distances").AsMap()) {
+            distance_to[stop_name] = length.AsInt();
         }
     }
 };
+
+//std::string BuildJsonFromStopInfo(const StopInfo &stopInfo) {
+//    std::string result;
+//    result += R"("buses": )";
+//    result += "[";
+//    bool first = true;
+//    for (const auto &bus: stopInfo.buses) {
+//        if (!first) {
+//            result += ",";
+//        } else {
+//            first = false;
+//        }
+//        result += "\n";
+//        result += '\"' + bus + '\"';
+//    }
+//    result += "\n]";
+//    return result;
+//}

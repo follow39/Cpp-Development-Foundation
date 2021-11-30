@@ -2,6 +2,7 @@
 
 #include "stop.h"
 #include "bus.h"
+#include "json.h"
 
 #include <string>
 #include <vector>
@@ -10,6 +11,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <optional>
 
 class Manager {
 public:
@@ -21,32 +23,20 @@ public:
         buses[new_bus.name] = std::move(new_bus);
     }
 
-    [[nodiscard]] std::string GetBusInfo(const std::string &name) const {
-        std::string result = "Bus " + name + ": ";
+    [[nodiscard]] std::optional<BusInfo> GetBusInfo(const std::string &name) const {
+        std::optional < BusInfo > result;
         auto it = buses.find(name);
-        if (it == buses.end()) {
-            result += "not found";
-        } else {
-            result += std::to_string(it->second.stops_count) + " stops on route, ";
-            result += std::to_string(it->second.unique_stops_count) + " unique stops, ";
-            result += std::to_string(it->second.cur_length) + " route length, ";
-            result += std::to_string(it->second.cur_length / it->second.geo_length) + " curvature";
+        if (it != buses.end()) {
+            result = it->second.GetBusInfo();
         }
         return result;
     }
 
-    [[nodiscard]] std::string GetStopInfo(const std::string &name) const {
-        std::string result = "Stop " + name + ": ";
+    [[nodiscard]] std::optional<StopInfo> GetStopInfo(const std::string &name) const {
+        std::optional < StopInfo > result;
         auto it = buses_on_stop.find(name);
-        if (it == buses_on_stop.end()) {
-            result += "not found";
-        } else if (it->second.empty()) {
-            result += "no buses";
-        } else {
-            result += "buses";
-            for (const auto &bus: it->second) {
-                result += " " + bus;
-            }
+        if (it != buses_on_stop.end()) {
+            result = {.buses = it->second};
         }
         return result;
     }
