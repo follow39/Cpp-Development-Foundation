@@ -190,6 +190,7 @@ namespace Json {
     }
 
     void Save(ostream &output, Document document) {
+        output.precision(6);
         SaveNode(output, document.GetRoot());
     }
 }

@@ -97,22 +97,18 @@ Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &r
 }
 
 int main() {
-    ifstream in("input.json");
-    ofstream out("output.json");
-    out << fixed;
-    out.precision(6);
-
-    Json::Document document = Json::Load(in);
-    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
-    Json::Save(out, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
-
-    in.close();
-    out.close();
-
-//    cout.precision(6);
-//    Json::Document documentы = Json::Load(cin);
+//    ifstream in("input.json");
+//    ofstream out("output.json");
+//    Json::Document document = Json::Load(in);
 //    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
-//    Json::Save(cout, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
+//    Json::Save(out, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
+//
+//    in.close();
+//    out.close();
+
+    Json::Document document = Json::Load(cin);
+    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
+    Json::Save(cout, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
 
     return 0;
 }
