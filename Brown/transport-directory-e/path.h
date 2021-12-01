@@ -10,11 +10,25 @@
 struct PathRequest {
     std::string from;
     std::string to;
+
+    PathRequest() = default;
+
+    PathRequest(const std::map<std::string, Json::Node> &request) {
+        from = request.at("from").AsString();
+        to = request.at("to").AsString();
+    }
 };
 
-struct TimingInfo {
+struct RoutingSettings {
     int bus_wait_time = 0;
-    int bus_velocity = 0;
+    double bus_velocity = 0;
+
+    RoutingSettings() = default;
+
+    RoutingSettings(const std::map<std::string, Json::Node> &request) {
+        bus_wait_time = request.at("bus_wait_time").AsInt();
+        bus_velocity = request.at("bus_velocity").AsDouble();
+    }
 };
 
 struct PathItem {
@@ -27,12 +41,14 @@ struct PathItem {
         result.emplace("type", Json::Node(type));
         result.emplace("stop_name", Json::Node(stop_name));
         result.emplace("time", Json::Node(time));
+        return result;
     }
 };
 
 struct Path {
     int total_time = 0;
     std::vector<PathItem> items;
+
 
     [[nodiscard]] Json::Node ToJson() const {
         std::map<std::string, Json::Node> result;
@@ -44,31 +60,4 @@ struct Path {
         result.emplace("items", Json::Node(std::move(result_items)));
         return Json::Node{std::move(result)};
     }
-};
-
-template<typename Weight>
-class Guide {
-public:
-    Guide(const std::vector<std::string> &new_stopsIndex,
-          const std::unordered_map<std::string, Graph::VertexId> &new_stopsInvertedIndex,
-          std::optional<Graph::Router<Weight>> new_router)
-            : stopsIndex(new_stopsIndex),
-              stopsInvertedIndex(new_stopsInvertedIndex),
-              router(move(new_router)) {}
-
-
-    std::optional<Path> GetPath(const PathRequest &pathRequest) {
-        auto routerInfo = router->BuildRoute(stopsInvertedIndex.at(pathRequest.from),
-                                             stopsInvertedIndex.at(pathRequest.to));
-
-        Path result;
-
-
-        return result;
-    }
-
-private:
-    const std::vector<std::string> &stopsIndex;
-    const std::unordered_map<std::string, Graph::VertexId> &stopsInvertedIndex;
-    std::optional<Graph::Router<Weight>> router;
 };

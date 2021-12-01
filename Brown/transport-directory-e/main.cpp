@@ -9,7 +9,7 @@
 #include "bus.h"
 #include "manager.h"
 #include "json.h"
-#include "guide.h"
+#include "path.h"
 
 using namespace std;
 
@@ -82,7 +82,6 @@ Json::Node BuildResponseNode(OptInfo info) {
 
 Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &requests) {
     vector<Json::Node> result;
-    result.reserve(requests.size());
 
     Graph::Router router{manager.BuildGraph()};
 
@@ -94,7 +93,7 @@ Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &r
         } else if (type == PrintRequestType::PRINT_STOP) {
             temp = BuildResponseNode(manager.GetStopInfo(request.AsMap().at("name").AsString()));
         } else if (type == PrintRequestType::PRINT_ROUTE) {
-            temp = BuildError("not found");
+            temp = BuildResponseNode(manager.GetPath(request.AsMap()));
         }
         temp.AddId(request.AsMap().at("id").AsInt());
         result.push_back(move(temp));
@@ -108,6 +107,7 @@ int main() {
     ofstream out("output.json");
     Json::Document document = Json::Load(in);
     Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
+    manager.SetRoutingSettings(document.GetRoot().AsMap().at("routing_settings").AsMap());
     Json::Save(out, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
 
     in.close();

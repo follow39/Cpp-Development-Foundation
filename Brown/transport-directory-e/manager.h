@@ -5,7 +5,7 @@
 #include "json.h"
 #include "graph.h"
 #include "router.h"
-#include "guide.h"
+#include "path.h"
 
 #include <string>
 #include <vector>
@@ -65,18 +65,21 @@ public:
         stops[new_stop.name] = std::move(new_stop);
     }
 
+    void SetRoutingSettings(const RoutingSettings& new_routingSettings) {
+        routingSettings = new_routingSettings;
+    }
+
     [[nodiscard]] Graph::DirectedWeightedGraph<double> BuildGraph() const {
         Graph::DirectedWeightedGraph<double> graph(stops.size());
-
-
         return graph;
     }
 
-    [[nodiscard]] Guide<double> BuildGuide() const {
-        return {stopsIndex, stopsInvertedIndex, BuildGraph()};
+    [[nodiscard]] std::optional<Path> GetPath(const PathRequest& pathRequest) const {
+        return std::nullopt;
     }
 
 private:
+    RoutingSettings routingSettings;
     std::unordered_map<std::string, Bus> buses;
     std::unordered_map<std::string, Stop> stops;
     std::unordered_map<std::string, std::set<std::string>> buses_on_stop;
