@@ -9,6 +9,7 @@
 #include "bus.h"
 #include "manager.h"
 #include "json.h"
+#include "guide.h"
 
 using namespace std;
 
@@ -20,11 +21,12 @@ enum class CreationRequestType {
 enum class PrintRequestType {
     PRINT_BUS,
     PRINT_STOP,
+    PRINT_ROUTE,
 };
 
 CreationRequestType ParseCreationRequestType(const string &request) {
     CreationRequestType result;
-    if (request[0] == 'S') {
+    if (request == "Stop") {
         result = CreationRequestType::ADD_STOP;
     } else {
         result = CreationRequestType::ADD_BUS;
@@ -34,13 +36,16 @@ CreationRequestType ParseCreationRequestType(const string &request) {
 
 PrintRequestType ParsePrintRequestType(const string &request) {
     PrintRequestType result;
-    if (request[0] == 'S') {
+    if (request == "Stop") {
         result = PrintRequestType::PRINT_STOP;
-    } else {
+    } else if (request == "Bus") {
         result = PrintRequestType::PRINT_BUS;
+    } else if (request == "Route") {
+        result = PrintRequestType::PRINT_ROUTE;
     }
     return result;
 }
+
 
 Json::Node BuildError(const string &message) {
     std::map<std::string, Json::Node> result;
@@ -67,27 +72,29 @@ Manager BuildManager(const vector<Json::Node> &node) {
     return move(manager);
 }
 
+template<typename OptInfo>
+Json::Node BuildResponseNode(OptInfo info) {
+    if (info) {
+        return info->ToJson();
+    }
+    return BuildError("not found");
+}
+
 Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &requests) {
     vector<Json::Node> result;
     result.reserve(requests.size());
+
+    Graph::Router router{manager.BuildGraph()};
 
     for (const auto &request: requests) {
         Json::Node temp;
         PrintRequestType type = ParsePrintRequestType(request.AsMap().at("type").AsString());
         if (type == PrintRequestType::PRINT_BUS) {
-            optional<BusInfo> busInfo = manager.GetBusInfo(request.AsMap().at("name").AsString());
-            if (busInfo) {
-                temp = busInfo->ToJson();
-            } else {
-                temp = BuildError("not found");
-            }
+            temp = BuildResponseNode(manager.GetBusInfo(request.AsMap().at("name").AsString()));
         } else if (type == PrintRequestType::PRINT_STOP) {
-            optional<StopInfo> stopInfo = manager.GetStopInfo(request.AsMap().at("name").AsString());
-            if (stopInfo) {
-                temp = stopInfo->ToJson();
-            } else {
-                temp = BuildError("not found");
-            }
+            temp = BuildResponseNode(manager.GetStopInfo(request.AsMap().at("name").AsString()));
+        } else if (type == PrintRequestType::PRINT_ROUTE) {
+            temp = BuildError("not found");
         }
         temp.AddId(request.AsMap().at("id").AsInt());
         result.push_back(move(temp));

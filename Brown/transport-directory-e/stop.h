@@ -11,14 +11,14 @@
 struct StopInfo {
     std::set<std::string> buses;
 
-    Json::Node ToJson() {
+    [[nodiscard]] Json::Node ToJson() const {
         std::map<std::string, Json::Node> result;
         std::vector<Json::Node> result_buses;
         for (const auto &bus: buses) {
             result_buses.emplace_back(bus);
         }
         result.emplace("buses", Json::Node(std::move(result_buses)));
-        return Json::Node(std::move(result));
+        return Json::Node{std::move(result)};
     }
 };
 

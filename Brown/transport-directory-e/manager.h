@@ -3,6 +3,9 @@
 #include "stop.h"
 #include "bus.h"
 #include "json.h"
+#include "graph.h"
+#include "router.h"
+#include "guide.h"
 
 #include <string>
 #include <vector>
@@ -15,6 +18,7 @@
 
 class Manager {
 public:
+
     void AddBus(Bus new_bus) {
         for (const auto &stop: new_bus.stops) {
             buses_on_stop[stop].insert(new_bus.name);
@@ -24,7 +28,7 @@ public:
     }
 
     [[nodiscard]] std::optional<BusInfo> GetBusInfo(const std::string &name) const {
-        std::optional < BusInfo > result;
+        std::optional<BusInfo> result;
         auto it = buses.find(name);
         if (it != buses.end()) {
             result = it->second.GetBusInfo();
@@ -33,7 +37,7 @@ public:
     }
 
     [[nodiscard]] std::optional<StopInfo> GetStopInfo(const std::string &name) const {
-        std::optional < StopInfo > result;
+        std::optional<StopInfo> result;
         auto it = buses_on_stop.find(name);
         if (it != buses_on_stop.end()) {
             result = {.buses = it->second};
@@ -42,18 +46,41 @@ public:
     }
 
     void UpdateLengths() {
+        for (auto&[main_name, main_stop]: stops) {
+            for (auto&[second_name, length]: main_stop.distance_to) {
+                if (stops.at(second_name).distance_to.count(main_name) == 0) {
+                    stops.at(second_name).distance_to.emplace(main_name, length);
+                }
+            }
+        }
         for (auto&[name, bus]: buses) {
             bus.UpdateLength(stops);
         }
     }
 
     void AddStop(Stop new_stop) {
+        stopsIndex.push_back(new_stop.name);
+        stopsInvertedIndex.emplace(new_stop.name, stopsIndex.size() - 1);
         buses_on_stop[new_stop.name];
         stops[new_stop.name] = std::move(new_stop);
+    }
+
+    [[nodiscard]] Graph::DirectedWeightedGraph<double> BuildGraph() const {
+        Graph::DirectedWeightedGraph<double> graph(stops.size());
+
+
+        return graph;
+    }
+
+    [[nodiscard]] Guide<double> BuildGuide() const {
+        return {stopsIndex, stopsInvertedIndex, BuildGraph()};
     }
 
 private:
     std::unordered_map<std::string, Bus> buses;
     std::unordered_map<std::string, Stop> stops;
     std::unordered_map<std::string, std::set<std::string>> buses_on_stop;
+
+    std::vector<std::string> stopsIndex;
+    std::unordered_map<std::string, Graph::VertexId> stopsInvertedIndex;
 };

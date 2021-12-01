@@ -13,13 +13,13 @@ struct BusInfo {
     int unique_stops_count = 0;
     double curvature = 0.0;
 
-    Json::Node ToJson() {
+    [[nodiscard]] Json::Node ToJson() const {
         std::map<std::string, Json::Node> result;
         result.emplace("route_length", Json::Node(length));
         result.emplace("curvature", Json::Node(curvature));
         result.emplace("stop_count", Json::Node(stops_count));
         result.emplace("unique_stop_count", Json::Node(unique_stops_count));
-        return Json::Node(result);
+        return Json::Node{std::move(result)};
     }
 };
 
@@ -33,21 +33,22 @@ struct Bus {
     double curvature = 0.0;
     std::vector<std::string> stops;
 
-    double CalculateGeoLength(const std::unordered_map<std::string, Stop> &input_stops) {
-        if (stops.empty()) {
+    static double CalculateGeoLength(const std::vector<std::string> &stops_vec,
+                                     const std::unordered_map<std::string, Stop> &input_stops) {
+        if (stops_vec.empty()) {
             return 0.0;
         }
         double new_length = 0.0;
-        std::string prev = stops[0];
-        for (const auto &current: stops) {
+        std::string prev = stops_vec[0];
+        for (const auto &current: stops_vec) {
             new_length += Stop::CalculateGeoDistance(input_stops.at(prev), input_stops.at(current));
             prev = current;
         }
         return new_length;
     }
 
-    double CalculateCurLength(const std::vector<std::string> &stops_vec,
-                              const std::unordered_map<std::string, Stop> &input_stops) {
+    static double CalculateCurLength(const std::vector<std::string> &stops_vec,
+                                     const std::unordered_map<std::string, Stop> &input_stops) {
         if (stops_vec.empty()) {
             return 0.0;
         }
@@ -70,7 +71,7 @@ struct Bus {
     }
 
     void UpdateLength(const std::unordered_map<std::string, Stop> &input_stops) {
-        geo_length = CalculateGeoLength(input_stops);
+        geo_length = CalculateGeoLength(stops, input_stops);
         if (!isCircle) {
             geo_length *= 2;
         }
