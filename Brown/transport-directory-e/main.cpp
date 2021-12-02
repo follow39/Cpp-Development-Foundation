@@ -4,12 +4,14 @@
 #include <set>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 #include "stop.h"
 #include "bus.h"
 #include "manager.h"
 #include "path.h"
 #include "json.h"
+#include "test_runner.h"
 
 using namespace std;
 
@@ -104,23 +106,102 @@ Json::Document BuildResponse(const Manager &manager, const Json::Document &docum
     return Json::Document(Json::Node(move(result)));
 }
 
+void TestAll();
+
 int main() {
+    TestAll();
+
 //    /*
+    Json::Document document = Json::Load(cin);
+    Manager manager = BuildManager(document);
+    Json::Save(cout, BuildResponse(manager, document));
+//     */
+
+    return 0;
+}
+
+void Test1() {
     ifstream in("input1.json");
-    ofstream out("output.json");
+    ifstream expected("expected1.json");
+    ostringstream out;
+    ostringstream out_expected;
+
     Json::Document document = Json::Load(in);
     Manager manager = BuildManager(document);
     Json::Save(out, BuildResponse(manager, document));
 
+    Json::Document document_expected = Json::Load(expected);
+    Json::Save(out_expected, document_expected);
+
+    ASSERT_EQUAL(out.str(), out_expected.str())
+
     in.close();
-    out.close();
-//     */
+    expected.close();
+}
 
-    /*
-    Json::Document document = Json::Load(cin);
+void Test2() {
+    ifstream in("input2.json");
+    ifstream expected("expected2.json");
+    ostringstream out;
+    ostringstream out_expected;
+
+    Json::Document document = Json::Load(in);
     Manager manager = BuildManager(document);
-    Json::Save(cout, BuildResponse(manager, document));
-     */
+    Json::Save(out, BuildResponse(manager, document));
 
-    return 0;
+    Json::Document document_expected = Json::Load(expected);
+    Json::Save(out_expected, document_expected);
+
+    ASSERT_EQUAL(out.str(), out_expected.str())
+
+    in.close();
+    expected.close();
+}
+
+void Test3() {
+    ifstream in("input3.json");
+    ifstream expected("expected3.json");
+    ostringstream out;
+    ostringstream out_expected;
+
+    Json::Document document = Json::Load(in);
+    Manager manager = BuildManager(document);
+    Json::Save(out, BuildResponse(manager, document));
+
+    Json::Document document_expected = Json::Load(expected);
+    Json::Save(out_expected, document_expected);
+
+    ASSERT_EQUAL(out.str(), out_expected.str())
+
+    in.close();
+    expected.close();
+}
+
+void Test() {
+    ifstream in("input.json");
+    ifstream expected("expected.json");
+    ostringstream out;
+    ostringstream out_expected;
+
+    Json::Document document = Json::Load(in);
+    Manager manager = BuildManager(document);
+    Json::Save(out, BuildResponse(manager, document));
+
+    Json::Document document_expected = Json::Load(expected);
+    Json::Save(out_expected, document_expected);
+
+//    ASSERT_EQUAL(out.str(), out_expected.str())
+    ASSERT_EQUAL(document, document_expected)
+
+    in.close();
+    expected.close();
+}
+
+
+void TestAll() {
+    TestRunner tr;
+    RUN_TEST(tr, Test1);
+//    RUN_TEST(tr, Test2);
+//    RUN_TEST(tr, Test3);
+//    RUN_TEST(tr, Test);
 }

@@ -1,12 +1,19 @@
 #pragma once
 
-#include <istream>
+#include <iostream>
 #include <map>
 #include <string>
 #include <variant>
 #include <vector>
 
 namespace Json {
+    class Node;
+
+    class Document;
+
+    Document Load(std::istream &input);
+
+    void Save(std::ostream &output, const Document &document);
 
     class Node : public std::variant<std::vector<Node>,
             std::map<std::string, Node>,
@@ -17,33 +24,33 @@ namespace Json {
     public:
         using variant::variant;
 
-        const auto &AsArray() const {
+        [[nodiscard]] const auto &AsArray() const {
             return std::get<std::vector<Node>>(*this);
         }
 
-        const auto &AsMap() const {
+        [[nodiscard]] const auto &AsMap() const {
             return std::get<std::map<std::string, Node>>(*this);
         }
 
-        int AsInt() const {
+        [[nodiscard]]  int AsInt() const {
             if (!std::holds_alternative<int>(*this)) {
                 return static_cast<int>(std::get<double>(*this));
             }
             return std::get<int>(*this);
         }
 
-        double AsDouble() const {
+        [[nodiscard]]   double AsDouble() const {
             if (!std::holds_alternative<double>(*this)) {
                 return std::get<int>(*this);
             }
             return std::get<double>(*this);
         }
 
-        bool AsBool() const {
+        [[nodiscard]]    bool AsBool() const {
             return std::get<bool>(*this);
         }
 
-        const auto &AsString() const {
+        [[nodiscard]]   const auto &AsString() const {
             return std::get<std::string>(*this);
         }
 
@@ -56,14 +63,19 @@ namespace Json {
     public:
         explicit Document(Node root);
 
-        const Node &GetRoot() const;
+        [[nodiscard]] const Node &GetRoot() const;
+
+        bool operator==(const Document &other) const {
+            return root == other.root;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Document &document) {
+            Save(os, document);
+            return os;
+        }
 
     private:
         Node root;
     };
-
-    Document Load(std::istream &input);
-
-    void Save(std::ostream &output, Document document);
 
 }
