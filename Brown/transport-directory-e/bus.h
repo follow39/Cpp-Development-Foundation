@@ -87,10 +87,10 @@ struct Bus {
     }
 
     void UpdateStopsCounters() {
-        stops_count = isCircle ? stops.size() : (stops.size() * 2 - 1);
-//        unique_stops_count = isCircle ? ((stops.size() + 1) / 2) : stops.size();
-        std::unordered_set<std::string> unique_stops(stops.begin(), stops.end());
-        unique_stops_count = unique_stops.size();
+//        stops_count = isCircle ? static_cast<int>(stops.size()) : static_cast<int>(stops.size() * 2 - 1);
+//        unique_stops_count = isCircle ? static_cast<int>((stops.size() + 1) / 2) : static_cast<int>(stops.size());
+        stops_count = static_cast<int>(stops.size() * 2) - 1;
+        unique_stops_count = static_cast<int>(stops.size());
     }
 
     [[nodiscard]] BusInfo GetBusInfo() const {
@@ -109,6 +109,7 @@ struct Bus {
         for (const auto &stop_name: request.at("stops").AsArray()) {
             stops.push_back(stop_name.AsString());
         }
+        stops.resize((stops.size() + 1) / 2);
         UpdateStopsCounters();
     }
 };

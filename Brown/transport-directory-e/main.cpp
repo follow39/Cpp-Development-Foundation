@@ -8,8 +8,8 @@
 #include "stop.h"
 #include "bus.h"
 #include "manager.h"
-#include "json.h"
 #include "path.h"
+#include "json.h"
 
 using namespace std;
 
@@ -63,12 +63,14 @@ void ProcessCreationRequest(Manager &manager, const Json::Node &request) {
     }
 }
 
-Manager BuildManager(const vector<Json::Node> &node) {
-    Manager manager;
-    for (const auto &request: node) {
+Manager BuildManager(const Json::Document &document) {
+    auto &requests = document.GetRoot().AsMap().at("base_requests").AsArray();
+    Manager manager(RoutingSettings{
+            document.GetRoot().AsMap().at("routing_settings").AsMap()});
+    for (const auto &request: requests) {
         ProcessCreationRequest(manager, request);
     }
-    manager.UpdateLengths();
+    manager.PrepareToProcess();
     return move(manager);
 }
 
@@ -80,10 +82,10 @@ Json::Node BuildResponseNode(OptInfo info) {
     return BuildError("not found");
 }
 
-Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &requests) {
+Json::Document BuildResponse(const Manager &manager, const Json::Document &document) {
+    auto &requests = document.GetRoot().AsMap().at("stat_requests").AsArray();
     vector<Json::Node> result;
-
-    Graph::Router router{manager.BuildGraph()};
+    result.reserve(requests.size());
 
     for (const auto &request: requests) {
         Json::Node temp;
@@ -93,7 +95,7 @@ Json::Document BuildResponse(const Manager &manager, const vector<Json::Node> &r
         } else if (type == PrintRequestType::PRINT_STOP) {
             temp = BuildResponseNode(manager.GetStopInfo(request.AsMap().at("name").AsString()));
         } else if (type == PrintRequestType::PRINT_ROUTE) {
-            temp = BuildResponseNode(manager.GetPath(request.AsMap()));
+            temp = BuildResponseNode(manager.RoutePath(PathRequest{request.AsMap()}));
         }
         temp.AddId(request.AsMap().at("id").AsInt());
         result.push_back(move(temp));
@@ -106,9 +108,8 @@ int main() {
     ifstream in("input.json");
     ofstream out("output.json");
     Json::Document document = Json::Load(in);
-    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
-    manager.SetRoutingSettings(document.GetRoot().AsMap().at("routing_settings").AsMap());
-    Json::Save(out, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
+    Manager manager = BuildManager(document);
+    Json::Save(out, BuildResponse(manager, document));
 
     in.close();
     out.close();
