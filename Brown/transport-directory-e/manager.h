@@ -139,10 +139,10 @@ private:
                     std::vector<std::string> temp;
                     int span_count = 0;
                     if (it_first < it_second) {
-                        temp = std::vector(it_first, it_second);
+                        temp = std::vector(it_first, next(it_second));
                         span_count = static_cast<int>(it_second - it_first);
                     } else if (it_first > it_second) {
-                        temp = std::vector(it_second, it_first);
+                        temp = std::vector(it_second, next(it_first));
                         std::reverse(temp.begin(), temp.end());
                         span_count = static_cast<int>(it_first - it_second);
                     } else {

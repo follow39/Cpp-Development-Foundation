@@ -48,7 +48,7 @@ struct WaitResponseItem : public PathResponseItem {
     [[nodiscard]] Json::Node ToJson() const override {
         std::map<std::string, Json::Node> result;
         result.emplace("type", Json::Node(type));
-        result.emplace("time", Json::Node(time));
+        result.emplace("time", Json::Node(static_cast<int>(time)));
         result.emplace("stop_name", Json::Node(stop_name));
         return Json::Node{std::move(result)};
     }

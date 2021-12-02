@@ -105,6 +105,7 @@ Json::Document BuildResponse(const Manager &manager, const Json::Document &docum
 }
 
 int main() {
+    /*
     ifstream in("input.json");
     ofstream out("output.json");
     Json::Document document = Json::Load(in);
@@ -113,10 +114,13 @@ int main() {
 
     in.close();
     out.close();
+     */
 
-//    Json::Document document = Json::Load(cin);
-//    Manager manager = BuildManager(document.GetRoot().AsMap().at("base_requests").AsArray());
-//    Json::Save(cout, BuildResponse(manager, document.GetRoot().AsMap().at("stat_requests").AsArray()));
+//    /*
+    Json::Document document = Json::Load(cin);
+    Manager manager = BuildManager(document);
+    Json::Save(cout, BuildResponse(manager, document));
+//     */
 
     return 0;
 }
