@@ -88,9 +88,10 @@ struct Bus {
 
     void UpdateStopsCounters() {
         stops_count = isCircle ? static_cast<int>(stops.size()) : static_cast<int>(stops.size() * 2 - 1);
-        unique_stops_count = isCircle ? static_cast<int>((stops.size() + 1) / 2) : static_cast<int>(stops.size());
+//        unique_stops_count = isCircle ? static_cast<int>((stops.size() + 1) / 2) : static_cast<int>(stops.size());
 //        stops_count = static_cast<int>(stops.size() * 2) - 1;
 //        unique_stops_count = static_cast<int>(stops.size());
+        unique_stops_count = static_cast<int>(std::unordered_set<std::string>(stops.begin(), stops.end()).size());
     }
 
     [[nodiscard]] BusInfo GetBusInfo() const {

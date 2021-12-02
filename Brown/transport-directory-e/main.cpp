@@ -105,8 +105,8 @@ Json::Document BuildResponse(const Manager &manager, const Json::Document &docum
 }
 
 int main() {
-    /*
-    ifstream in("input.json");
+//    /*
+    ifstream in("input1.json");
     ofstream out("output.json");
     Json::Document document = Json::Load(in);
     Manager manager = BuildManager(document);
@@ -114,13 +114,13 @@ int main() {
 
     in.close();
     out.close();
-     */
+//     */
 
-//    /*
+    /*
     Json::Document document = Json::Load(cin);
     Manager manager = BuildManager(document);
     Json::Save(cout, BuildResponse(manager, document));
-//     */
+     */
 
     return 0;
 }
