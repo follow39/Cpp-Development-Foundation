@@ -126,7 +126,14 @@ namespace Json {
     }
 
     void SaveDouble(ostream &output, double value) {
-        output << to_string(value);
+        string result = to_string(value);
+        while (result.back() == '0') {
+            result.pop_back();
+        }
+        if (result.back() == '.') {
+            result.pop_back();
+        }
+        output << result;
     }
 
     void SaveBool(ostream &output, bool value) {
@@ -194,8 +201,8 @@ namespace Json {
         }
     }
 
-    void Save(ostream &output, const Document& document) {
-        output.precision(6);
+    void Save(ostream &output, const Document &document) {
+        output.precision(5);
         SaveNode(output, document.GetRoot());
     }
 }

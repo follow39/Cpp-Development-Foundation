@@ -5,8 +5,10 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <cmath>
 
 namespace Json {
+
     class Node;
 
     class Document;

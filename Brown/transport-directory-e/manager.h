@@ -135,14 +135,18 @@ private:
 
         for (const auto &bus: buses) {
             for (auto it_first = bus.second.stops.begin(); it_first != bus.second.stops.end(); ++it_first) {
-                for (auto it_second = bus.second.stops.begin(); it_second != bus.second.stops.end(); ++it_second) {
+                for (auto it_second = bus.second.isRoundtrip ? next(it_first) : bus.second.stops.begin();
+                     it_second != bus.second.stops.end(); ++it_second) {
+                    if (*it_first == *it_second) {
+                        continue;
+                    }
+
                     std::vector<std::string> temp;
                     int span_count = 0;
                     if (it_first < it_second) {
                         temp = std::vector(it_first, next(it_second));
                         span_count = static_cast<int>(it_second - it_first);
                     } else if (it_first > it_second) {
-                        continue;
                         temp = std::vector(it_second, next(it_first));
                         std::reverse(temp.begin(), temp.end());
                         span_count = static_cast<int>(it_first - it_second);
@@ -151,9 +155,7 @@ private:
                     }
 
                     double time = Bus::CalculateCurLength(temp, stops) / (routingSettings.bus_velocity * 1000 / 60);
-                    if (time == 0) {
-                        continue;
-                    }
+
                     edges.emplace_back(BusEdge{.bus_name = bus.second.name,
                             .from = *it_first,
                             .to = *it_second,

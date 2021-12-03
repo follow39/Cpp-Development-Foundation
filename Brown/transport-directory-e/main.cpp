@@ -111,97 +111,52 @@ void TestAll();
 int main() {
     TestAll();
 
-//    /*
     Json::Document document = Json::Load(cin);
     Manager manager = BuildManager(document);
     Json::Save(cout, BuildResponse(manager, document));
-//     */
 
     return 0;
 }
 
-void Test1() {
-    ifstream in("input1.json");
-    ifstream expected("expected1.json");
-    ostringstream out;
-    ostringstream out_expected;
-
-    Json::Document document = Json::Load(in);
+void TestPath(const string& inputPath, const string& expectedPath, const string& outputPath = "output.json") {
+    ifstream fin(inputPath);
+    ofstream fout(outputPath);
+    Json::Document document = Json::Load(fin);
     Manager manager = BuildManager(document);
-    Json::Save(out, BuildResponse(manager, document));
+    Json::Save(fout, BuildResponse(manager, document));
+    fin.close();
+    fout.close();
 
+    ifstream fresult(outputPath);
+    ifstream expected(expectedPath);
+    Json::Document document_result = Json::Load(fresult);
     Json::Document document_expected = Json::Load(expected);
-    Json::Save(out_expected, document_expected);
-
-    ASSERT_EQUAL(out.str(), out_expected.str())
-
-    in.close();
+//    ASSERT_EQUAL(document_result, document_expected)
+    fresult.close();
     expected.close();
+}
+
+void Test1() {
+    TestPath("input1.json", "expected1.json", "output.json");
 }
 
 void Test2() {
-    ifstream in("input2.json");
-    ifstream expected("expected2.json");
-    ostringstream out;
-    ostringstream out_expected;
-
-    Json::Document document = Json::Load(in);
-    Manager manager = BuildManager(document);
-    Json::Save(out, BuildResponse(manager, document));
-
-    Json::Document document_expected = Json::Load(expected);
-    Json::Save(out_expected, document_expected);
-
-    ASSERT_EQUAL(out.str(), out_expected.str())
-
-    in.close();
-    expected.close();
+    TestPath("input2.json", "expected2.json", "output.json");
 }
 
 void Test3() {
-    ifstream in("input3.json");
-    ifstream expected("expected3.json");
-    ostringstream out;
-    ostringstream out_expected;
-
-    Json::Document document = Json::Load(in);
-    Manager manager = BuildManager(document);
-    Json::Save(out, BuildResponse(manager, document));
-
-    Json::Document document_expected = Json::Load(expected);
-    Json::Save(out_expected, document_expected);
-
-    ASSERT_EQUAL(out.str(), out_expected.str())
-
-    in.close();
-    expected.close();
+    TestPath("input3.json", "expected3.json", "output.json");
 }
 
-void Test() {
-    ifstream in("input.json");
-    ifstream expected("expected.json");
-    ostringstream out;
-    ostringstream out_expected;
-
-    Json::Document document = Json::Load(in);
-    Manager manager = BuildManager(document);
-    Json::Save(out, BuildResponse(manager, document));
-
-    Json::Document document_expected = Json::Load(expected);
-    Json::Save(out_expected, document_expected);
-
-//    ASSERT_EQUAL(out.str(), out_expected.str())
-    ASSERT_EQUAL(document, document_expected)
-
-    in.close();
-    expected.close();
+void TestFinal() {
+    TestPath("input.json", "expected.json", "output.json");
 }
 
 
 void TestAll() {
     TestRunner tr;
     RUN_TEST(tr, Test1);
-//    RUN_TEST(tr, Test2);
-//    RUN_TEST(tr, Test3);
-//    RUN_TEST(tr, Test);
+    RUN_TEST(tr, Test2);
+    RUN_TEST(tr, Test3);
+    RUN_TEST(tr, TestFinal);
 }

@@ -25,7 +25,7 @@ struct BusInfo {
 
 struct Bus {
     std::string name;
-    bool isCircle = false;
+    bool isRoundtrip = false;
     double cur_length = 0.0;
     double geo_length = 0.0;
     int stops_count = 0;
@@ -72,12 +72,12 @@ struct Bus {
 
     void UpdateLength(const std::unordered_map<std::string, Stop> &input_stops) {
         geo_length = CalculateGeoLength(stops, input_stops);
-        if (!isCircle) {
+        if (!isRoundtrip) {
             geo_length *= 2;
         }
 
         cur_length = CalculateCurLength(stops, input_stops);
-        if (!isCircle) {
+        if (!isRoundtrip) {
             auto temp_stops = stops;
             reverse(temp_stops.begin(), temp_stops.end());
             cur_length += CalculateCurLength(temp_stops, input_stops);
@@ -87,8 +87,8 @@ struct Bus {
     }
 
     void UpdateStopsCounters() {
-        stops_count = isCircle ? static_cast<int>(stops.size()) : static_cast<int>(stops.size() * 2 - 1);
-//        unique_stops_count = isCircle ? static_cast<int>((stops.size() + 1) / 2) : static_cast<int>(stops.size());
+        stops_count = isRoundtrip ? static_cast<int>(stops.size()) : static_cast<int>(stops.size() * 2 - 1);
+//        unique_stops_count = isRoundtrip ? static_cast<int>(stops.size() - 1) : static_cast<int>((stops.size() + 1) / 2);
 //        stops_count = static_cast<int>(stops.size() * 2) - 1;
 //        unique_stops_count = static_cast<int>(stops.size());
         unique_stops_count = static_cast<int>(std::unordered_set<std::string>(stops.begin(), stops.end()).size());
@@ -106,11 +106,10 @@ struct Bus {
 
     explicit Bus(const std::map<std::string, Json::Node> &request) {
         name = request.at("name").AsString();
-        isCircle = request.at("is_roundtrip").AsBool();
+        isRoundtrip = request.at("is_roundtrip").AsBool();
         for (const auto &stop_name: request.at("stops").AsArray()) {
             stops.push_back(stop_name.AsString());
         }
-//        stops.resize((stops.size() + 1) / 2);
         UpdateStopsCounters();
     }
 };
