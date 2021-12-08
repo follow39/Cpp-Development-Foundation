@@ -155,7 +155,7 @@ public:
     BaseBulkOperation(const TreeHolder &tree) : tree_(tree) {}
 
 private:
-    TreeHolder tree_;
+    std::weak_ptr<SummingSegmentTree<Data, BulkOperation>> tree_;
 };
 
 class BulkLinearUpdater : BaseBulkOperation<MoneyState, BulkLinearUpdater> {
@@ -211,6 +211,11 @@ private:
         IndexSegment segment;
         Data data;
         BulkOperation postponed_bulk_operation;
+
+        ~Node() {
+            delete left;
+            delete right;
+        }
     };
 
     std::unique_ptr<Node> root_;
@@ -235,7 +240,8 @@ private:
     }
 
     template<typename Visitor>
-    static typename Visitor::ResultType TraverseWithQuery(Node * const node, IndexSegment query_segment, Visitor visitor) {
+    static typename Visitor::ResultType
+    TraverseWithQuery(Node *const node, IndexSegment query_segment, Visitor visitor) {
         if (!node || !AreSegmentsIntersected(node->segment, query_segment)) {
             return visitor.ProcessEmpty(node);
         } else {
@@ -487,23 +493,15 @@ struct PayTaxRequest : ModifyRequest {
 RequestHolder Request::Create(Request::Type type) {
     switch (type) {
         case Request::Type::COMPUTE_INCOME: {
-//            ComputeIncomeRequest r;
-//            return RequestHolder(&r);
             return RequestHolder(new ComputeIncomeRequest);
         }
         case Request::Type::EARN: {
-//            AddMoneyRequest<+1> r;
-//            return RequestHolder(&r);
             return RequestHolder(new AddMoneyRequest<+1>);
         }
         case Request::Type::SPEND: {
-//            AddMoneyRequest<-1> r;
-//            return RequestHolder(&r);
             return RequestHolder(new AddMoneyRequest<-1>);
         }
         case Request::Type::PAY_TAX: {
-//            PayTaxRequest r;
-//            return RequestHolder(&r);
             return RequestHolder(new PayTaxRequest);
         }
         default:
