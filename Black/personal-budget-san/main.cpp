@@ -152,7 +152,7 @@ class BaseBulkOperation {
 public:
     using TreeHolder = SummingSegmentTreeHolder<Data, BulkOperation>;
 
-    BaseBulkOperation(const TreeHolder &tree) : tree_(tree.get()) {}
+    BaseBulkOperation(const TreeHolder &tree) : tree_(tree) {}
 
 private:
     TreeHolder tree_;
@@ -235,7 +235,7 @@ private:
     }
 
     template<typename Visitor>
-    static typename Visitor::ResultType TraverseWithQuery(Node *node, IndexSegment query_segment, Visitor visitor) {
+    static typename Visitor::ResultType TraverseWithQuery(Node * const node, IndexSegment query_segment, Visitor visitor) {
         if (!node || !AreSegmentsIntersected(node->segment, query_segment)) {
             return visitor.ProcessEmpty(node);
         } else {
