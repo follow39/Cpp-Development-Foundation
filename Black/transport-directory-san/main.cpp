@@ -28,7 +28,7 @@ int main() {
             fout
 //            cout
     );
-    cout << endl;
+//    cout << endl;
 
     return 0;
 }
