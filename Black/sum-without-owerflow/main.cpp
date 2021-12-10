@@ -9,7 +9,7 @@ int main() {
 
     cin >> a >> b;
 
-    cout << (((INT64_MAX - a) > b) ? to_string(a + b) : "Owerflow!") << endl;
+    cout << (((INT64_MAX - a) > b) ? to_string(a + b) : "Overflow!");
 
 
     return 0;
