@@ -36,7 +36,7 @@ public:
     std::vector<Item> items;
   };
 
-  std::optional<RouteInfo> FindRoute(const std::string& stop_from, const std::string& stop_to) const;
+  [[nodiscard]] std::optional<RouteInfo> FindRoute(const std::string& stop_from, const std::string& stop_to) const;
 
 private:
   struct RoutingSettings {

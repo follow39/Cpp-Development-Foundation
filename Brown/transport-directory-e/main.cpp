@@ -109,7 +109,7 @@ Json::Document BuildResponse(const Manager &manager, const Json::Document &docum
 void TestAll();
 
 int main() {
-    TestAll();
+//    TestAll();
 
     Json::Document document = Json::Load(cin);
     Manager manager = BuildManager(document);
