@@ -61,7 +61,7 @@ void TransportRouter::FillGraphWithBuses(const Descriptions::StopsDict &stops_di
         for (size_t start_stop_idx = 0; start_stop_idx + 1 < stop_count; ++start_stop_idx) {
             const Graph::VertexId start_vertex = stops_vertex_ids_[bus.stops[start_stop_idx]].in;
             int total_distance = 0;
-            for (size_t finish_stop_idx = start_stop_idx + 1; finish_stop_idx < stop_count; ++finish_stop_idx) {
+            for (size_t finish_stop_idx = start_stop_idx + 1; finish_stop_idx <= stop_count; ++finish_stop_idx) {
                 total_distance += compute_distance_from(finish_stop_idx - 1);
                 edges_info_.emplace_back(BusEdgeInfo{
                         .bus_name = bus.name,
@@ -93,15 +93,15 @@ optional<TransportRouter::RouteInfo> TransportRouter::FindRoute(const string &st
         const auto &edge = graph_.GetEdge(edge_id);
         const auto &edge_info = edges_info_[edge_id];
         if (holds_alternative<BusEdgeInfo>(edge_info)) {
-            const BusEdgeInfo &bus_edge_info = get<BusEdgeInfo>(edge_info);
-            route_info.items.push_back(RouteInfo::BusItem{
+            const auto &bus_edge_info = get<BusEdgeInfo>(edge_info);
+            route_info.items.emplace_back(RouteInfo::BusItem{
                     .bus_name = bus_edge_info.bus_name,
                     .time = edge.weight,
                     .span_count = bus_edge_info.span_count,
             });
         } else {
             const Graph::VertexId vertex_id = edge.from;
-            route_info.items.push_back(RouteInfo::WaitItem{
+            route_info.items.emplace_back(RouteInfo::WaitItem{
                     .stop_name = vertices_info_[vertex_id].stop_name,
                     .time = edge.weight,
             });

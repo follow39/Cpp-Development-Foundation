@@ -11,11 +11,11 @@
 using namespace std;
 
 int main() {
-//    fstream fin("input.json");
-//    fstream fout("output.json");
+    fstream fin("input.json");
+    fstream fout("output.json");
 
-//    const auto input_doc = Json::Load(fin);
-    const auto input_doc = Json::Load(cin);
+    const auto input_doc = Json::Load(fin);
+//    const auto input_doc = Json::Load(cin);
     const auto &input_map = input_doc.GetRoot().AsMap();
 
     const TransportCatalog db(
@@ -25,8 +25,8 @@ int main() {
 
     Json::PrintValue(
             Requests::ProcessAll(db, input_map.at("stat_requests").AsArray()),
-//            fout
-            cout
+            fout
+//            cout
     );
     cout << endl;
 
