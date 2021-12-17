@@ -1,5 +1,6 @@
 #include "svg.h"
 
+
 namespace Svg {
 
     void RenderPoint(std::ostream &output, const Point &point) {
@@ -12,6 +13,7 @@ namespace Svg {
                << std::to_string(rgb.red) << ","
                << std::to_string(rgb.green) << ","
                << std::to_string(rgb.blue)
+               << (rgb.alpha ? std::to_string(rgb.alpha.value()) : "")
                << ")";
     }
 

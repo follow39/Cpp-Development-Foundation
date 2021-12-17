@@ -7,6 +7,7 @@
 #include <string>
 #include <variant>
 
+#define DEBUGIO 1
 
 namespace Requests {
     struct Stop {
@@ -30,7 +31,7 @@ namespace Requests {
 
     struct SvgMap {
 //        Svg::Document document;
-        Render::RenderSettings renderSettings;
+//        Render::RenderSettings renderSettings;
 
         [[nodiscard]] Json::Dict Process(const TransportCatalog &db) const;
     };

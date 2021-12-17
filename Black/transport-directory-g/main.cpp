@@ -12,12 +12,15 @@
 
 using namespace std;
 
-int main() {
-    ifstream fin("input1.json");
-    ofstream fout("output.json");
 
+int main() {
+#if DEBUGIO
+    ifstream fin("input1.json");
     const auto input_doc = Json::Load(fin);
-//    const auto input_doc = Json::Load(cin);
+    fin.close();
+#else
+    const auto input_doc = Json::Load(cin);
+#endif
     const auto &input_map = input_doc.GetRoot().AsMap();
 
     const TransportCatalog db(
@@ -28,13 +31,15 @@ int main() {
 
     Json::PrintValue(
             Requests::ProcessAll(db, input_map.at("stat_requests").AsArray()),
-            fout
-//            cout
+            cout
     );
     cout << endl;
 
-    fin.close();
+#ifdef DEBUGIO
+    ofstream fout("out.svg");
+    fout << db.RenderMap();
     fout.close();
+#endif
 
     return 0;
 }

@@ -5,6 +5,7 @@
 #include <variant>
 #include <vector>
 #include <memory>
+#include <optional>
 
 namespace Svg {
 
@@ -22,7 +23,7 @@ namespace Svg {
         uint8_t red = 0;
         uint8_t green = 0;
         uint8_t blue = 0;
-        double alpha = 0.0;
+        std::optional<double> alpha = 0.0;
     };
 
     using Color = std::variant<std::monostate, std::string, Rgb>;
@@ -127,7 +128,7 @@ namespace Svg {
             return *this;
         }
 
-        void Render(std::ostream &output) const;
+        void Render(std::ostream &output) const override;
 
     private:
         std::vector<Point> points;
@@ -181,12 +182,12 @@ namespace Svg {
             return *this;
         }
 
-        void Render(std::ostream &output) const;
+        void Render(std::ostream &output) const override;
 
     private:
         const std::string xmlVersion = R"(<?xml version="1.0" encoding="UTF-8" ?>)";
         const std::string svgBegin = R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1">)";
-        const std::string svgEnd = R"(</svg>)";
+        const std::string svgEnd = "</svg>";
 
         std::vector<std::variant<Circle, Polyline, Text>> objects;
     };

@@ -14,7 +14,7 @@ namespace Json {
             result.push_back(LoadNode(input));
         }
 
-        return Node(move(result));
+        return Node{move(result)};
     }
 
     Node LoadBool(istream &input) {
@@ -22,7 +22,7 @@ namespace Json {
         while (isalpha(input.peek())) {
             s.push_back(input.get());
         }
-        return Node(s == "true");
+        return Node{s == "true"};
     }
 
     Node LoadNumber(istream &input) {
@@ -37,7 +37,7 @@ namespace Json {
             int_part += input.get() - '0';
         }
         if (input.peek() != '.') {
-            return Node(int_part * (is_negative ? -1 : 1));
+            return Node{int_part * (is_negative ? -1 : 1)};
         }
         input.get();  // '.'
         double result = int_part;
@@ -46,13 +46,13 @@ namespace Json {
             result += frac_mult * (input.get() - '0');
             frac_mult /= 10;
         }
-        return Node(result * (is_negative ? -1 : 1));
+        return Node{result * (is_negative ? -1 : 1)};
     }
 
     Node LoadString(istream &input) {
         string line;
         getline(input, line, '"');
-        return Node(move(line));
+        return Node{move(line)};
     }
 
     Node LoadDict(istream &input) {
@@ -68,7 +68,7 @@ namespace Json {
             result.emplace(move(key), LoadNode(input));
         }
 
-        return Node(move(result));
+        return Node{move(result)};
     }
 
     Node LoadNode(istream &input) {
@@ -97,7 +97,8 @@ namespace Json {
     //------------------------------------SAVE----------------------------------------
 
     string GetTabs(size_t tabs) {
-        return string(tabs, '\t');
+//        return string(tabs, '\t');
+        return {};
     }
 
     template<>
@@ -119,12 +120,12 @@ namespace Json {
                 output << ",";
             }
             first = false;
-            output << '\n';
+            //output << '\n';
             output << GetTabs(tabs);
             PrintNode(node, output, tabs);
         }
         if (!first) {
-            output << '\n';
+            //output << '\n';
             output << GetTabs(tabs - 1);
         }
         output << ']';
@@ -139,14 +140,14 @@ namespace Json {
                 output << ",";
             }
             first = false;
-            output << '\n';
+            //output << '\n';
             output << GetTabs(tabs);
             PrintValue(key, output);
             output << ": ";
             PrintNode(node, output, tabs);
         }
         if (!first) {
-            output << '\n';
+            //output << '\n';
             output << GetTabs(tabs - 1);
         }
         output << '}';

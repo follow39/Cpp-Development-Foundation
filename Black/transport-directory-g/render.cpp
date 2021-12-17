@@ -1,7 +1,7 @@
 #include "render.h"
 
 #include <algorithm>
-#include <optional>
+#include <set>
 
 using namespace std;
 
@@ -17,8 +17,10 @@ namespace Render {
         stop_label_font_size = attrs.at("stop_label_font_size").AsInt();
         stop_label_font_size = attrs.at("stop_label_font_size").AsInt();
 
-        stop_label_offset = {attrs.at("stop_label_offset").AsArray()[0].AsDouble(),
-                             attrs.at("stop_label_offset").AsArray()[1].AsDouble()};
+        stop_label_offset = {
+                attrs.at("stop_label_offset").AsArray()[0].AsDouble(),
+                attrs.at("stop_label_offset").AsArray()[1].AsDouble()
+        };
 
         underlayer_color = ColorFromJson(attrs.at("underlayer_color"));
 
@@ -55,43 +57,92 @@ namespace Render {
                                        const Descriptions::BusesDict &buses_dict,
                                        const RenderSettings &renderSettings) {
         Svg::Document svgDocument;
-
         ZoomCoef zoomCoef{stops_dict, renderSettings};
 
+        std::set<std::string> stops;
+        std::set<std::string> buses;
+
+        for (const auto&[busName, _]: buses_dict) {
+            buses.insert(busName);
+        }
+
         auto it_color = renderSettings.color_palette.begin();
-        for (const auto&[busName, bus]: buses_dict) {
+        for (const auto &busName: buses) {
             Svg::Polyline busPath{};
             busPath.SetStrokeWidth(renderSettings.line_width)
-                    .SetFillColor(*it_color++);
-            for (const auto &stopName: bus->stops) {
+                    .SetStrokeColor(*it_color++)
+                    .SetStrokeLineCap("round")
+                    .SetStrokeLineJoin("round");
+            for (const auto &stopName: buses_dict.at(busName)->stops) {
+                stops.insert(stopName);
                 busPath.AddPoint({
                                          .x = zoomCoef.MakeZoomLon(stops_dict.at(stopName)->position.longitude),
-                                         .y = zoomCoef.MakeZoomLat(stops_dict.at(stopName)->position.latitude)});
+                                         .y = zoomCoef.MakeZoomLat(stops_dict.at(stopName)->position.latitude)
+                                 }
+                );
             }
             svgDocument.Add(std::move(busPath));
         }
 
-        for (const auto&[stopName, stop]: stops_dict) {
+        for (const auto &stopName: stops) {
+//            std::cout << stopName << ": "
+//                      << zoomCoef.MakeZoomLon(stops_dict.at(stopName)->position.longitude) << " - "
+//                      << zoomCoef.MakeZoomLat(stops_dict.at(stopName)->position.latitude) << " <> "
+//                      << stops_dict.at(stopName)->position.longitude << " - "
+//                      << stops_dict.at(stopName)->position.latitude << std::endl;
             Svg::Circle stopCircle{};
             svgDocument.Add(Svg::Circle{}
-                                    .SetCenter({zoomCoef.MakeZoomLat(stop->position.latitude),
-                                                zoomCoef.MakeZoomLon(stop->position.longitude)})
+                                    .SetCenter({
+                                                       .x = zoomCoef.MakeZoomLon(
+                                                               stops_dict.at(stopName)->position.longitude),
+                                                       .y = zoomCoef.MakeZoomLat(
+                                                               stops_dict.at(stopName)->position.latitude)
+                                               })
+                                    .SetRadius(renderSettings.stop_radius)
                                     .SetFillColor("white")
             );
         }
 
-        for (const auto&[stopName, stop]: stops_dict) {
+        for (const auto &stopName: stops) {
             Svg::Circle stopCircle{};
             svgDocument.Add(Svg::Text{}
-                                    .SetPoint({zoomCoef.MakeZoomLat(stop->position.latitude),
-                                               zoomCoef.MakeZoomLon(stop->position.longitude)})
-                                    .SetOffset({renderSettings.stop_label_offset.x,
-                                                renderSettings.stop_label_offset.y})
+                                    .SetPoint({
+                                                      .x = zoomCoef.MakeZoomLon(
+                                                              stops_dict.at(stopName)->position.longitude),
+                                                      .y = zoomCoef.MakeZoomLat(
+                                                              stops_dict.at(stopName)->position.latitude)
+                                              })
+                                    .SetOffset({
+                                                       renderSettings.stop_label_offset.x,
+                                                       renderSettings.stop_label_offset.y
+                                               })
                                     .SetFontSize(renderSettings.stop_label_font_size)
+                                    .SetFontFamily("Verdana")
                                     .SetFillColor("black")
+                                    .SetData(stopName)
+                                    .SetFillColor(renderSettings.underlayer_color)
+                                    .SetStrokeColor(renderSettings.underlayer_color)
+                                    .SetStrokeWidth(renderSettings.underlayer_width)
+                                    .SetStrokeLineCap("round")
+                                    .SetStrokeLineJoin("round")
+            );
+            svgDocument.Add(Svg::Text{}
+                                    .SetPoint({
+                                                      .x = zoomCoef.MakeZoomLon(
+                                                              stops_dict.at(stopName)->position.longitude),
+                                                      .y = zoomCoef.MakeZoomLat(
+                                                              stops_dict.at(stopName)->position.latitude)
+                                              })
+                                    .SetOffset({
+                                                       renderSettings.stop_label_offset.x,
+                                                       renderSettings.stop_label_offset.y
+                                               })
+                                    .SetFontSize(renderSettings.stop_label_font_size)
+                                    .SetFontFamily("Verdana")
+                                    .SetFillColor("black")
+                                    .SetData(stopName)
             );
         }
-
 
         std::stringstream ss;
         svgDocument.Render(ss);
@@ -99,43 +150,42 @@ namespace Render {
     }
 
     ZoomCoef::ZoomCoef(const Descriptions::StopsDict &stops_dict, const RenderSettings &renderSettings) {
-        min_lon = stops_dict.begin()->second->position.longitude;
-        max_lon = stops_dict.begin()->second->position.longitude;
-        min_lat = stops_dict.begin()->second->position.latitude;
-        max_lat = stops_dict.begin()->second->position.latitude;
+        minLon = stops_dict.begin()->second->position.longitude;
+        maxLon = stops_dict.begin()->second->position.longitude;
+        minLat = stops_dict.begin()->second->position.latitude;
+        maxLat = stops_dict.begin()->second->position.latitude;
         padding = renderSettings.padding;
-        for (const auto&[stopName, stop]: stops_dict) {
-            min_lon = min(stop->position.longitude, min_lon);
-            max_lon = min(stop->position.longitude, max_lon);
-            min_lat = min(stop->position.latitude, min_lat);
-            max_lat = max(stop->position.latitude, max_lat);
+        for (const auto&[_, stop]: stops_dict) {
+            minLon = min(stop->position.longitude, minLon);
+            maxLon = max(stop->position.longitude, maxLon);
+            minLat = min(stop->position.latitude, minLat);
+            maxLat = max(stop->position.latitude, maxLat);
         }
-        std::optional<double> width_zoom_coef;
-        std::optional<double> height_zoom_coef;
-        double zoom_coef = 0.0;
-        if (max_lon == min_lon) {
-            (renderSettings.width - 2 * renderSettings.padding) / (max_lon - min_lon);
+        if (fabs(maxLon - minLon) >= 1e-6) {
+//        if (maxLon != minLon) {
+            widthZoomCoef = (renderSettings.width - 2 * renderSettings.padding) / (maxLon - minLon);
         }
-        if (max_lat != min_lat) {
-            (renderSettings.height - 2 * renderSettings.padding) / (max_lat - min_lat);
+        if (fabs(maxLat - minLat) >= 1e-6) {
+//        if (maxLat != minLat) {
+            heightZoomCoef = (renderSettings.height - 2 * renderSettings.padding) / (maxLat - minLat);
         }
-        if (width_zoom_coef && height_zoom_coef) {
-            zoom_coef = min(width_zoom_coef.value(), height_zoom_coef.value());
-        } else if (width_zoom_coef) {
-            zoom_coef = height_zoom_coef.value();
-        } else if (height_zoom_coef) {
-            zoom_coef = width_zoom_coef.value();
+        if (widthZoomCoef && heightZoomCoef) {
+            zoomCoef = min(widthZoomCoef.value(), heightZoomCoef.value());
+        } else if (widthZoomCoef) {
+            zoomCoef = widthZoomCoef.value();
+        } else if (heightZoomCoef) {
+            zoomCoef = heightZoomCoef.value();
         } else {
-            zoom_coef = 0.0;
+            zoomCoef = 0.0;
         }
     }
 
     double ZoomCoef::MakeZoomLon(double longitude) const {
-        return (longitude - min_lon) * zoomCoef + padding;
+        return (longitude - minLon) * zoomCoef + padding;
     }
 
     double ZoomCoef::MakeZoomLat(double latitude) const {
-        return (latitude - min_lat) * zoomCoef + padding;
+        return (maxLat - latitude) * zoomCoef + padding;
     }
 
 }

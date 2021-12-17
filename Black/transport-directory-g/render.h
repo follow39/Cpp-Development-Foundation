@@ -8,6 +8,7 @@
 #include <variant>
 #include <string>
 #include <sstream>
+#include <optional>
 
 namespace Render {
     struct RenderSettings {
@@ -29,17 +30,19 @@ namespace Render {
 
     struct ZoomCoef {
         double zoomCoef = 0.0;
-        double min_lon = 0.0;
-        double max_lon = 0.0;
-        double min_lat = 0.0;
-        double max_lat = 0.0;
+        double minLon = 0.0;
+        double maxLon = 0.0;
+        double minLat = 0.0;
+        double maxLat = 0.0;
         double padding = 0.0;
+        std::optional<double> widthZoomCoef;
+        std::optional<double> heightZoomCoef;
 
         ZoomCoef() = delete;
 
         explicit ZoomCoef(const Descriptions::StopsDict &stops_dict, const RenderSettings &renderSettings);
-        double MakeZoomLon(double longitude) const;
-        double MakeZoomLat(double latitude) const;
+        [[nodiscard]] double MakeZoomLon(double longitude) const;
+        [[nodiscard]] double MakeZoomLat(double latitude) const;
     };
 
     Svg::Color ColorFromJson(const Json::Node &attrs);

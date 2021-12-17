@@ -2,6 +2,8 @@
 #include "transport_router.h"
 
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -78,7 +80,22 @@ namespace Requests {
     }
 
     Json::Dict SvgMap::Process(const TransportCatalog &db) const {
-        const auto renderedMap = db.RenderMap();
+        auto initExpr = [&db] {
+            stringstream ss;
+#if DEBUGIO
+            ss << db.RenderMap();
+#else
+            ss << std::quoted(db.RenderMap());
+#endif
+            std::string result = ss.str();
+#if DEBUGIO
+#else
+            result.pop_back();
+            result.erase(result.begin());
+#endif
+            return result;
+        };
+        const std::string renderedMap = initExpr();
         Json::Dict dict;
         if (renderedMap.empty()) {
             dict["error_message"] = Json::Node("not found"s);
@@ -99,7 +116,7 @@ namespace Requests {
         } else if (type == "Route") {
             return Route{attrs.at("from").AsString(), attrs.at("to").AsString()};
         } else if (type == "Map") {
-            return SvgMap{Render::RenderSettings{attrs.at("render_settings").AsMap()}};
+            return SvgMap{};
         }
         return {};
     }
