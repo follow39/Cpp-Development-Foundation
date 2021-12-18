@@ -23,7 +23,7 @@ namespace Svg {
         uint8_t red = 0;
         uint8_t green = 0;
         uint8_t blue = 0;
-        std::optional<double> alpha = 0.0;
+        double alpha = 0.0;
     };
 
     using Color = std::variant<std::monostate, std::string, Rgb>;

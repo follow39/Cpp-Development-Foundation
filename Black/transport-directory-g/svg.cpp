@@ -9,12 +9,18 @@ namespace Svg {
     }
 
     void RenderRgb(std::ostream &output, const Rgb &rgb) {
-        output << "rgb("
-               << std::to_string(rgb.red) << ","
-               << std::to_string(rgb.green) << ","
-               << std::to_string(rgb.blue)
-               << (rgb.alpha ? std::to_string(rgb.alpha.value()) : "")
-               << ")";
+        if (rgb.alpha > 0) {
+            output << "rgba("
+                   << std::to_string(rgb.red) << ","
+                   << std::to_string(rgb.green) << ","
+                   << std::to_string(rgb.blue) << ","
+                   << std::to_string(rgb.alpha) << ")";
+        } else {
+            output << "rgb("
+                   << std::to_string(rgb.red) << ","
+                   << std::to_string(rgb.green) << ","
+                   << std::to_string(rgb.blue) << ")";
+        }
     }
 
     void RenderColor(std::ostream &output, std::monostate) {
@@ -96,8 +102,7 @@ namespace Svg {
         output << xmlVersion;
         output << svgBegin;
         for (const auto &object: objects) {
-            std::visit([&output](const auto &obj) { obj.Render(output); },
-                       object);
+            std::visit([&output](const auto &obj) { obj.Render(output); }, object);
         }
         output << svgEnd;
     }

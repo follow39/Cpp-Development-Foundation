@@ -29,6 +29,7 @@ namespace Render {
     };
 
     struct ZoomCoef {
+        const double epsilon = 1e-6;
         double zoomCoef = 0.0;
         double minLon = 0.0;
         double maxLon = 0.0;
