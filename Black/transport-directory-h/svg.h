@@ -158,6 +158,11 @@ namespace Svg {
             return *this;
         }
 
+        Text &SetFontWeight(const std::string &new_fontWeight) {
+            fontWeight = new_fontWeight;
+            return *this;
+        }
+
         Text &SetData(const std::string &new_text) {
             text = new_text;
             return *this;
@@ -170,6 +175,7 @@ namespace Svg {
         Point offset{0.0, 0.0};
         uint32_t fontSize = 1;
         std::string fontFamily;
+        std::string fontWeight;
         std::string text;
     };
 
@@ -177,8 +183,15 @@ namespace Svg {
     class Document : public Object {
     public:
         template<class ObjectType>
-        Document &Add(ObjectType &&svgObject) {
-            objects.emplace_back(std::forward<ObjectType>(svgObject));
+        Document &Add(ObjectType svgObject) {
+            objects.emplace_back(std::make_unique<ObjectType>(std::move(svgObject)));
+            return *this;
+        }
+
+        Document &Add(std::vector<std::unique_ptr<Svg::Object>> svgObjects) {
+            for (auto &svgObject: svgObjects) {
+                objects.emplace_back(std::move(svgObject));
+            }
             return *this;
         }
 
@@ -189,7 +202,7 @@ namespace Svg {
         const std::string svgBegin = R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1">)";
         const std::string svgEnd = "</svg>";
 
-        std::vector<std::variant<Circle, Polyline, Text>> objects;
+        std::vector<std::unique_ptr<Object>> objects;
     };
 
 }

@@ -91,6 +91,7 @@ namespace Svg {
         RenderParam(output, "dx", offset.x);
         RenderParam(output, "dy", offset.y);
         RenderParam(output, "font-size", fontSize);
+        RenderParam(output, "font-weight", fontWeight);
         if (!fontFamily.empty()) {
             RenderParam(output, "font-family", fontFamily);
         }
@@ -102,7 +103,7 @@ namespace Svg {
         output << xmlVersion;
         output << svgBegin;
         for (const auto &object: objects) {
-            std::visit([&output](const auto &obj) { obj.Render(output); }, object);
+            object->Render(output);
         }
         output << svgEnd;
     }

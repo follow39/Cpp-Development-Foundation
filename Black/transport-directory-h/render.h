@@ -19,7 +19,9 @@ namespace Render {
         double line_width = 0.0;
         double underlayer_width = 0.0;
         int stop_label_font_size = 0;
+        int bus_label_font_size = 0;
         Svg::Point stop_label_offset;
+        Svg::Point bus_label_offset;
         Svg::Color underlayer_color = Svg::NoneColor;
         std::vector<Svg::Color> color_palette;
 
@@ -42,7 +44,9 @@ namespace Render {
         ZoomCoef() = delete;
 
         explicit ZoomCoef(const Descriptions::StopsDict &stops_dict, const RenderSettings &renderSettings);
+
         [[nodiscard]] double MakeZoomLon(double longitude) const;
+
         [[nodiscard]] double MakeZoomLat(double latitude) const;
     };
 
@@ -50,5 +54,30 @@ namespace Render {
 
     std::string RenderTransportCatalog(const Descriptions::StopsDict &stops_dict,
                                        const Descriptions::BusesDict &buses_dict,
-                                       const RenderSettings &renderSettings);
+                                       const RenderSettings &renderSettings
+    );
+
+    std::vector<std::unique_ptr<Svg::Object>> RenderBuses(const Descriptions::StopsDict &stops_dict,
+                                         const Descriptions::BusesDict &buses_dict,
+                                         const RenderSettings &renderSettings,
+                                         const ZoomCoef &zoomCoef
+    );
+
+    std::vector<std::unique_ptr<Svg::Object>> RenderBusesNames(const Descriptions::StopsDict &stops_dict,
+                                              const Descriptions::BusesDict &buses_dict,
+                                              const RenderSettings &renderSettings,
+                                              const ZoomCoef &zoomCoef
+    );
+
+    std::vector<std::unique_ptr<Svg::Object>> RenderStops(const Descriptions::StopsDict &stops_dict,
+                                         const Descriptions::BusesDict &buses_dict,
+                                         const RenderSettings &renderSettings,
+                                         const ZoomCoef &zoomCoef
+    );
+
+    std::vector<std::unique_ptr<Svg::Object>> RenderStopsNames(const Descriptions::StopsDict &stops_dict,
+                                              const Descriptions::BusesDict &buses_dict,
+                                              const RenderSettings &renderSettings,
+                                              const ZoomCoef &zoomCoef
+    );
 }

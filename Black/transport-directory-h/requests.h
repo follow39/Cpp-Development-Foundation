@@ -7,7 +7,7 @@
 #include <string>
 #include <variant>
 
-#define DEBUGIO 1
+#define DEBUGIO 0
 
 namespace Requests {
     struct Stop {
