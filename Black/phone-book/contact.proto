@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package PhoneBookSerialize;
+
+message Contact {
+  string name = 1;
+}
+
+message ContactList {
+  repeated Contact contacts = 1;
+}
