@@ -20,18 +20,18 @@ void TestSaveLoad() {
     ASSERT_EQUAL(s.size(), 40);
 
     // Размер map (8 байт, так как это size_t)
-    ASSERT_EQUAL(s[0],  0x02);
-    ASSERT_EQUAL(s[1],  0x00);
-    ASSERT_EQUAL(s[2],  0x00);
-    ASSERT_EQUAL(s[3],  0x00);
-    ASSERT_EQUAL(s[4],  0x00);
-    ASSERT_EQUAL(s[5],  0x00);
-    ASSERT_EQUAL(s[6],  0x00);
-    ASSERT_EQUAL(s[7],  0x00);
+    ASSERT_EQUAL(s[0], 0x02);
+    ASSERT_EQUAL(s[1], 0x00);
+    ASSERT_EQUAL(s[2], 0x00);
+    ASSERT_EQUAL(s[3], 0x00);
+    ASSERT_EQUAL(s[4], 0x00);
+    ASSERT_EQUAL(s[5], 0x00);
+    ASSERT_EQUAL(s[6], 0x00);
+    ASSERT_EQUAL(s[7], 0x00);
 
     // Ключ 1 (4 байта, так как это uint32_t)
-    ASSERT_EQUAL(s[8],  0x01);
-    ASSERT_EQUAL(s[9],  0x00);
+    ASSERT_EQUAL(s[8], 0x01);
+    ASSERT_EQUAL(s[9], 0x00);
     ASSERT_EQUAL(s[10], 0x00);
     ASSERT_EQUAL(s[11], 0x00);
 
