@@ -1,7 +1,7 @@
 #include "phone_book.h"
-//#include "contact.pb.h"
+#include "contact.pb.h"
 
-//#include <test_runner.h>
+#include <test_runner.h>
 
 #include <sstream>
 #include <vector>
@@ -10,10 +10,10 @@ using namespace std;
 /*
 void TestSerialization() {
     const PhoneBook ab({
-                               {"Ivan Ivanov", Date{1980, 1, 13}, {"+79850685521"}},
+                               {"Ivan Ivanov",       Date{1980, 1, 13}, {"+79850685521"}},
                                {"Margarita Petrova", Date{1989, 4, 23}, {"+79998887766", "+71112223344"}},
-                               {"Just Birthday", Date{1989, 4, 23}, {}},
-                               {"No Birthday", std::nullopt, {"+7-4862-77-25-64"}},
+                               {"Just Birthday",     Date{1989, 4, 23}, {}},
+                               {"No Birthday",       std::nullopt,      {"+7-4862-77-25-64"}},
                        });
 
     ostringstream output(std::ios::binary);
@@ -24,15 +24,15 @@ void TestSerialization() {
     ASSERT(list.ParseFromIstream(&input));
     ASSERT_EQUAL(list.contact_size(), 4);
 
-    unordered_map<string, const PhoneBookSerialize::Contact*> persons;
-    for (const auto& p : list.contact()) {
+    unordered_map<string, const PhoneBookSerialize::Contact *> persons;
+    for (const auto &p: list.contact()) {
         persons[p.name()] = &p;
     }
 
     {
         auto it = persons.find("Ivan Ivanov");
         ASSERT(it != persons.end());
-        const auto& p = *it->second;
+        const auto &p = *it->second;
 
         ASSERT(p.has_birthday());
         ASSERT_EQUAL(p.birthday().year(), 1980);
@@ -40,7 +40,7 @@ void TestSerialization() {
     {
         auto it = persons.find("Margarita Petrova");
         ASSERT(it != persons.end());
-        const auto& p = *it->second;
+        const auto &p = *it->second;
 
         ASSERT(p.has_birthday());
         ASSERT_EQUAL(p.birthday().year(), 1989);
@@ -50,7 +50,7 @@ void TestSerialization() {
     {
         auto it = persons.find("Just Birthday");
         ASSERT(it != persons.end());
-        const auto& p = *it->second;
+        const auto &p = *it->second;
 
         ASSERT(p.has_birthday());
         ASSERT_EQUAL(p.birthday().day(), 23);
@@ -59,7 +59,7 @@ void TestSerialization() {
     {
         auto it = persons.find("No Birthday");
         ASSERT(it != persons.end());
-        const auto& p = *it->second;
+        const auto &p = *it->second;
 
         ASSERT(!p.has_birthday());
         ASSERT_EQUAL(p.phone_number_size(), 1);
@@ -118,19 +118,19 @@ void TestDeserialization() {
 
 void TestFindNameByPrefix() {
     PhoneBook book({
-                           {"Vasiliy Petrov", std::nullopt, {}},
-                           {"Ivan Ivanov", std::nullopt, {}},
-                           {"Vasiliy Ivanov", std::nullopt, {}},
-                           {"Vasilisa Kuznetsova", std::nullopt, {}},
-                           {"Ivan Petrov", std::nullopt, {}},
+                           {"Vasiliy Petrov",        std::nullopt, {}},
+                           {"Ivan Ivanov",           std::nullopt, {}},
+                           {"Vasiliy Ivanov",        std::nullopt, {}},
+                           {"Vasilisa Kuznetsova",   std::nullopt, {}},
+                           {"Ivan Petrov",           std::nullopt, {}},
                            {"Vassisualiy Lokhankin", std::nullopt, {}},
-                           {"Ivan Vasiliev", std::nullopt, {}},
-                           {"", std::nullopt, {}},
+                           {"Ivan Vasiliev",         std::nullopt, {}},
+                           {"",                      std::nullopt, {}},
                    });
 
     auto get_names = [](PhoneBook::ContactRange range) {
         vector<string> result;
-        for (const auto& record : range) {
+        for (const auto &record: range) {
             result.push_back(record.name);
         }
         return result;
@@ -185,20 +185,20 @@ void TestFindNameByPrefix() {
 
 void TestFindNameByPrefix2() {
     PhoneBook book({
-                           {"a", std::nullopt, {}},
-                           {"aaaa", std::nullopt, {}},
-                           {"aabc", std::nullopt, {}},
+                           {"a",      std::nullopt, {}},
+                           {"aaaa",   std::nullopt, {}},
+                           {"aabc",   std::nullopt, {}},
                            {"aabccc", std::nullopt, {}},
                            {"aabcbc", std::nullopt, {}},
-                           {"aeca", std::nullopt, {}},
-                           {"aeca", std::nullopt, {}},
-                           {"aefg", std::nullopt, {}},
-                           {"aq", std::nullopt, {}},
+                           {"aeca",   std::nullopt, {}},
+                           {"aeca",   std::nullopt, {}},
+                           {"aefg",   std::nullopt, {}},
+                           {"aq",     std::nullopt, {}},
                    });
 
     auto get_names = [](PhoneBook::ContactRange range) {
         vector<string> result;
-        for (const auto& record : range) {
+        for (const auto &record: range) {
             result.push_back(record.name);
         }
         return result;
@@ -225,7 +225,7 @@ void TestFindNameByPrefix2() {
 }
 */
 int main() {
-//    TestRunner tr;
+    TestRunner tr;
 //    RUN_TEST(tr, TestFindNameByPrefix);
 //    RUN_TEST(tr, TestFindNameByPrefix2);
 //    RUN_TEST(tr, TestSerialization);

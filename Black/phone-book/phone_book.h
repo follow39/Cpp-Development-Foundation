@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iterator_range.h"
+#include "contact.pb.h"
 
 #include <optional>
 #include <string>
@@ -20,11 +21,18 @@ struct Contact {
 
 class PhoneBook {
 public:
-    explicit PhoneBook(std::vector<Contact> contacts);
+    explicit PhoneBook(std::vector<Contact> new_contacts) {
+
+    }
 
 //    IteratorRange<???> FindByNamePrefix(std::string_view name_prefix) const;
 
-    void SaveTo(std::ostream& output) const;
+    void SaveTo(std::ostream &output) const {
+
+    }
+
+private:
+    std::vector<Contact> contacts;
 };
 
-PhoneBook DeserializePhoneBook(std::istream& input);
+PhoneBook DeserializePhoneBook(std::istream &input);
