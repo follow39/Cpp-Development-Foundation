@@ -14,5 +14,5 @@ include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS contact.proto)
-add_executable(main main.cpp ${PROTO_SRCS} ${PROTO_HDRS} iterator_range.h phone_book.h)
+add_executable(main main.cpp ${PROTO_SRCS} ${PROTO_HDRS} iterator_range.h phone_book.h phone_book.cpp)
 target_link_libraries(main ${Protobuf_LIBRARIES})
