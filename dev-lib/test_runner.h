@@ -84,11 +84,6 @@ inline void Assert(bool b, const string &hint) {
     AssertEqual(b, true, hint);
 }
 
-template<typename T>
-inline void Assert(optional<T> b, const string &hint) {
-    AssertEqual(b == nullopt, true, hint);
-}
-
 class TestRunner {
 public:
     template<class TestFunc>

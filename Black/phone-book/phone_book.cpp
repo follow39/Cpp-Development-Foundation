@@ -49,6 +49,7 @@ PhoneBook DeserializePhoneBook(std::istream &input) {
         Contact contact;
         contact.name = contactP.name();
         if (contactP.has_birthday()) {
+            contact.birthday = Date{};
             contact.birthday->day = contactP.birthday().day();
             contact.birthday->month = contactP.birthday().month();
             contact.birthday->year = contactP.birthday().year();

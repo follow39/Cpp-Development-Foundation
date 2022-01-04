@@ -105,7 +105,7 @@ void TestDeserialization() {
     ASSERT(!contacts[0].birthday);
 
     ASSERT_EQUAL(contacts[1].name, "Veronika");
-    ASSERT(contacts[1].birthday);
+    ASSERT(contacts[1].birthday.has_value());
     ASSERT_EQUAL(contacts[1].birthday->year, 2000);
     ASSERT_EQUAL(contacts[1].birthday->month, 3);
     ASSERT_EQUAL(contacts[1].birthday->day, 31);
