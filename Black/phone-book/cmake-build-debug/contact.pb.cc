@@ -19,9 +19,9 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace PhoneBookSerialize {
 constexpr Date::Date(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : day_(0)
+  : year_(0)
   , month_(0)
-  , year_(0){}
+  , day_(0){}
 struct DateDefaultTypeInternal {
   constexpr DateDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -69,9 +69,9 @@ const uint32_t TableStruct_contact_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Date, day_),
-  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Date, month_),
   PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Date, year_),
+  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Date, month_),
+  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Date, day_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::Contact, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -103,7 +103,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_contact_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rcontact.proto\022\022PhoneBookSerialize\"0\n\004D"
-  "ate\022\013\n\003day\030\001 \001(\005\022\r\n\005month\030\002 \001(\005\022\014\n\004year\030"
+  "ate\022\014\n\004year\030\001 \001(\005\022\r\n\005month\030\002 \001(\005\022\013\n\003day\030"
   "\003 \001(\005\"Y\n\007Contact\022\014\n\004name\030\001 \001(\t\022*\n\010birthd"
   "ay\030\002 \001(\0132\030.PhoneBookSerialize.Date\022\024\n\014ph"
   "one_number\030\003 \003(\t\";\n\013ContactList\022,\n\007conta"
@@ -143,17 +143,17 @@ Date::Date(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Date::Date(const Date& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&day_, &from.day_,
-    static_cast<size_t>(reinterpret_cast<char*>(&year_) -
-    reinterpret_cast<char*>(&day_)) + sizeof(year_));
+  ::memcpy(&year_, &from.year_,
+    static_cast<size_t>(reinterpret_cast<char*>(&day_) -
+    reinterpret_cast<char*>(&year_)) + sizeof(day_));
   // @@protoc_insertion_point(copy_constructor:PhoneBookSerialize.Date)
 }
 
 inline void Date::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&day_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&year_) -
-    reinterpret_cast<char*>(&day_)) + sizeof(year_));
+    reinterpret_cast<char*>(&year_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&day_) -
+    reinterpret_cast<char*>(&year_)) + sizeof(day_));
 }
 
 Date::~Date() {
@@ -183,9 +183,9 @@ void Date::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&day_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&year_) -
-      reinterpret_cast<char*>(&day_)) + sizeof(year_));
+  ::memset(&year_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&day_) -
+      reinterpret_cast<char*>(&year_)) + sizeof(day_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -195,10 +195,10 @@ const char* Date::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 day = 1;
+      // int32 year = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          day_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          year_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -211,10 +211,10 @@ const char* Date::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         } else
           goto handle_unusual;
         continue;
-      // int32 year = 3;
+      // int32 day = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
-          year_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          day_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -248,10 +248,10 @@ uint8_t* Date::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 day = 1;
-  if (this->_internal_day() != 0) {
+  // int32 year = 1;
+  if (this->_internal_year() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_day(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_year(), target);
   }
 
   // int32 month = 2;
@@ -260,10 +260,10 @@ uint8_t* Date::_InternalSerialize(
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_month(), target);
   }
 
-  // int32 year = 3;
-  if (this->_internal_year() != 0) {
+  // int32 day = 3;
+  if (this->_internal_day() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_year(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_day(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -282,9 +282,9 @@ size_t Date::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // int32 day = 1;
-  if (this->_internal_day() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_day());
+  // int32 year = 1;
+  if (this->_internal_year() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_year());
   }
 
   // int32 month = 2;
@@ -292,9 +292,9 @@ size_t Date::ByteSizeLong() const {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_month());
   }
 
-  // int32 year = 3;
-  if (this->_internal_year() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_year());
+  // int32 day = 3;
+  if (this->_internal_day() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_day());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -319,14 +319,14 @@ void Date::MergeFrom(const Date& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_day() != 0) {
-    _internal_set_day(from._internal_day());
+  if (from._internal_year() != 0) {
+    _internal_set_year(from._internal_year());
   }
   if (from._internal_month() != 0) {
     _internal_set_month(from._internal_month());
   }
-  if (from._internal_year() != 0) {
-    _internal_set_year(from._internal_year());
+  if (from._internal_day() != 0) {
+    _internal_set_day(from._internal_day());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -346,11 +346,11 @@ void Date::InternalSwap(Date* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Date, year_)
-      + sizeof(Date::year_)
-      - PROTOBUF_FIELD_OFFSET(Date, day_)>(
-          reinterpret_cast<char*>(&day_),
-          reinterpret_cast<char*>(&other->day_));
+      PROTOBUF_FIELD_OFFSET(Date, day_)
+      + sizeof(Date::day_)
+      - PROTOBUF_FIELD_OFFSET(Date, year_)>(
+          reinterpret_cast<char*>(&year_),
+          reinterpret_cast<char*>(&other->year_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Date::GetMetadata() const {

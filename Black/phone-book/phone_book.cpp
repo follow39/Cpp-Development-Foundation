@@ -28,13 +28,11 @@ void PhoneBook::SaveTo(std::ostream &output) const {
     for (const auto &contact: contacts) {
         auto contactS = contactList.add_contact();
         contactS->set_name(contact.name);
-        if (contact.birthday) {
+        if (contact.birthday.has_value()) {
             auto birthdayS = contactS->mutable_birthday();
             birthdayS->set_day(contact.birthday->day);
             birthdayS->set_month(contact.birthday->month);
             birthdayS->set_year(contact.birthday->year);
-        }
-        if (!contact.phones.empty()) {
         }
         for (const auto &phone_number: contact.phones) {
             contactS->add_phone_number(phone_number);

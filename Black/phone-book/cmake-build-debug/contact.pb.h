@@ -195,17 +195,17 @@ class Date final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDayFieldNumber = 1,
+    kYearFieldNumber = 1,
     kMonthFieldNumber = 2,
-    kYearFieldNumber = 3,
+    kDayFieldNumber = 3,
   };
-  // int32 day = 1;
-  void clear_day();
-  int32_t day() const;
-  void set_day(int32_t value);
+  // int32 year = 1;
+  void clear_year();
+  int32_t year() const;
+  void set_year(int32_t value);
   private:
-  int32_t _internal_day() const;
-  void _internal_set_day(int32_t value);
+  int32_t _internal_year() const;
+  void _internal_set_year(int32_t value);
   public:
 
   // int32 month = 2;
@@ -217,13 +217,13 @@ class Date final :
   void _internal_set_month(int32_t value);
   public:
 
-  // int32 year = 3;
-  void clear_year();
-  int32_t year() const;
-  void set_year(int32_t value);
+  // int32 day = 3;
+  void clear_day();
+  int32_t day() const;
+  void set_day(int32_t value);
   private:
-  int32_t _internal_year() const;
-  void _internal_set_year(int32_t value);
+  int32_t _internal_day() const;
+  void _internal_set_day(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:PhoneBookSerialize.Date)
@@ -233,9 +233,9 @@ class Date final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  int32_t day_;
-  int32_t month_;
   int32_t year_;
+  int32_t month_;
+  int32_t day_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_contact_2eproto;
 };
@@ -602,24 +602,24 @@ class ContactList final :
 #endif  // __GNUC__
 // Date
 
-// int32 day = 1;
-inline void Date::clear_day() {
-  day_ = 0;
+// int32 year = 1;
+inline void Date::clear_year() {
+  year_ = 0;
 }
-inline int32_t Date::_internal_day() const {
-  return day_;
+inline int32_t Date::_internal_year() const {
+  return year_;
 }
-inline int32_t Date::day() const {
-  // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.day)
-  return _internal_day();
+inline int32_t Date::year() const {
+  // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.year)
+  return _internal_year();
 }
-inline void Date::_internal_set_day(int32_t value) {
+inline void Date::_internal_set_year(int32_t value) {
   
-  day_ = value;
+  year_ = value;
 }
-inline void Date::set_day(int32_t value) {
-  _internal_set_day(value);
-  // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.day)
+inline void Date::set_year(int32_t value) {
+  _internal_set_year(value);
+  // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.year)
 }
 
 // int32 month = 2;
@@ -642,24 +642,24 @@ inline void Date::set_month(int32_t value) {
   // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.month)
 }
 
-// int32 year = 3;
-inline void Date::clear_year() {
-  year_ = 0;
+// int32 day = 3;
+inline void Date::clear_day() {
+  day_ = 0;
 }
-inline int32_t Date::_internal_year() const {
-  return year_;
+inline int32_t Date::_internal_day() const {
+  return day_;
 }
-inline int32_t Date::year() const {
-  // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.year)
-  return _internal_year();
+inline int32_t Date::day() const {
+  // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.day)
+  return _internal_day();
 }
-inline void Date::_internal_set_year(int32_t value) {
+inline void Date::_internal_set_day(int32_t value) {
   
-  year_ = value;
+  day_ = value;
 }
-inline void Date::set_year(int32_t value) {
-  _internal_set_year(value);
-  // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.year)
+inline void Date::set_day(int32_t value) {
+  _internal_set_day(value);
+  // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.day)
 }
 
 // -------------------------------------------------------------------
