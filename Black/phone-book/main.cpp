@@ -7,7 +7,7 @@
 #include <vector>
 
 using namespace std;
-/*
+
 void TestSerialization() {
     const PhoneBook ab({
                                {"Ivan Ivanov",       Date{1980, 1, 13}, {"+79850685521"}},
@@ -223,11 +223,11 @@ void TestFindNameByPrefix2() {
             (vector<string>{"aeca", "aeca", "aefg"})
     );
 }
-*/
+
 int main() {
     TestRunner tr;
-//    RUN_TEST(tr, TestFindNameByPrefix);
-//    RUN_TEST(tr, TestFindNameByPrefix2);
-//    RUN_TEST(tr, TestSerialization);
-//    RUN_TEST(tr, TestDeserialization);
+    RUN_TEST(tr, TestFindNameByPrefix);
+    RUN_TEST(tr, TestFindNameByPrefix2);
+    RUN_TEST(tr, TestSerialization);
+    RUN_TEST(tr, TestDeserialization);
 }

@@ -19,9 +19,9 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace PhoneBookSerialize {
 constexpr Date::Date(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : day_(0u)
-  , month_(0u)
-  , year_(uint64_t{0u}){}
+  : day_(0)
+  , month_(0)
+  , year_(0){}
 struct DateDefaultTypeInternal {
   constexpr DateDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -47,7 +47,7 @@ struct ContactDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ContactDefaultTypeInternal _Contact_default_instance_;
 constexpr ContactList::ContactList(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : contacts_(){}
+  : contact_(){}
 struct ContactListDefaultTypeInternal {
   constexpr ContactListDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -87,7 +87,7 @@ const uint32_t TableStruct_contact_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::ContactList, contacts_),
+  PROTOBUF_FIELD_OFFSET(::PhoneBookSerialize::ContactList, contact_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::PhoneBookSerialize::Date)},
@@ -103,16 +103,16 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_contact_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rcontact.proto\022\022PhoneBookSerialize\"0\n\004D"
-  "ate\022\013\n\003day\030\001 \001(\r\022\r\n\005month\030\002 \001(\r\022\014\n\004year\030"
-  "\003 \001(\004\"Y\n\007Contact\022\014\n\004name\030\001 \001(\t\022*\n\010birthd"
+  "ate\022\013\n\003day\030\001 \001(\005\022\r\n\005month\030\002 \001(\005\022\014\n\004year\030"
+  "\003 \001(\005\"Y\n\007Contact\022\014\n\004name\030\001 \001(\t\022*\n\010birthd"
   "ay\030\002 \001(\0132\030.PhoneBookSerialize.Date\022\024\n\014ph"
-  "one_number\030\003 \003(\t\"<\n\013ContactList\022-\n\010conta"
-  "cts\030\001 \003(\0132\033.PhoneBookSerialize.Contactb\006"
-  "proto3"
+  "one_number\030\003 \003(\t\";\n\013ContactList\022,\n\007conta"
+  "ct\030\001 \003(\0132\033.PhoneBookSerialize.Contactb\006p"
+  "roto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_contact_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_contact_2eproto = {
-  false, false, 246, descriptor_table_protodef_contact_2eproto, "contact.proto", 
+  false, false, 245, descriptor_table_protodef_contact_2eproto, "contact.proto", 
   &descriptor_table_contact_2eproto_once, nullptr, 0, 3,
   schemas, file_default_instances, TableStruct_contact_2eproto::offsets,
   file_level_metadata_contact_2eproto, file_level_enum_descriptors_contact_2eproto, file_level_service_descriptors_contact_2eproto,
@@ -195,7 +195,7 @@ const char* Date::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint32 day = 1;
+      // int32 day = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           day_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
@@ -203,7 +203,7 @@ const char* Date::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         } else
           goto handle_unusual;
         continue;
-      // uint32 month = 2;
+      // int32 month = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           month_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
@@ -211,10 +211,10 @@ const char* Date::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         } else
           goto handle_unusual;
         continue;
-      // uint64 year = 3;
+      // int32 year = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
-          year_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          year_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -248,22 +248,22 @@ uint8_t* Date::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint32 day = 1;
+  // int32 day = 1;
   if (this->_internal_day() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_day(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_day(), target);
   }
 
-  // uint32 month = 2;
+  // int32 month = 2;
   if (this->_internal_month() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_month(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_month(), target);
   }
 
-  // uint64 year = 3;
+  // int32 year = 3;
   if (this->_internal_year() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_year(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_year(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -282,19 +282,19 @@ size_t Date::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint32 day = 1;
+  // int32 day = 1;
   if (this->_internal_day() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_day());
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_day());
   }
 
-  // uint32 month = 2;
+  // int32 month = 2;
   if (this->_internal_month() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_month());
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_month());
   }
 
-  // uint64 year = 3;
+  // int32 year = 3;
   if (this->_internal_year() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64SizePlusOne(this->_internal_year());
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_year());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -652,7 +652,7 @@ class ContactList::_Internal {
 ContactList::ContactList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
-  contacts_(arena) {
+  contact_(arena) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -661,7 +661,7 @@ ContactList::ContactList(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 }
 ContactList::ContactList(const ContactList& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      contacts_(from.contacts_) {
+      contact_(from.contact_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:PhoneBookSerialize.ContactList)
 }
@@ -696,7 +696,7 @@ void ContactList::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  contacts_.Clear();
+  contact_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -706,13 +706,13 @@ const char* ContactList::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .PhoneBookSerialize.Contact contacts = 1;
+      // repeated .PhoneBookSerialize.Contact contact = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_contacts(), ptr);
+            ptr = ctx->ParseMessage(_internal_add_contact(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
@@ -748,12 +748,12 @@ uint8_t* ContactList::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .PhoneBookSerialize.Contact contacts = 1;
+  // repeated .PhoneBookSerialize.Contact contact = 1;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_contacts_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->_internal_contact_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_contacts(i), target, stream);
+      InternalWriteMessage(1, this->_internal_contact(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -772,9 +772,9 @@ size_t ContactList::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .PhoneBookSerialize.Contact contacts = 1;
-  total_size += 1UL * this->_internal_contacts_size();
-  for (const auto& msg : this->contacts_) {
+  // repeated .PhoneBookSerialize.Contact contact = 1;
+  total_size += 1UL * this->_internal_contact_size();
+  for (const auto& msg : this->contact_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
@@ -801,7 +801,7 @@ void ContactList::MergeFrom(const ContactList& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  contacts_.MergeFrom(from.contacts_);
+  contact_.MergeFrom(from.contact_);
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -819,7 +819,7 @@ bool ContactList::IsInitialized() const {
 void ContactList::InternalSwap(ContactList* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  contacts_.InternalSwap(&other->contacts_);
+  contact_.InternalSwap(&other->contact_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ContactList::GetMetadata() const {

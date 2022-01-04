@@ -199,31 +199,31 @@ class Date final :
     kMonthFieldNumber = 2,
     kYearFieldNumber = 3,
   };
-  // uint32 day = 1;
+  // int32 day = 1;
   void clear_day();
-  uint32_t day() const;
-  void set_day(uint32_t value);
+  int32_t day() const;
+  void set_day(int32_t value);
   private:
-  uint32_t _internal_day() const;
-  void _internal_set_day(uint32_t value);
+  int32_t _internal_day() const;
+  void _internal_set_day(int32_t value);
   public:
 
-  // uint32 month = 2;
+  // int32 month = 2;
   void clear_month();
-  uint32_t month() const;
-  void set_month(uint32_t value);
+  int32_t month() const;
+  void set_month(int32_t value);
   private:
-  uint32_t _internal_month() const;
-  void _internal_set_month(uint32_t value);
+  int32_t _internal_month() const;
+  void _internal_set_month(int32_t value);
   public:
 
-  // uint64 year = 3;
+  // int32 year = 3;
   void clear_year();
-  uint64_t year() const;
-  void set_year(uint64_t value);
+  int32_t year() const;
+  void set_year(int32_t value);
   private:
-  uint64_t _internal_year() const;
-  void _internal_set_year(uint64_t value);
+  int32_t _internal_year() const;
+  void _internal_set_year(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:PhoneBookSerialize.Date)
@@ -233,9 +233,9 @@ class Date final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  uint32_t day_;
-  uint32_t month_;
-  uint64_t year_;
+  int32_t day_;
+  int32_t month_;
+  int32_t year_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_contact_2eproto;
 };
@@ -560,25 +560,25 @@ class ContactList final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kContactsFieldNumber = 1,
+    kContactFieldNumber = 1,
   };
-  // repeated .PhoneBookSerialize.Contact contacts = 1;
-  int contacts_size() const;
+  // repeated .PhoneBookSerialize.Contact contact = 1;
+  int contact_size() const;
   private:
-  int _internal_contacts_size() const;
+  int _internal_contact_size() const;
   public:
-  void clear_contacts();
-  ::PhoneBookSerialize::Contact* mutable_contacts(int index);
+  void clear_contact();
+  ::PhoneBookSerialize::Contact* mutable_contact(int index);
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact >*
-      mutable_contacts();
+      mutable_contact();
   private:
-  const ::PhoneBookSerialize::Contact& _internal_contacts(int index) const;
-  ::PhoneBookSerialize::Contact* _internal_add_contacts();
+  const ::PhoneBookSerialize::Contact& _internal_contact(int index) const;
+  ::PhoneBookSerialize::Contact* _internal_add_contact();
   public:
-  const ::PhoneBookSerialize::Contact& contacts(int index) const;
-  ::PhoneBookSerialize::Contact* add_contacts();
+  const ::PhoneBookSerialize::Contact& contact(int index) const;
+  ::PhoneBookSerialize::Contact* add_contact();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact >&
-      contacts() const;
+      contact() const;
 
   // @@protoc_insertion_point(class_scope:PhoneBookSerialize.ContactList)
  private:
@@ -587,7 +587,7 @@ class ContactList final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact > contacts_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact > contact_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_contact_2eproto;
 };
@@ -602,62 +602,62 @@ class ContactList final :
 #endif  // __GNUC__
 // Date
 
-// uint32 day = 1;
+// int32 day = 1;
 inline void Date::clear_day() {
-  day_ = 0u;
+  day_ = 0;
 }
-inline uint32_t Date::_internal_day() const {
+inline int32_t Date::_internal_day() const {
   return day_;
 }
-inline uint32_t Date::day() const {
+inline int32_t Date::day() const {
   // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.day)
   return _internal_day();
 }
-inline void Date::_internal_set_day(uint32_t value) {
+inline void Date::_internal_set_day(int32_t value) {
   
   day_ = value;
 }
-inline void Date::set_day(uint32_t value) {
+inline void Date::set_day(int32_t value) {
   _internal_set_day(value);
   // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.day)
 }
 
-// uint32 month = 2;
+// int32 month = 2;
 inline void Date::clear_month() {
-  month_ = 0u;
+  month_ = 0;
 }
-inline uint32_t Date::_internal_month() const {
+inline int32_t Date::_internal_month() const {
   return month_;
 }
-inline uint32_t Date::month() const {
+inline int32_t Date::month() const {
   // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.month)
   return _internal_month();
 }
-inline void Date::_internal_set_month(uint32_t value) {
+inline void Date::_internal_set_month(int32_t value) {
   
   month_ = value;
 }
-inline void Date::set_month(uint32_t value) {
+inline void Date::set_month(int32_t value) {
   _internal_set_month(value);
   // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.month)
 }
 
-// uint64 year = 3;
+// int32 year = 3;
 inline void Date::clear_year() {
-  year_ = uint64_t{0u};
+  year_ = 0;
 }
-inline uint64_t Date::_internal_year() const {
+inline int32_t Date::_internal_year() const {
   return year_;
 }
-inline uint64_t Date::year() const {
+inline int32_t Date::year() const {
   // @@protoc_insertion_point(field_get:PhoneBookSerialize.Date.year)
   return _internal_year();
 }
-inline void Date::_internal_set_year(uint64_t value) {
+inline void Date::_internal_set_year(int32_t value) {
   
   year_ = value;
 }
-inline void Date::set_year(uint64_t value) {
+inline void Date::set_year(int32_t value) {
   _internal_set_year(value);
   // @@protoc_insertion_point(field_set:PhoneBookSerialize.Date.year)
 }
@@ -886,44 +886,44 @@ Contact::mutable_phone_number() {
 
 // ContactList
 
-// repeated .PhoneBookSerialize.Contact contacts = 1;
-inline int ContactList::_internal_contacts_size() const {
-  return contacts_.size();
+// repeated .PhoneBookSerialize.Contact contact = 1;
+inline int ContactList::_internal_contact_size() const {
+  return contact_.size();
 }
-inline int ContactList::contacts_size() const {
-  return _internal_contacts_size();
+inline int ContactList::contact_size() const {
+  return _internal_contact_size();
 }
-inline void ContactList::clear_contacts() {
-  contacts_.Clear();
+inline void ContactList::clear_contact() {
+  contact_.Clear();
 }
-inline ::PhoneBookSerialize::Contact* ContactList::mutable_contacts(int index) {
-  // @@protoc_insertion_point(field_mutable:PhoneBookSerialize.ContactList.contacts)
-  return contacts_.Mutable(index);
+inline ::PhoneBookSerialize::Contact* ContactList::mutable_contact(int index) {
+  // @@protoc_insertion_point(field_mutable:PhoneBookSerialize.ContactList.contact)
+  return contact_.Mutable(index);
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact >*
-ContactList::mutable_contacts() {
-  // @@protoc_insertion_point(field_mutable_list:PhoneBookSerialize.ContactList.contacts)
-  return &contacts_;
+ContactList::mutable_contact() {
+  // @@protoc_insertion_point(field_mutable_list:PhoneBookSerialize.ContactList.contact)
+  return &contact_;
 }
-inline const ::PhoneBookSerialize::Contact& ContactList::_internal_contacts(int index) const {
-  return contacts_.Get(index);
+inline const ::PhoneBookSerialize::Contact& ContactList::_internal_contact(int index) const {
+  return contact_.Get(index);
 }
-inline const ::PhoneBookSerialize::Contact& ContactList::contacts(int index) const {
-  // @@protoc_insertion_point(field_get:PhoneBookSerialize.ContactList.contacts)
-  return _internal_contacts(index);
+inline const ::PhoneBookSerialize::Contact& ContactList::contact(int index) const {
+  // @@protoc_insertion_point(field_get:PhoneBookSerialize.ContactList.contact)
+  return _internal_contact(index);
 }
-inline ::PhoneBookSerialize::Contact* ContactList::_internal_add_contacts() {
-  return contacts_.Add();
+inline ::PhoneBookSerialize::Contact* ContactList::_internal_add_contact() {
+  return contact_.Add();
 }
-inline ::PhoneBookSerialize::Contact* ContactList::add_contacts() {
-  ::PhoneBookSerialize::Contact* _add = _internal_add_contacts();
-  // @@protoc_insertion_point(field_add:PhoneBookSerialize.ContactList.contacts)
+inline ::PhoneBookSerialize::Contact* ContactList::add_contact() {
+  ::PhoneBookSerialize::Contact* _add = _internal_add_contact();
+  // @@protoc_insertion_point(field_add:PhoneBookSerialize.ContactList.contact)
   return _add;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PhoneBookSerialize::Contact >&
-ContactList::contacts() const {
-  // @@protoc_insertion_point(field_list:PhoneBookSerialize.ContactList.contacts)
-  return contacts_;
+ContactList::contact() const {
+  // @@protoc_insertion_point(field_list:PhoneBookSerialize.ContactList.contact)
+  return contact_;
 }
 
 #ifdef __GNUC__
