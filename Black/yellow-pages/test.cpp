@@ -144,8 +144,8 @@ void TestMerge() {
 
     ASSERT(company.address() == signals[0].company().address());
 
-//    ASSERT(company.names().size() == 1);
-//    ASSERT(company.names(0) == signals[0].company().names(0));
+    ASSERT(company.names().size() == 1);
+    ASSERT(company.names(0) == signals[0].company().names(0));
 
     ASSERT(company.phones().size() == 3);
     ASSERT(Contains(company.phones(), signals[0].company().phones(0)));

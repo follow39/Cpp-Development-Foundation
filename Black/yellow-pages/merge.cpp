@@ -16,6 +16,7 @@ namespace YellowPages {
             signalsByProviderId.emplace(it->provider_id(), it);
         }
 
+        uint32_t prev_priority = 0;
         Company result;
         for (const auto&[priority, id]: ids) {
             auto &signal = *signalsByProviderId.at(id);
@@ -27,28 +28,43 @@ namespace YellowPages {
                 address->CopyFrom(company.address());
             }
 
-            for (const auto &name: company.names()) {
-                if (std::find_if(result.names().begin(), result.names().end(),
-                                 [&name](const auto &arg) {
-                                     return arg.SerializeAsString() == name.SerializeAsString();
-                                 }) == result.names().end()) {
-                    result.add_names()->CopyFrom(name);
+            if (!company.names().empty()) {
+                if (priority > prev_priority) {
+                    result.clear_names();
+                }
+                for (const auto &name: company.names()) {
+                    if (std::find_if(result.names().begin(), result.names().end(),
+                                     [&name](const auto &arg) {
+                                         return arg.SerializeAsString() == name.SerializeAsString();
+                                     }) == result.names().end()) {
+                        result.add_names()->CopyFrom(name);
+                    }
                 }
             }
-            for (const auto &phone: company.phones()) {
-                if (std::find_if(result.phones().begin(), result.phones().end(),
-                                 [&phone](const auto &arg) {
-                                     return arg.SerializeAsString() == phone.SerializeAsString();
-                                 }) == result.phones().end()) {
-                    result.add_phones()->CopyFrom(phone);
+            if (!company.phones().empty()) {
+                if (priority > prev_priority) {
+                    result.clear_phones();
+                }
+                for (const auto &phone: company.phones()) {
+                    if (std::find_if(result.phones().begin(), result.phones().end(),
+                                     [&phone](const auto &arg) {
+                                         return arg.SerializeAsString() == phone.SerializeAsString();
+                                     }) == result.phones().end()) {
+                        result.add_phones()->CopyFrom(phone);
+                    }
                 }
             }
-            for (const auto &url: company.urls()) {
-                if (std::find_if(result.urls().begin(), result.urls().end(),
-                                 [&url](const auto &arg) {
-                                     return arg.SerializeAsString() == url.SerializeAsString();
-                                 }) == result.urls().end()) {
-                    result.add_urls()->CopyFrom(url);
+            if (!company.urls().empty()) {
+                if (priority > prev_priority) {
+                    result.clear_urls();
+                }
+                for (const auto &url: company.urls()) {
+                    if (std::find_if(result.urls().begin(), result.urls().end(),
+                                     [&url](const auto &arg) {
+                                         return arg.SerializeAsString() == url.SerializeAsString();
+                                     }) == result.urls().end()) {
+                        result.add_urls()->CopyFrom(url);
+                    }
                 }
             }
 
@@ -57,6 +73,8 @@ namespace YellowPages {
                 auto working_time = result.mutable_working_time();
                 working_time->CopyFrom(company.working_time());
             }
+
+            prev_priority = priority;
         }
 
         return std::move(result);
