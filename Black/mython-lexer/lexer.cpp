@@ -87,22 +87,30 @@ namespace Parse {
     Token Lexer::NextToken() {
         Token result;
 
-        if(!currentToken.Is<monostate>()) {
-            if (currentToken.Is<TokenType::Newline>()) {
-
+        if (currentToken.Is<TokenType::Newline>() && input.peek() == ' ') {
+            int cnt = 0;
+            while (input.peek() == ' ') {
+                input.get();
+                ++cnt;
             }
+            if (cnt > currentIndent) {
+                result = Token(TokenType::Indent{});
+            } else if (cnt < currentIndent) {
+                result = Token(TokenType::Dedent{});
+            }
+        } else {
             input >> ws;
-        }
 
-        if (isdigit(input.peek())) {
-            result = ParseNumber(input);
-        } else if (input.peek() == '\'' || input.peek() == '\"') {
-            result = ParseString(input);
-        } else if (isalpha(input.peek()) || input.peek() == '_') {
-
-        } else if (!isalpha(input.peek()) && !isdigit(input.peek()) &&
-                   input.peek() != '\'' && input.peek() != '\"') {
-            result = ParseChar(input);
+            if (isdigit(input.peek())) {
+                result = ParseNumber(input);
+            } else if (input.peek() == '\'' || input.peek() == '\"') {
+                result = ParseString(input);
+            } else if (isalpha(input.peek()) || input.peek() == '_') {
+                result = ParseWord(input);
+            } else if (!isalpha(input.peek()) && !isdigit(input.peek()) &&
+                       input.peek() != '\'' && input.peek() != '\"') {
+                result = ParseChar(input);
+            }
         }
 
         currentToken = result;
@@ -115,8 +123,43 @@ namespace Parse {
         return Token(TokenType::Number{value});
     }
 
-    Token Lexer::ParseId(istream &input) {
-        return Token();
+    Token Lexer::ParseWord(istream &input) {
+        Token result;
+        string value;
+
+        do {
+            char temp;
+            input.get(temp);
+            value += temp;
+        } while (input && (isalpha(input.peek()) ||
+                           isdigit(input.peek()) ||
+                           input.peek() == '_'));
+        switch (input.peek()) {
+            case ' ':
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '=':
+            case '>':
+            case '<':
+            case '!':
+            case ':':
+            case ',':
+            case '\n':
+            case EOF:
+                break;
+            default:
+                throw GenerateLexerError(input.peek());
+        }
+
+        if (keywords.find(value) != keywords.end()) {
+            result = keywords.at(value);
+        } else {
+            result = Token{TokenType::Id{value}};
+        }
+
+        return result;
     }
 
     Token Lexer::ParseChar(istream &input) {
@@ -192,5 +235,6 @@ namespace Parse {
 
         return Token(TokenType::String{value});
     }
+
 
 } /* namespace Parse */

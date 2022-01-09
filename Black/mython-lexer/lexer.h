@@ -6,6 +6,7 @@
 #include <variant>
 #include <stdexcept>
 #include <optional>
+#include <unordered_map>
 
 class TestRunner;
 
@@ -71,7 +72,6 @@ namespace Parse {
     }
 
     using TokenBase = std::variant<
-            std::monostate,
             TokenType::Number,
             TokenType::Id,
             TokenType::Char,
@@ -162,7 +162,7 @@ namespace Parse {
     private:
         static Token ParseNumber(std::istream &input);
 
-        static Token ParseId(std::istream &input);
+        static Token ParseWord(std::istream &input);
 
         static Token ParseChar(std::istream &input);
 
@@ -171,6 +171,22 @@ namespace Parse {
         std::istream &input;
         Token currentToken;
         int currentIndent = 0;
+
+        static inline const std::unordered_map<std::string, Token> keywords = {
+                {"class", Token{TokenType::Class{}}},
+                {"return", Token{TokenType::Return{}}},
+                {"if", Token{TokenType::If{}}},
+                {"else", Token{TokenType::Else{}}},
+                {"def", Token{TokenType::Def{}}},
+                {"print", Token{TokenType::Print{}}},
+                {"or", Token{TokenType::Or{}}},
+                {"and", Token{TokenType::And{}}},
+                {"not", Token{TokenType::Not{}}},
+                {"True", Token{TokenType::True{}}},
+                {"False", Token{TokenType::False{}}},
+                {"None", Token{TokenType::None{}}},
+//                "class", "return", "if", "else", "def", "print", "or", "and", "not", "True", "False", "None"
+        };
     };
 
     void RunLexerTests(TestRunner &test_runner);
