@@ -70,13 +70,127 @@ namespace Parse {
     }
 
 
-    Lexer::Lexer(std::istream &input) {
+    template<class T>
+    LexerError GenerateLexerError(T value) {
+        string errorText = "Unknown token - ";
+        errorText += to_string(value);
+        return LexerError{errorText};
     }
 
+    Lexer::Lexer(std::istream &new_input)
+            : input(new_input), currentToken(NextToken()) {}
+
     const Token &Lexer::CurrentToken() const {
+        return currentToken;
     }
 
     Token Lexer::NextToken() {
+        Token result;
+
+        if(!currentToken.Is<monostate>()) {
+            if (currentToken.Is<TokenType::Newline>()) {
+
+            }
+            input >> ws;
+        }
+
+        if (isdigit(input.peek())) {
+            result = ParseNumber(input);
+        } else if (input.peek() == '\'' || input.peek() == '\"') {
+            result = ParseString(input);
+        } else if (isalpha(input.peek()) || input.peek() == '_') {
+
+        } else if (!isalpha(input.peek()) && !isdigit(input.peek()) &&
+                   input.peek() != '\'' && input.peek() != '\"') {
+            result = ParseChar(input);
+        }
+
+        currentToken = result;
+        return result;
+    }
+
+    Token Lexer::ParseNumber(istream &input) {
+        int value = 0;
+        input >> value;
+        return Token(TokenType::Number{value});
+    }
+
+    Token Lexer::ParseId(istream &input) {
+        return Token();
+    }
+
+    Token Lexer::ParseChar(istream &input) {
+        char ch;
+        input.get(ch);
+
+        switch (ch) {
+            case '+':
+                return Token(TokenType::Char{'+'});
+            case '-':
+                return Token(TokenType::Char{'-'});
+            case '*':
+                return Token(TokenType::Char{'*'});
+            case '/':
+                return Token(TokenType::Char{'/'});
+            case '=':
+                if (input.peek() == '=') {
+                    input.get();
+                    return Token(TokenType::Eq{});
+                }
+                return Token(TokenType::Char{'='});
+            case '>':
+                if (input.peek() == '=') {
+                    input.get();
+                    return Token(TokenType::GreaterOrEq{});
+                }
+                return Token(TokenType::Char{'>'});
+            case '<':
+                if (input.peek() == '=') {
+                    input.get();
+                    return Token(TokenType::LessOrEq{});
+                }
+                return Token(TokenType::Char{'<'});
+            case '!':
+                if (input.peek() == '=') {
+                    input.get();
+                    return Token(TokenType::NotEq{});
+                }
+                break;
+            default:
+                break;
+        }
+
+        switch (ch) {
+            case ':':
+                return Token(TokenType::Char{':'});
+            case ',':
+                return Token(TokenType::Char{','});
+            case '\n':
+                return Token(TokenType::Newline{});
+            case EOF:
+                return Token(TokenType::Eof{});
+            default:
+                break;
+        }
+
+        throw GenerateLexerError(ch);
+
+        return Token{};
+    }
+
+    Token Lexer::ParseString(istream &input) {
+        char limiter;
+        input.get(limiter);
+        string value;
+
+        do {
+            char temp;
+            input.get(temp);
+            value += temp;
+        } while (input && input.peek() != limiter);
+        input.get();
+
+        return Token(TokenType::String{value});
     }
 
 } /* namespace Parse */

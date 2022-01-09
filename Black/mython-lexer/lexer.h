@@ -71,6 +71,7 @@ namespace Parse {
     }
 
     using TokenBase = std::variant<
+            std::monostate,
             TokenType::Number,
             TokenType::Id,
             TokenType::Char,
@@ -110,7 +111,7 @@ namespace Parse {
         using TokenBase::TokenBase;
 
         template<typename T>
-        bool Is() const {
+        [[nodiscard]] bool Is() const {
             return std::holds_alternative<T>(*this);
         }
 
@@ -136,9 +137,9 @@ namespace Parse {
 
     class Lexer {
     public:
-        explicit Lexer(std::istream &input);
+        explicit Lexer(std::istream &new_input);
 
-        const Token &CurrentToken() const;
+        [[nodiscard]] const Token &CurrentToken() const;
 
         Token NextToken();
 
@@ -159,6 +160,17 @@ namespace Parse {
         }
 
     private:
+        static Token ParseNumber(std::istream &input);
+
+        static Token ParseId(std::istream &input);
+
+        static Token ParseChar(std::istream &input);
+
+        static Token ParseString(std::istream &input);
+
+        std::istream &input;
+        Token currentToken;
+        int currentIndent = 0;
     };
 
     void RunLexerTests(TestRunner &test_runner);
