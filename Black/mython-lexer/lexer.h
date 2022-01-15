@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <optional>
 #include <unordered_map>
+#include <vector>
 
 class TestRunner;
 
@@ -72,6 +73,7 @@ namespace Parse {
     }
 
     using TokenBase = std::variant<
+            std::monostate,
             TokenType::Number,
             TokenType::Id,
             TokenType::Char,
@@ -137,7 +139,10 @@ namespace Parse {
 
     class Lexer {
     public:
-        explicit Lexer(std::istream &new_input);
+        using Tokens = std::vector<Token>;
+
+    public:
+        explicit Lexer(std::istream &input);
 
         [[nodiscard]] const Token &CurrentToken() const;
 
@@ -145,18 +150,30 @@ namespace Parse {
 
         template<typename T>
         const T &Expect() const {
+            if (!currentToken->Is<T>()) {
+                throw LexerError{"Current type is not equal to expected"};
+            }
+            return *currentToken->TryAs<T>();
         }
 
         template<typename T, typename U>
         void Expect(const U &value) const {
+            Expect<T>();
+            if (currentToken->As<T>().value != value) {
+                throw LexerError{"Current value is not equal to expected"};
+            }
         }
 
         template<typename T>
         const T &ExpectNext() {
+            NextToken();
+            Expect<T>();
         }
 
         template<typename T, typename U>
         void ExpectNext(const U &value) {
+            NextToken();
+            Expect<T>(value);
         }
 
     private:
@@ -168,25 +185,8 @@ namespace Parse {
 
         static Token ParseString(std::istream &input);
 
-        std::istream &input;
-        Token currentToken;
-        int currentIndent = 0;
-
-        static inline const std::unordered_map<std::string, Token> keywords = {
-                {"class", Token{TokenType::Class{}}},
-                {"return", Token{TokenType::Return{}}},
-                {"if", Token{TokenType::If{}}},
-                {"else", Token{TokenType::Else{}}},
-                {"def", Token{TokenType::Def{}}},
-                {"print", Token{TokenType::Print{}}},
-                {"or", Token{TokenType::Or{}}},
-                {"and", Token{TokenType::And{}}},
-                {"not", Token{TokenType::Not{}}},
-                {"True", Token{TokenType::True{}}},
-                {"False", Token{TokenType::False{}}},
-                {"None", Token{TokenType::None{}}},
-//                "class", "return", "if", "else", "def", "print", "or", "and", "not", "True", "False", "None"
-        };
+        Tokens tokens;
+        Tokens::iterator currentToken;
     };
 
     void RunLexerTests(TestRunner &test_runner);

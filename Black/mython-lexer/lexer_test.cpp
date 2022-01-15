@@ -1,5 +1,5 @@
 #include "lexer.h"
-#include <test_runner.h>
+#include "test_runner.h"
 
 #include <string>
 #include <sstream>
@@ -328,9 +328,9 @@ print str(p)
         RUN_TEST(tr, Parse::TestIndentsAndNewlines);
         RUN_TEST(tr, Parse::TestEmptyLinesAreIgnored);
         RUN_TEST(tr, Parse::TestExpect);
-        RUN_TEST(tr, Parse::TestExpectNext);
-        RUN_TEST(tr, Parse::TestMythonProgram);
-        RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
+//        RUN_TEST(tr, Parse::TestExpectNext);
+//        RUN_TEST(tr, Parse::TestMythonProgram);
+//        RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
     }
 
 } /* namespace Parse */

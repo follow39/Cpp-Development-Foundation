@@ -77,44 +77,73 @@ namespace Parse {
         return LexerError{errorText};
     }
 
-    Lexer::Lexer(std::istream &new_input)
-            : input(new_input), currentToken(NextToken()) {}
+    Lexer::Lexer(std::istream &input) {
+        input >> ws;
 
-    const Token &Lexer::CurrentToken() const {
-        return currentToken;
-    }
+        int currentIndent = 0;
+        int incIndent = 2;
 
-    Token Lexer::NextToken() {
-        Token result;
+        while (input) {
+            if (!tokens.empty() && (tokens.back().Is<TokenType::Newline>())) {
+                int cnt = 0;
+                while (input.peek() == ' ') {
+                    input.get();
+                    ++cnt;
+                }
+                if (input.peek() == '\n') {
+                    input.get();
+                    continue;
+                }
+                if (cnt > currentIndent) {
+                    for (; currentIndent < cnt; currentIndent += incIndent) {
+                        tokens.push_back(Token(TokenType::Indent{}));
+                    }
+                    continue;
+                } else if (cnt < currentIndent) {
+                    for (; currentIndent > cnt; currentIndent -= incIndent) {
+                        tokens.push_back(Token(TokenType::Dedent{}));
+                    }
+                    continue;
+                }
+            }
 
-        if (currentToken.Is<TokenType::Newline>() && input.peek() == ' ') {
-            int cnt = 0;
             while (input.peek() == ' ') {
                 input.get();
-                ++cnt;
             }
-            if (cnt > currentIndent) {
-                result = Token(TokenType::Indent{});
-            } else if (cnt < currentIndent) {
-                result = Token(TokenType::Dedent{});
-            }
-        } else {
-            input >> ws;
 
             if (isdigit(input.peek())) {
-                result = ParseNumber(input);
+                tokens.push_back(ParseNumber(input));
+                continue;
             } else if (input.peek() == '\'' || input.peek() == '\"') {
-                result = ParseString(input);
+                tokens.push_back(ParseString(input));
+                continue;
             } else if (isalpha(input.peek()) || input.peek() == '_') {
-                result = ParseWord(input);
-            } else if (!isalpha(input.peek()) && !isdigit(input.peek()) &&
-                       input.peek() != '\'' && input.peek() != '\"') {
-                result = ParseChar(input);
+                tokens.push_back(ParseWord(input));
+                continue;
+            } else {
+                tokens.push_back(ParseChar(input));
+                continue;
             }
         }
 
-        currentToken = result;
-        return result;
+        tokens.push_back(Token{TokenType::Eof{}});
+
+        currentToken = tokens.begin();
+    }
+
+    const Token &Lexer::CurrentToken() const {
+        if (currentToken == tokens.end()) {
+            return tokens.back();
+        }
+        return *currentToken;
+    }
+
+    Token Lexer::NextToken() {
+        if (currentToken == tokens.end()) {
+            return tokens.back();
+        }
+        ++currentToken;
+        return CurrentToken();
     }
 
     Token Lexer::ParseNumber(istream &input) {
@@ -124,6 +153,22 @@ namespace Parse {
     }
 
     Token Lexer::ParseWord(istream &input) {
+        const std::unordered_map<std::string, Token> keywords = {
+                {"class",  Token{TokenType::Class{}}},
+                {"return", Token{TokenType::Return{}}},
+                {"if",     Token{TokenType::If{}}},
+                {"else",   Token{TokenType::Else{}}},
+                {"def",    Token{TokenType::Def{}}},
+                {"print",  Token{TokenType::Print{}}},
+                {"or",     Token{TokenType::Or{}}},
+                {"and",    Token{TokenType::And{}}},
+                {"not",    Token{TokenType::Not{}}},
+                {"True",   Token{TokenType::True{}}},
+                {"False",  Token{TokenType::False{}}},
+                {"None",   Token{TokenType::None{}}},
+//                "class", "return", "if", "else", "def", "print", "or", "and", "not", "True", "False", "None"
+        };
+
         Token result;
         string value;
 
@@ -147,6 +192,7 @@ namespace Parse {
             case ':':
             case ',':
             case '\n':
+            case '\\':
             case EOF:
                 break;
             default:
@@ -210,6 +256,13 @@ namespace Parse {
                 return Token(TokenType::Char{','});
             case '\n':
                 return Token(TokenType::Newline{});
+            case '\\':
+                if (input.peek() == 'n') {
+                    input.get();
+                    return Token(TokenType::Newline{});
+                }
+                break;
+            case '\0':
             case EOF:
                 return Token(TokenType::Eof{});
             default:
