@@ -126,7 +126,9 @@ namespace Parse {
             }
         }
 
-        tokens.push_back(Token{TokenType::Eof{}});
+        if (tokens.empty() || !tokens.back().Is<TokenType::Eof>()) {
+            tokens.push_back(Token{TokenType::Eof{}});
+        }
 
         currentToken = tokens.begin();
     }
@@ -179,25 +181,6 @@ namespace Parse {
         } while (input && (isalpha(input.peek()) ||
                            isdigit(input.peek()) ||
                            input.peek() == '_'));
-        switch (input.peek()) {
-            case ' ':
-            case '+':
-            case '-':
-            case '*':
-            case '/':
-            case '=':
-            case '>':
-            case '<':
-            case '!':
-            case ':':
-            case ',':
-            case '\n':
-            case '\\':
-            case EOF:
-                break;
-            default:
-                throw GenerateLexerError(input.peek());
-        }
 
         if (keywords.find(value) != keywords.end()) {
             result = keywords.at(value);
@@ -213,14 +196,6 @@ namespace Parse {
         input.get(ch);
 
         switch (ch) {
-            case '+':
-                return Token(TokenType::Char{'+'});
-            case '-':
-                return Token(TokenType::Char{'-'});
-            case '*':
-                return Token(TokenType::Char{'*'});
-            case '/':
-                return Token(TokenType::Char{'/'});
             case '=':
                 if (input.peek() == '=') {
                     input.get();
@@ -250,18 +225,8 @@ namespace Parse {
         }
 
         switch (ch) {
-            case ':':
-                return Token(TokenType::Char{':'});
-            case ',':
-                return Token(TokenType::Char{','});
             case '\n':
                 return Token(TokenType::Newline{});
-            case '\\':
-                if (input.peek() == 'n') {
-                    input.get();
-                    return Token(TokenType::Newline{});
-                }
-                break;
             case '\0':
             case EOF:
                 return Token(TokenType::Eof{});
@@ -269,9 +234,7 @@ namespace Parse {
                 break;
         }
 
-        throw GenerateLexerError(ch);
-
-        return Token{};
+        return Token{TokenType::Char{ch}};
     }
 
     Token Lexer::ParseString(istream &input) {
