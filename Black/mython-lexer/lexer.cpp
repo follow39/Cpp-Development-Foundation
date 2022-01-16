@@ -126,7 +126,14 @@ namespace Parse {
             }
         }
 
+        if(!tokens.empty() && tokens.back().Is<TokenType::Eof>()) {
+            tokens.pop_back();
+        }
+
         if (tokens.empty() || !tokens.back().Is<TokenType::Eof>()) {
+            if(!tokens.back().Is<TokenType::Newline>() && !tokens.back().Is<TokenType::Dedent>()) {
+                tokens.push_back(Token{TokenType::Newline{}});
+            }
             tokens.push_back(Token{TokenType::Eof{}});
         }
 
@@ -247,7 +254,7 @@ namespace Parse {
             input.get(temp);
             value += temp;
         } while (input && input.peek() != limiter);
-        input.get();
+        input.get(limiter);
 
         return Token(TokenType::String{value});
     }

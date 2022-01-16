@@ -167,7 +167,7 @@ namespace Parse {
         template<typename T>
         const T &ExpectNext() {
             NextToken();
-            Expect<T>();
+            return Expect<T>();
         }
 
         template<typename T, typename U>
