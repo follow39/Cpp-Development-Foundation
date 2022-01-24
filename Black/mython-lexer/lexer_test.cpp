@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -63,7 +64,8 @@ namespace Parse {
     }
 
     void TestStrings() {
-        istringstream input(R"('word' "two words" 'long string with a double quote " inside' "another long string with single quote ' inside")");
+        istringstream input(
+                R"('word' "two words" 'long string with a double quote " inside' "another long string with single quote ' inside")");
         Lexer lexer(input);
 
         ASSERT_EQUAL(lexer.CurrentToken(), Token(TokenType::String{"word"}));
@@ -318,7 +320,17 @@ print str(p)
         }
     }
 
-    void RunLexerTests(TestRunner& tr) {
+    void TestEmpty() {
+        istringstream is;
+        Lexer lex(is);
+
+        ASSERT_EQUAL(lex.CurrentToken(), Token(TokenType::Newline{}));
+        ASSERT_DOESNT_THROW(lex.Expect<TokenType::Newline>());
+        ASSERT_THROWS(lex.Expect<TokenType::Id>(), Parse::LexerError);
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
+    }
+
+    void RunLexerTests(TestRunner &tr) {
         RUN_TEST(tr, Parse::TestSimpleAssignment);
         RUN_TEST(tr, Parse::TestKeywords);
         RUN_TEST(tr, Parse::TestNumbers);
@@ -331,6 +343,7 @@ print str(p)
         RUN_TEST(tr, Parse::TestExpectNext);
         RUN_TEST(tr, Parse::TestMythonProgram);
         RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
+        RUN_TEST(tr, Parse::TestEmpty);
     }
 
 } /* namespace Parse */

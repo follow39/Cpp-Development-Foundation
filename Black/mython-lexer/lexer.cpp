@@ -69,22 +69,13 @@ namespace Parse {
         return os << "Unknown token :(";
     }
 
-
-    template<class T>
-    LexerError GenerateLexerError(T value) {
-        string errorText = "Unknown token - ";
-        errorText += to_string(value);
-        return LexerError{errorText};
-    }
-
     Lexer::Lexer(std::istream &input) {
         input >> ws;
 
         int currentIndent = 0;
-        int incIndent = 2;
 
         while (input) {
-            if (!tokens.empty() && (tokens.back().Is<TokenType::Newline>())) {
+            if (!tokens.empty() && tokens.back().Is<TokenType::Newline>()) {
                 int cnt = 0;
                 while (input.peek() == ' ') {
                     input.get();
@@ -95,11 +86,11 @@ namespace Parse {
                     continue;
                 }
                 if (cnt > currentIndent) {
-                    for (; currentIndent < cnt; currentIndent += incIndent) {
-                        tokens.push_back(Token(TokenType::Indent{}));
-                    }
+                    tokens.push_back(Token(TokenType::Indent{}));
+                    currentIndent = cnt;
                     continue;
                 } else if (cnt < currentIndent) {
+                    const int incIndent = 2;
                     for (; currentIndent > cnt; currentIndent -= incIndent) {
                         tokens.push_back(Token(TokenType::Dedent{}));
                     }
@@ -126,16 +117,13 @@ namespace Parse {
             }
         }
 
-        if(!tokens.empty() && tokens.back().Is<TokenType::Eof>()) {
+        if (!tokens.empty() && tokens.back().Is<TokenType::Eof>()) {
             tokens.pop_back();
         }
-
-        if (tokens.empty() || !tokens.back().Is<TokenType::Eof>()) {
-            if(!tokens.back().Is<TokenType::Newline>() && !tokens.back().Is<TokenType::Dedent>()) {
-                tokens.push_back(Token{TokenType::Newline{}});
-            }
-            tokens.push_back(Token{TokenType::Eof{}});
+        if (tokens.empty() || (!tokens.back().Is<TokenType::Newline>() && !tokens.back().Is<TokenType::Dedent>())) {
+            tokens.push_back(Token{TokenType::Newline{}});
         }
+        tokens.push_back(Token{TokenType::Eof{}});
 
         currentToken = tokens.begin();
     }
