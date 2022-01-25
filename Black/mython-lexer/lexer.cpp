@@ -136,10 +136,13 @@ namespace Parse {
     }
 
     Token Lexer::NextToken() {
-        if (currentToken == tokens.end()) {
+        if (*currentToken == TokenType::Eof{}) {
             return tokens.back();
         }
         ++currentToken;
+        if (*currentToken == TokenType::Eof{}) {
+            return tokens.back();
+        }
         return CurrentToken();
     }
 
@@ -215,11 +218,6 @@ namespace Parse {
                     return Token(TokenType::NotEq{});
                 }
                 break;
-            default:
-                break;
-        }
-
-        switch (ch) {
             case '\n':
                 return Token(TokenType::Newline{});
             case '\0':

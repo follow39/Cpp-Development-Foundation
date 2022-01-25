@@ -327,6 +327,8 @@ print str(p)
         ASSERT_EQUAL(lex.CurrentToken(), Token(TokenType::Newline{}));
         ASSERT_DOESNT_THROW(lex.Expect<TokenType::Newline>());
         ASSERT_THROWS(lex.Expect<TokenType::Id>(), Parse::LexerError);
+        ASSERT_DOESNT_THROW(lex.ExpectNext<TokenType::Eof>());
+        ASSERT_THROWS(lex.ExpectNext<TokenType::Newline>(), Parse::LexerError);
         ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
     }
 
