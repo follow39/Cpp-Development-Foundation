@@ -139,9 +139,6 @@ namespace Parse {
 
     class Lexer {
     public:
-        using Tokens = std::vector<Token>;
-
-    public:
         explicit Lexer(std::istream &input);
 
         [[nodiscard]] const Token &CurrentToken() const;
@@ -150,16 +147,16 @@ namespace Parse {
 
         template<typename T>
         const T &Expect() const {
-            if (!currentToken->Is<T>()) {
+            if (!currentToken.Is<T>()) {
                 throw LexerError{"Current type is not equal to expected"};
             }
-            return *currentToken->TryAs<T>();
+            return *currentToken.TryAs<T>();
         }
 
         template<typename T, typename U>
         void Expect(const U &value) const {
             Expect<T>();
-            if (currentToken->As<T>().value != value) {
+            if (currentToken.As<T>().value != value) {
                 throw LexerError{"Current value is not equal to expected"};
             }
         }
@@ -177,7 +174,7 @@ namespace Parse {
         }
 
     private:
-        static Token ParseNumber(std::istream &input);
+        static Token ParseNumber(std::istream &new_input);
 
         static Token ParseWord(std::istream &input);
 
@@ -185,8 +182,11 @@ namespace Parse {
 
         static Token ParseString(std::istream &input);
 
-        Tokens tokens;
-        Tokens::iterator currentToken;
+        std::istream &input;
+        Token currentToken;
+        int currentIndent = 0;
+        int futureIndent = 0;
+        const int incIndent = 2;
     };
 
     void RunLexerTests(TestRunner &test_runner);

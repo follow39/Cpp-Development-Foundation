@@ -69,81 +69,76 @@ namespace Parse {
         return os << "Unknown token :(";
     }
 
-    Lexer::Lexer(std::istream &input) {
+    Lexer::Lexer(std::istream &new_input)
+            : input(new_input) {
         input >> ws;
 
-        int currentIndent = 0;
+        NextToken();
+    }
 
-        while (input) {
-            if (!tokens.empty() && tokens.back().Is<TokenType::Newline>()) {
+    const Token &Lexer::CurrentToken() const {
+        return currentToken;
+    }
+
+    Token Lexer::NextToken() {
+        if (!currentToken.Is<TokenType::Eof>()) {
+            Token nextToken;
+            if (currentToken.Is<TokenType::Indent>() && input.peek() == ' ') {
+                input.get();
+                input.get();
+                currentIndent += incIndent;
+                nextToken = Token{TokenType::Indent{}};
+            } else if (currentToken.Is<TokenType::Dedent>()) {
+                if (currentIndent > futureIndent) {
+                    currentIndent -= incIndent;
+                    nextToken = Token{TokenType::Dedent{}};
+                } else if (input.peek() == '\n') {
+                    input.get();
+                    nextToken = NextToken();
+                }
+            } else if (currentToken.Is<TokenType::Newline>()) {
                 int cnt = 0;
-                while (input.peek() == ' ') {
+                while (input.peek() == ' ' && cnt != currentIndent) {
                     input.get();
                     ++cnt;
                 }
                 if (input.peek() == '\n') {
                     input.get();
-                    continue;
-                }
-                if (cnt > currentIndent) {
-                    tokens.push_back(Token(TokenType::Indent{}));
-                    currentIndent = cnt;
-                    continue;
+                    nextToken = NextToken();
                 } else if (cnt < currentIndent) {
-                    const int incIndent = 2;
-                    for (; currentIndent > cnt; currentIndent -= incIndent) {
-                        tokens.push_back(Token(TokenType::Dedent{}));
+                    futureIndent = cnt;
+                    currentIndent -= incIndent;
+                    nextToken = Token{TokenType::Dedent{}};
+                } else if (cnt == currentIndent && input.peek() == ' ') {
+                    input.get();
+                    input.get();
+                    currentIndent += incIndent;
+                    nextToken = Token{TokenType::Indent{}};
+                }
+            }
+            if (nextToken.Is<std::monostate>()) {
+                while (input.peek() == ' ') {
+                    input.get();
+                }
+
+                if (isdigit(input.peek())) {
+                    nextToken = ParseNumber(input);
+                } else if (input.peek() == '\'' || input.peek() == '\"') {
+                    nextToken = ParseString(input);
+                } else if (isalpha(input.peek()) || input.peek() == '_') {
+                    nextToken = ParseWord(input);
+                } else {
+                    nextToken = ParseChar(input);
+                    if (nextToken.Is<TokenType::Eof>() && !currentToken.Is<TokenType::Newline>()) {
+                        nextToken = Token{TokenType::Newline{}};
                     }
-                    continue;
                 }
             }
 
-            while (input.peek() == ' ') {
-                input.get();
-            }
-
-            if (isdigit(input.peek())) {
-                tokens.push_back(ParseNumber(input));
-                continue;
-            } else if (input.peek() == '\'' || input.peek() == '\"') {
-                tokens.push_back(ParseString(input));
-                continue;
-            } else if (isalpha(input.peek()) || input.peek() == '_') {
-                tokens.push_back(ParseWord(input));
-                continue;
-            } else {
-                tokens.push_back(ParseChar(input));
-                continue;
-            }
+            currentToken = nextToken;
         }
 
-        if (!tokens.empty() && tokens.back().Is<TokenType::Eof>()) {
-            tokens.pop_back();
-        }
-        if (tokens.empty() || (!tokens.back().Is<TokenType::Newline>() && !tokens.back().Is<TokenType::Dedent>())) {
-            tokens.push_back(Token{TokenType::Newline{}});
-        }
-        tokens.push_back(Token{TokenType::Eof{}});
-
-        currentToken = tokens.begin();
-    }
-
-    const Token &Lexer::CurrentToken() const {
-        if (currentToken == tokens.end()) {
-            return tokens.back();
-        }
-        return *currentToken;
-    }
-
-    Token Lexer::NextToken() {
-        if (*currentToken == TokenType::Eof{}) {
-            return tokens.back();
-        }
-        ++currentToken;
-        if (*currentToken == TokenType::Eof{}) {
-            return tokens.back();
-        }
-        return CurrentToken();
+        return currentToken;
     }
 
     Token Lexer::ParseNumber(istream &input) {
