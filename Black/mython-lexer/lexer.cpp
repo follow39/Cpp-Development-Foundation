@@ -95,6 +95,8 @@ namespace Parse {
                 } else if (input.peek() == '\n') {
                     input.get();
                     nextToken = NextToken();
+                } else if (input.peek() == '\0' || input.peek() == EOF) {
+                    nextToken = Token{TokenType::Eof{}};
                 }
             } else if (currentToken.Is<TokenType::Newline>()) {
                 int cnt = 0;

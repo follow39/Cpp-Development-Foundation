@@ -333,19 +333,19 @@ print str(p)
     }
 
     void RunLexerTests(TestRunner &tr) {
-//        RUN_TEST(tr, Parse::TestSimpleAssignment);
-//        RUN_TEST(tr, Parse::TestKeywords);
-//        RUN_TEST(tr, Parse::TestNumbers);
-//        RUN_TEST(tr, Parse::TestIds);
-//        RUN_TEST(tr, Parse::TestStrings);
-//        RUN_TEST(tr, Parse::TestOperations);
-//        RUN_TEST(tr, Parse::TestIndentsAndNewlines);
+        RUN_TEST(tr, Parse::TestSimpleAssignment);
+        RUN_TEST(tr, Parse::TestKeywords);
+        RUN_TEST(tr, Parse::TestNumbers);
+        RUN_TEST(tr, Parse::TestIds);
+        RUN_TEST(tr, Parse::TestStrings);
+        RUN_TEST(tr, Parse::TestOperations);
+        RUN_TEST(tr, Parse::TestIndentsAndNewlines);
         RUN_TEST(tr, Parse::TestEmptyLinesAreIgnored);
-//        RUN_TEST(tr, Parse::TestExpect);
-//        RUN_TEST(tr, Parse::TestExpectNext);
-//        RUN_TEST(tr, Parse::TestMythonProgram);
-//        RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
-//        RUN_TEST(tr, Parse::TestEmpty);
+        RUN_TEST(tr, Parse::TestExpect);
+        RUN_TEST(tr, Parse::TestExpectNext);
+        RUN_TEST(tr, Parse::TestMythonProgram);
+        RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
+        RUN_TEST(tr, Parse::TestEmpty);
     }
 
 } /* namespace Parse */
