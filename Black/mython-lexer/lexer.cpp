@@ -83,7 +83,14 @@ namespace Parse {
     Token Lexer::NextToken() {
         if (!currentToken.Is<TokenType::Eof>()) {
             Token nextToken;
-            if (currentToken.Is<TokenType::Indent>() && input.peek() == ' ') {
+
+            if (input.bad()) {
+                if (currentToken.Is<TokenType::Newline>()) {
+                    nextToken = Token{TokenType::Newline{}};
+                } else {
+                    nextToken = Token{TokenType::Eof{}};
+                }
+            } else if (currentToken.Is<TokenType::Indent>() && input.peek() == ' ') {
                 input.get();
                 input.get();
                 currentIndent += incIndent;
