@@ -332,6 +332,23 @@ print str(p)
         ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
     }
 
+    void TestDynamicAdd() {
+        stringstream ss;
+        ss << "123\n";
+        Lexer lex(ss);
+
+        ASSERT_EQUAL(lex.CurrentToken(), Token(TokenType::Number{123}));
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Newline{}));
+        ss << "\n==\n";
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eq{}));
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Newline{}));
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
+        ss << "\n321\n";
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
+        ASSERT_EQUAL(lex.NextToken(), Token(TokenType::Eof{}));
+    }
+
     void RunLexerTests(TestRunner &tr) {
         RUN_TEST(tr, Parse::TestSimpleAssignment);
         RUN_TEST(tr, Parse::TestKeywords);
@@ -346,6 +363,7 @@ print str(p)
         RUN_TEST(tr, Parse::TestMythonProgram);
         RUN_TEST(tr, Parse::TestAlwaysEmitsNewlineAtTheEndOfNonemptyLine);
         RUN_TEST(tr, Parse::TestEmpty);
+        RUN_TEST(tr, Parse::TestDynamicAdd);
     }
 
 } /* namespace Parse */

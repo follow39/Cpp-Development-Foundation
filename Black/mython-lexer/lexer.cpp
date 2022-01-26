@@ -84,27 +84,14 @@ namespace Parse {
         if (!currentToken.Is<TokenType::Eof>()) {
             Token nextToken;
 
-            if (input.bad()) {
-                if (currentToken.Is<TokenType::Newline>()) {
-                    nextToken = Token{TokenType::Newline{}};
-                } else {
-                    nextToken = Token{TokenType::Eof{}};
-                }
-            } else if (currentToken.Is<TokenType::Indent>() && input.peek() == ' ') {
+            if (currentToken.Is<TokenType::Indent>() && input.peek() == ' ') {
                 input.get();
                 input.get();
                 currentIndent += incIndent;
                 nextToken = Token{TokenType::Indent{}};
-            } else if (currentToken.Is<TokenType::Dedent>()) {
-                if (currentIndent > futureIndent) {
-                    currentIndent -= incIndent;
-                    nextToken = Token{TokenType::Dedent{}};
-                } else if (input.peek() == '\n') {
-                    input.get();
-                    nextToken = NextToken();
-                } else if (input.peek() == '\0' || input.peek() == EOF) {
-                    nextToken = Token{TokenType::Eof{}};
-                }
+            } else if (currentToken.Is<TokenType::Dedent>() && currentIndent > futureIndent) {
+                currentIndent -= incIndent;
+                nextToken = Token{TokenType::Dedent{}};
             } else if (currentToken.Is<TokenType::Newline>()) {
                 int cnt = 0;
                 while (input.peek() == ' ' && cnt != currentIndent) {
@@ -125,7 +112,7 @@ namespace Parse {
                     nextToken = Token{TokenType::Indent{}};
                 }
             }
-            if (nextToken.Is<std::monostate>()) {
+            if (nextToken.Is<monostate>()) {
                 while (input.peek() == ' ') {
                     input.get();
                 }
@@ -138,12 +125,13 @@ namespace Parse {
                     nextToken = ParseWord(input);
                 } else {
                     nextToken = ParseChar(input);
-                    if (nextToken.Is<TokenType::Eof>() && !currentToken.Is<TokenType::Newline>()) {
-                        nextToken = Token{TokenType::Newline{}};
-                    }
                 }
             }
 
+            if (nextToken.Is<TokenType::Eof>() && !currentToken.Is<TokenType::Newline>() &&
+                !currentToken.Is<TokenType::Dedent>()) {
+                nextToken = Token{TokenType::Newline{}};
+            }
             currentToken = nextToken;
         }
 
