@@ -46,7 +46,7 @@ TransportCatalog::TransportCatalog(
 
   router_ = make_unique<TransportRouter>(stops_dict, buses_dict, routing_settings_json);
 
-  map_ = BuildMap(stops_dict, buses_dict, render_settings_json);
+  renderedMap = BuildMap(stops_dict, buses_dict, render_settings_json);
 }
 
 const TransportCatalog::Stop* TransportCatalog::GetStop(const string& name) const {
@@ -63,7 +63,7 @@ optional<TransportRouter::RouteInfo> TransportCatalog::FindRoute(const string& s
 
 string TransportCatalog::RenderMap() const {
   ostringstream out;
-  map_.Render(out);
+  renderedMap.Render(out);
   return out.str();
 }
 
@@ -90,7 +90,6 @@ double TransportCatalog::ComputeGeoRouteDistance(
   }
   return result;
 }
-
 
 Svg::Document TransportCatalog::BuildMap(const Descriptions::StopsDict& stops_dict,
                                          const Descriptions::BusesDict& buses_dict,
