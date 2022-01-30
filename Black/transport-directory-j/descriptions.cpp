@@ -20,7 +20,7 @@ namespace Descriptions {
     return stop;
   }
 
-  static vector<string> ParseStops(const Json::Array& stop_nodes, bool is_roundtrip) {
+  vector<string> ParseStops(const vector<Json::Node>& stop_nodes, bool is_roundtrip) {
     vector<string> stops;
     stops.reserve(stop_nodes.size());
     for (const Json::Node& stop_node : stop_nodes) {
@@ -45,33 +45,23 @@ namespace Descriptions {
   }
 
   Bus Bus::ParseFrom(const Json::Dict& attrs) {
-    const auto& name = attrs.at("name").AsString();
-    const auto& stops = attrs.at("stops").AsArray();
-    if (stops.empty()) {
-      return Bus{.name = name};
-    } else {
-      Bus bus{
-          .name = name,
-          .stops = ParseStops(stops, attrs.at("is_roundtrip").AsBool()),
-          .endpoints = {stops.front().AsString(), stops.back().AsString()}
-      };
-      if (bus.endpoints.back() == bus.endpoints.front()) {
-        bus.endpoints.pop_back();
-      }
-      return bus;
-    }
+    return Bus{
+        .name = attrs.at("name").AsString(),
+        .stops = ParseStops(attrs.at("stops").AsArray(), attrs.at("is_roundtrip").AsBool()),
+        .isRoundtrip = attrs.at("is_roundtrip").AsBool(),
+    };
   }
 
-  vector<InputQuery> ReadDescriptions(const Json::Array& nodes) {
+  vector<InputQuery> ReadDescriptions(const vector<Json::Node>& nodes) {
     vector<InputQuery> result;
     result.reserve(nodes.size());
 
     for (const Json::Node& node : nodes) {
       const auto& node_dict = node.AsMap();
       if (node_dict.at("type").AsString() == "Bus") {
-        result.push_back(Bus::ParseFrom(node_dict));
+        result.emplace_back(Bus::ParseFrom(node_dict));
       } else {
-        result.push_back(Stop::ParseFrom(node_dict));
+        result.emplace_back(Stop::ParseFrom(node_dict));
       }
     }
 

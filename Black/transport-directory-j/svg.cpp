@@ -1,125 +1,113 @@
 #include "svg.h"
 
-using namespace std;
 
 namespace Svg {
 
-  void RenderColor(ostream& out, monostate) {
-    out << "none";
-  }
-
-  void RenderColor(ostream& out, const string& value) {
-    out << value;
-  }
-
-  void RenderColor(ostream& out, Rgb rgb) {
-    out << "rgb(" << static_cast<int>(rgb.red)
-        << "," << static_cast<int>(rgb.green)
-        << "," << static_cast<int>(rgb.blue) << ")";
-  }
-
-  void RenderColor(ostream& out, Rgba rgba) {
-    out << "rgba(" << static_cast<int>(rgba.red)
-        << "," << static_cast<int>(rgba.green)
-        << "," << static_cast<int>(rgba.blue)
-        << "," << rgba.opacity << ")";
-  }
-
-  void RenderColor(ostream& out, const Color& color) {
-    visit([&out](const auto& value) { RenderColor(out, value); },
-          color);
-  }
-
-  Circle& Circle::SetCenter(Point point) {
-    center_ = point;
-    return *this;
-  }
-  Circle& Circle::SetRadius(double radius) {
-    radius_ = radius;
-    return *this;
-  }
-
-  void Circle::Render(ostream& out) const {
-    out << "<circle ";
-    out << "cx=\"" << center_.x << "\" ";
-    out << "cy=\"" << center_.y << "\" ";
-    out << "r=\"" << radius_ << "\" ";
-    PathProps::RenderAttrs(out);
-    out << "/>";
-  }
-
-  Polyline& Polyline::AddPoint(Point point) {
-    points_.push_back(point);
-    return *this;
-  }
-
-  void Polyline::Render(ostream& out) const {
-    out << "<polyline ";
-    out << "points=\"";
-    for (const Point point : points_) {
-      out << point.x << "," << point.y << " ";
+    void RenderPoint(std::ostream &output, const Point &point) {
+        output << std::to_string(point.x) << ","
+               << std::to_string(point.y);
     }
-    out << "\" ";
-    PathProps::RenderAttrs(out);
-    out << "/>";
-  }
 
-  Text& Text::SetPoint(Point point) {
-    point_ = point;
-    return *this;
-  }
-
-  Text& Text::SetOffset(Point point) {
-    offset_ = point;
-    return *this;
-  }
-
-  Text& Text::SetFontSize(uint32_t size) {
-    font_size_ = size;
-    return *this;
-  }
-
-  Text& Text::SetFontFamily(const string& value) {
-    font_family_ = value;
-    return *this;
-  }
-
-  Text& Text::SetFontWeight(const string& value) {
-    font_weight_ = value;
-    return *this;
-  }
-
-  Text& Text::SetData(const string& data) {
-    data_ = data;
-    return *this;
-  }
-
-  void Text::Render(ostream& out) const {
-    out << "<text ";
-    out << "x=\"" << point_.x << "\" ";
-    out << "y=\"" << point_.y << "\" ";
-    out << "dx=\"" << offset_.x << "\" ";
-    out << "dy=\"" << offset_.y << "\" ";
-    out << "font-size=\"" << font_size_ << "\" ";
-    if (font_family_) {
-        out << "font-family=\"" << *font_family_ << "\" ";
+    void RenderRgb(std::ostream &output, const Rgb &rgb) {
+        if (rgb.alpha > 0) {
+            output << "rgba("
+                   << std::to_string(rgb.red) << ","
+                   << std::to_string(rgb.green) << ","
+                   << std::to_string(rgb.blue) << ","
+                   << std::to_string(rgb.alpha) << ")";
+        } else {
+            output << "rgb("
+                   << std::to_string(rgb.red) << ","
+                   << std::to_string(rgb.green) << ","
+                   << std::to_string(rgb.blue) << ")";
+        }
     }
-    if (font_weight_) {
-        out << "font-weight=\"" << *font_weight_ << "\" ";
-    }
-    PathProps::RenderAttrs(out);
-    out << ">";
-    out << data_;
-    out << "</text>";
-  }
 
-  void Document::Render(ostream& out) const {
-    out << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
-    out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
-    for (const auto& object_ptr : objects_) {
-      object_ptr->Render(out);
+    void RenderColor(std::ostream &output, std::monostate) {
+        output << "none";
     }
-    out << "</svg>";
-  }
+
+    void RenderColor(std::ostream &output, const std::string &color) {
+        output << color;
+    }
+
+    void RenderColor(std::ostream &output, const Rgb &color) {
+        RenderRgb(output, color);
+    }
+
+    template<typename ParamType>
+    void RenderParam(std::ostream &output, const std::string &paramName, const ParamType &paramValue) {
+        output << paramName << "=\""
+               << paramValue << "\" ";
+    }
+
+    template<>
+    void RenderParam(std::ostream &output, const std::string &paramName, const Color &paramValue) {
+        output << paramName + "=\"";
+        std::visit([&output](const auto &color) { RenderColor(output, color); },
+                   paramValue);
+        output << "\" ";
+    }
+
+    template<typename ObjectType>
+    void SvgObject<ObjectType>::RenderAttrs(std::ostream &output) const {
+        RenderParam(output, "fill", fillColor);
+        RenderParam(output, "stroke", strokeColor);
+        RenderParam(output, "stroke-width", strokeWidth);
+        if (!strokeLineCap.empty()) {
+            RenderParam(output, "stroke-linecap", strokeLineCap);
+        }
+        if (!strokeLineJoin.empty()) {
+            RenderParam(output, "stroke-linejoin", strokeLineJoin);
+        }
+    }
+
+
+    void Circle::Render(std::ostream &output) const {
+        output << "<circle ";
+        RenderParam(output, "cx", std::to_string(center.x));
+        RenderParam(output, "cy", std::to_string(center.y));
+        RenderParam(output, "r", std::to_string(radius));
+        SvgObject::RenderAttrs(output);
+        output << "/>";
+    }
+
+    void Polyline::Render(std::ostream &output) const {
+        output << "<polyline ";
+        output << "points=\"";
+        for (const auto &point: points) {
+            RenderPoint(output, point);
+            output << ' ';
+        }
+        output << "\" ";
+        SvgObject::RenderAttrs(output);
+        output << "/>";
+    }
+
+    void Text::Render(std::ostream &output) const {
+        output << "<text ";
+        RenderParam(output, "x", point.x);
+        RenderParam(output, "y", point.y);
+        RenderParam(output, "dx", offset.x);
+        RenderParam(output, "dy", offset.y);
+        RenderParam(output, "font-size", fontSize);
+        if (!fontWeight.empty()) {
+            RenderParam(output, "font-weight", fontWeight);
+        }
+        if (!fontFamily.empty()) {
+            RenderParam(output, "font-family", fontFamily);
+        }
+        SvgObject::RenderAttrs(output);
+        output << ">" << text << "</text>";
+    }
+
+    void Document::Render(std::ostream &output) const {
+        output << xmlVersion;
+        output << svgBegin;
+        for (const auto &object: objects) {
+            object->Render(output);
+        }
+        output << svgEnd;
+    }
 
 }
