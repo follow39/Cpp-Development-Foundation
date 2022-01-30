@@ -1,325 +1,209 @@
 #include "map_renderer.h"
-
-#include <algorithm>
-#include <set>
-#include <iterator>
-#include <memory>
+#include "sphere.h"
+#include "sphere_projection.h"
+#include "utils.h"
+#include <cassert>
 
 using namespace std;
 
-namespace Render {
 
-    RenderSettings::RenderSettings(const Json::Dict &attrs) {
-        width = attrs.at("width").AsDouble();
-        height = attrs.at("height").AsDouble();
-        padding = attrs.at("padding").AsDouble();
-        stop_radius = attrs.at("stop_radius").AsDouble();
-        line_width = attrs.at("line_width").AsDouble();
-        underlayer_width = attrs.at("underlayer_width").AsDouble();
-        stop_label_font_size = attrs.at("stop_label_font_size").AsInt();
-        bus_label_font_size = attrs.at("bus_label_font_size").AsInt();
+static Svg::Point ParsePoint(const Json::Node& json) {
+  const auto& array = json.AsArray();
+  return {
+      array[0].AsDouble(),
+      array[1].AsDouble()
+  };
+}
 
-        stop_label_offset = {
-                attrs.at("stop_label_offset").AsArray()[0].AsDouble(),
-                attrs.at("stop_label_offset").AsArray()[1].AsDouble()
-        };
-        bus_label_offset = {
-                attrs.at("bus_label_offset").AsArray()[0].AsDouble(),
-                attrs.at("bus_label_offset").AsArray()[1].AsDouble()
-        };
+static Svg::Color ParseColor(const Json::Node& json) {
+  if (json.IsString()) {
+    return json.AsString();
+  }
+  const auto& array = json.AsArray();
+  assert(array.size() == 3 || array.size() == 4);
+  Svg::Rgb rgb{
+      static_cast<uint8_t>(array[0].AsInt()),
+      static_cast<uint8_t>(array[1].AsInt()),
+      static_cast<uint8_t>(array[2].AsInt())
+  };
+  if (array.size() == 3) {
+    return rgb;
+  } else {
+    return Svg::Rgba{rgb, array[3].AsDouble()};
+  }
+}
 
-        underlayer_color = ColorFromJson(attrs.at("underlayer_color"));
+static vector<Svg::Color> ParseColors(const Json::Node& json) {
+  const auto& array = json.AsArray();
+  vector<Svg::Color> colors;
+  colors.reserve(array.size());
+  transform(begin(array), end(array), back_inserter(colors), ParseColor);
+  return colors;
+}
 
-        for (const auto &item: attrs.at("color_palette").AsArray()) {
-            color_palette.push_back(ColorFromJson(item));
-        }
+RenderSettings ParseRenderSettings(const Json::Dict& json) {
+  RenderSettings result;
+  result.max_width = json.at("width").AsDouble();
+  result.max_height = json.at("height").AsDouble();
+  result.padding = json.at("padding").AsDouble();
+  result.palette = ParseColors(json.at("color_palette"));
+  result.line_width = json.at("line_width").AsDouble();
+  result.underlayer_color = ParseColor(json.at("underlayer_color"));
+  result.underlayer_width = json.at("underlayer_width").AsDouble();
+  result.stop_radius = json.at("stop_radius").AsDouble();
+  result.bus_label_offset = ParsePoint(json.at("bus_label_offset"));
+  result.bus_label_font_size = json.at("bus_label_font_size").AsInt();
+  result.stop_label_offset = ParsePoint(json.at("stop_label_offset"));
+  result.stop_label_font_size = json.at("stop_label_font_size").AsInt();
 
-        for (const auto &item: attrs.at("layers").AsArray()) {
-            layers.push_back(item.AsString());
-        }
+  const auto& layers_array = json.at("layers").AsArray();
+  result.layers.reserve(layers_array.size());
+  for (const auto& layer_node : layers_array) {
+    result.layers.push_back(layer_node.AsString());
+  }
+
+  return result;
+}
+
+static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict& stops_dict,
+                                                  const RenderSettings& render_settings) {
+  vector<Sphere::Point> points;
+  points.reserve(stops_dict.size());
+  for (const auto& [_, stop_ptr] : stops_dict) {
+    points.push_back(stop_ptr->position);
+  }
+
+  const double max_width = render_settings.max_width;
+  const double max_height = render_settings.max_height;
+  const double padding = render_settings.padding;
+
+  const Sphere::Projector projector(
+      begin(points), end(points),
+      max_width, max_height, padding
+  );
+
+  map<string, Svg::Point> stops_coords;
+  for (const auto& [stop_name, stop_ptr] : stops_dict) {
+    stops_coords[stop_name] = projector(stop_ptr->position);
+  }
+
+  return stops_coords;
+}
+
+static unordered_map<string, Svg::Color> ChooseBusColors(const Descriptions::BusesDict& buses_dict,
+                                                         const RenderSettings& render_settings) {
+  const auto& palette = render_settings.palette;
+  unordered_map<string, Svg::Color> bus_colors;
+  int idx = 0;
+  for (const auto& [bus_name, bus_ptr] : buses_dict) {
+    bus_colors[bus_name] = palette[idx++ % palette.size()];
+  }
+  return bus_colors;
+}
+
+MapRenderer::MapRenderer(const Descriptions::StopsDict& stops_dict,
+                         const Descriptions::BusesDict& buses_dict,
+                         const Json::Dict& render_settings_json)
+    : render_settings_(ParseRenderSettings(render_settings_json)),
+      buses_dict_(buses_dict),
+      stops_coords_(ComputeStopsCoords(stops_dict, render_settings_)),
+      bus_colors_(ChooseBusColors(buses_dict, render_settings_))
+{
+}
+
+void MapRenderer::RenderBusLines(Svg::Document& svg) const {
+  for (const auto& [bus_name, bus_ptr] : buses_dict_) {
+    const auto& stops = bus_ptr->stops;
+    if (stops.empty()) {
+      continue;
     }
-
-    Svg::Color ColorFromJson(const Json::Node &attrs) {
-        Svg::Color result;
-        if (std::holds_alternative<std::string>(attrs.GetBase())) {
-            result = attrs.AsString();
-        } else if (std::holds_alternative<std::vector<Json::Node>>(attrs.GetBase())) {
-            const auto &attrs_array = attrs.AsArray();
-            if (attrs_array.size() == 4) {
-                result = Svg::Rgb{
-                        attrs_array[0].AsInt(),
-                        attrs_array[1].AsInt(),
-                        attrs_array[2].AsInt(),
-                        attrs_array[3].AsDouble()
-                };
-            } else {
-                result = Svg::Rgb{
-                        attrs_array[0].AsInt(),
-                        attrs_array[1].AsInt(),
-                        attrs_array[2].AsInt()
-                };
-            }
-        } else {
-            result = Svg::NoneColor;
-        }
-        return result;
+    Svg::Polyline line;
+    line.SetStrokeColor(bus_colors_.at(bus_name))
+        .SetStrokeWidth(render_settings_.line_width)
+        .SetStrokeLineCap("round").SetStrokeLineJoin("round");
+    for (const auto& stop_name : stops) {
+      line.AddPoint(stops_coords_.at(stop_name));
     }
+    svg.Add(line);
+  }
+}
 
-    ZoomCoef::ZoomCoef(const Descriptions::StopsDict &stops_dict, const RenderSettings &renderSettings) {
-        if (!stops_dict.empty()) {
-            minLon = stops_dict.begin()->second->position.longitude;
-            maxLon = stops_dict.begin()->second->position.longitude;
-            minLat = stops_dict.begin()->second->position.latitude;
-            maxLat = stops_dict.begin()->second->position.latitude;
-        }
-        padding = renderSettings.padding;
-        for (const auto&[_, stop]: stops_dict) {
-            minLon = min(stop->position.longitude, minLon);
-            maxLon = max(stop->position.longitude, maxLon);
-            minLat = min(stop->position.latitude, minLat);
-            maxLat = max(stop->position.latitude, maxLat);
-        }
-        if (fabs(maxLon - minLon) >= epsilon) {
-            widthZoomCoef = (renderSettings.width - 2 * renderSettings.padding) / (maxLon - minLon);
-        }
-        if (fabs(maxLat - minLat) >= epsilon) {
-            heightZoomCoef = (renderSettings.height - 2 * renderSettings.padding) / (maxLat - minLat);
-        }
-        if (widthZoomCoef && heightZoomCoef) {
-            zoomCoef = min(widthZoomCoef.value(), heightZoomCoef.value());
-        } else if (widthZoomCoef) {
-            zoomCoef = widthZoomCoef.value();
-        } else if (heightZoomCoef) {
-            zoomCoef = heightZoomCoef.value();
-        } else {
-            zoomCoef = 0.0;
-        }
+void MapRenderer::RenderBusLabels(Svg::Document& svg) const {
+  for (const auto& [bus_name, bus_ptr] : buses_dict_) {
+    const auto& stops = bus_ptr->stops;
+    if (!stops.empty()) {
+      const auto& color = bus_colors_.at(bus_name);
+      for (const string& endpoint : bus_ptr->endpoints) {
+        const auto point = stops_coords_.at(endpoint);
+        const auto base_text =
+            Svg::Text{}
+            .SetPoint(point)
+            .SetOffset(render_settings_.bus_label_offset)
+            .SetFontSize(render_settings_.bus_label_font_size)
+            .SetFontFamily("Verdana")
+            .SetFontWeight("bold")
+            .SetData(bus_name);
+        svg.Add(
+            Svg::Text(base_text)
+            .SetFillColor(render_settings_.underlayer_color)
+            .SetStrokeColor(render_settings_.underlayer_color)
+            .SetStrokeWidth(render_settings_.underlayer_width)
+            .SetStrokeLineCap("round").SetStrokeLineJoin("round")
+        );
+        svg.Add(
+            Svg::Text(base_text)
+            .SetFillColor(color)
+        );
+      }
     }
+  }
+}
 
-    double ZoomCoef::MakeZoomLon(double longitude) const {
-        return (longitude - minLon) * zoomCoef + padding;
-    }
+void MapRenderer::RenderStopPoints(Svg::Document& svg) const {
+  for (const auto& [stop_name, stop_point] : stops_coords_) {
+    svg.Add(Svg::Circle{}
+            .SetCenter(stop_point)
+            .SetRadius(render_settings_.stop_radius)
+            .SetFillColor("white"));
+  }
+}
 
-    double ZoomCoef::MakeZoomLat(double latitude) const {
-        return (maxLat - latitude) * zoomCoef + padding;
-    }
+void MapRenderer::RenderStopLabels(Svg::Document& svg) const {
+  for (const auto& [stop_name, stop_point] : stops_coords_) {
+    const auto base_text =
+        Svg::Text{}
+        .SetPoint(stop_point)
+        .SetOffset(render_settings_.stop_label_offset)
+        .SetFontSize(render_settings_.stop_label_font_size)
+        .SetFontFamily("Verdana")
+        .SetData(stop_name);
+    svg.Add(
+        Svg::Text(base_text)
+        .SetFillColor(render_settings_.underlayer_color)
+        .SetStrokeColor(render_settings_.underlayer_color)
+        .SetStrokeWidth(render_settings_.underlayer_width)
+        .SetStrokeLineCap("round").SetStrokeLineJoin("round")
+    );
+    svg.Add(
+        Svg::Text(base_text)
+        .SetFillColor("black")
+    );
+  }
+}
 
-    std::string RenderTransportCatalog(const Descriptions::StopsDict &stops_dict,
-                                       const Descriptions::BusesDict &buses_dict,
-                                       const RenderSettings &renderSettings) {
-        Svg::Document svgDocument;
-        ZoomCoef zoomCoef{stops_dict, renderSettings};
+const unordered_map<string, void (MapRenderer::*)(Svg::Document&) const> MapRenderer::LAYER_ACTIONS = {
+    {"bus_lines",   &MapRenderer::RenderBusLines},
+    {"bus_labels",  &MapRenderer::RenderBusLabels},
+    {"stop_points", &MapRenderer::RenderStopPoints},
+    {"stop_labels", &MapRenderer::RenderStopLabels},
+};
 
-        for (const auto &layer: renderSettings.layers) {
-            if (layer == "bus_lines") {
-                svgDocument.Add(RenderBuses(stops_dict, buses_dict, renderSettings, zoomCoef));
-            } else if (layer == "bus_labels") {
-                svgDocument.Add(RenderBusesNames(stops_dict, buses_dict, renderSettings, zoomCoef));
-            } else if (layer == "stop_points") {
-                svgDocument.Add(RenderStops(stops_dict, buses_dict, renderSettings, zoomCoef));
-            } else if (layer == "stop_labels") {
-                svgDocument.Add(RenderStopsNames(stops_dict, buses_dict, renderSettings, zoomCoef));
-            }
-        }
+Svg::Document MapRenderer::Render() const {
+  Svg::Document svg;
 
-        std::stringstream ss;
-        svgDocument.Render(ss);
-        return ss.str();
-    }
+  for (const auto& layer : render_settings_.layers) {
+    (this->*LAYER_ACTIONS.at(layer))(svg);
+  }
 
-    std::vector<std::unique_ptr<Svg::Object>> RenderBuses(const Descriptions::StopsDict &stops_dict,
-                                                          const Descriptions::BusesDict &buses_dict,
-                                                          const RenderSettings &renderSettings,
-                                                          const ZoomCoef &zoomCoef
-    ) {
-        vector<std::unique_ptr<Svg::Object>> result;
-        std::set<std::string> buses;
-        for (const auto&[busName, _]: buses_dict) {
-            buses.insert(busName);
-        }
-        auto it_color = renderSettings.color_palette.begin();
-        for (const auto &busName: buses) {
-            if (it_color == renderSettings.color_palette.end()) {
-                it_color = renderSettings.color_palette.begin();
-            }
-            Svg::Polyline busPath{};
-            busPath.SetStrokeWidth(renderSettings.line_width)
-                    .SetStrokeColor(*it_color++)
-                    .SetStrokeLineCap("round")
-                    .SetStrokeLineJoin("round");
-            for (const auto &stopName: buses_dict.at(busName)->stops) {
-                busPath.AddPoint({
-                                         .x = zoomCoef.MakeZoomLon(stops_dict.at(stopName)->position.longitude),
-                                         .y = zoomCoef.MakeZoomLat(stops_dict.at(stopName)->position.latitude)
-                                 }
-                );
-            }
-            result.emplace_back(std::make_unique<Svg::Polyline>(std::move(busPath)));
-        }
-        return result;
-    }
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderBusesNames(const Descriptions::StopsDict &stops_dict,
-                                                               const Descriptions::BusesDict &buses_dict,
-                                                               const RenderSettings &renderSettings,
-                                                               const ZoomCoef &zoomCoef
-    ) {
-        vector<std::unique_ptr<Svg::Object>> result;
-        struct BusStopColor {
-            std::string busName;
-            std::string stopName;
-            Svg::Color color;
-        };
-        std::vector<BusStopColor> stops;
-        std::set<std::string> buses;
-        for (const auto&[busName, _]: buses_dict) {
-            buses.insert(busName);
-        }
-        auto it_color = renderSettings.color_palette.begin();
-        for (const auto &busName: buses) {
-            if (it_color == renderSettings.color_palette.end()) {
-                it_color = renderSettings.color_palette.begin();
-            }
-            stops.push_back({buses_dict.at(busName)->name,
-                             buses_dict.at(busName)->stops.front(),
-                             *it_color
-                            });
-            if (!buses_dict.at(busName)->isRoundtrip) {
-                size_t middle_idx = (buses_dict.at(busName)->stops.size() - 1) / 2;
-                if (buses_dict.at(busName)->stops.front() != buses_dict.at(busName)->stops[middle_idx]) {
-                    stops.push_back({buses_dict.at(busName)->name,
-                                     buses_dict.at(busName)->stops[middle_idx],
-                                     *it_color
-                                    });
-                }
-            }
-            it_color++;
-        }
-        for (const auto &item: stops) {
-            result.emplace_back(make_unique<Svg::Text>(
-                    Svg::Text{}
-                            .SetPoint({
-                                              .x = zoomCoef.MakeZoomLon(
-                                                      stops_dict.at(item.stopName)->position.longitude),
-                                              .y = zoomCoef.MakeZoomLat(
-                                                      stops_dict.at(item.stopName)->position.latitude)
-                                      })
-                            .SetOffset({
-                                               .x = renderSettings.bus_label_offset.x,
-                                               .y = renderSettings.bus_label_offset.y
-                                       })
-                            .SetFontSize(renderSettings.bus_label_font_size)
-                            .SetFontFamily("Verdana")
-                            .SetFontWeight("bold")
-                            .SetData(item.busName)
-                            .SetFillColor(renderSettings.underlayer_color)
-                            .SetStrokeColor(renderSettings.underlayer_color)
-                            .SetStrokeWidth(renderSettings.underlayer_width)
-                            .SetStrokeLineCap("round")
-                            .SetStrokeLineJoin("round")
-            ));
-            result.emplace_back(make_unique<Svg::Text>(
-                    Svg::Text{}
-                            .SetPoint({
-                                              .x = zoomCoef.MakeZoomLon(
-                                                      stops_dict.at(item.stopName)->position.longitude),
-                                              .y = zoomCoef.MakeZoomLat(
-                                                      stops_dict.at(item.stopName)->position.latitude)
-                                      })
-                            .SetOffset({
-                                               .x = renderSettings.bus_label_offset.x,
-                                               .y = renderSettings.bus_label_offset.y
-                                       })
-                            .SetFontSize(renderSettings.bus_label_font_size)
-                            .SetFontFamily("Verdana")
-                            .SetFontWeight("bold")
-                            .SetFillColor(item.color)
-                            .SetData(item.busName)
-            ));
-        }
-        return result;
-    }
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderStops(const Descriptions::StopsDict &stops_dict,
-                                                          const Descriptions::BusesDict &buses_dict,
-                                                          const RenderSettings &renderSettings,
-                                                          const ZoomCoef &zoomCoef
-    ) {
-        vector<std::unique_ptr<Svg::Object>> result;
-        std::set<std::string> stops;
-        for (const auto&[stopName, _]: stops_dict) {
-            stops.insert(stopName);
-        }
-        for (const auto &stopName: stops) {
-            result.emplace_back(make_unique<Svg::Circle>(
-                    Svg::Circle{}
-                            .SetCenter({
-                                               .x = zoomCoef.MakeZoomLon(
-                                                       stops_dict.at(
-                                                               stopName)->position.longitude),
-                                               .y = zoomCoef.MakeZoomLat(
-                                                       stops_dict.at(
-                                                               stopName)->position.latitude)
-                                       })
-                            .SetRadius(renderSettings.stop_radius)
-                            .SetFillColor("white")
-            ));
-        }
-        return result;
-    }
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderStopsNames(const Descriptions::StopsDict &stops_dict,
-                                                               const Descriptions::BusesDict &buses_dict,
-                                                               const RenderSettings &renderSettings,
-                                                               const ZoomCoef &zoomCoef
-    ) {
-        vector<std::unique_ptr<Svg::Object>> result;
-        std::set<std::string> stops;
-        for (const auto&[stopName, _]: stops_dict) {
-            stops.insert(stopName);
-        }
-        for (const auto &stopName: stops) {
-            result.emplace_back(make_unique<Svg::Text>(
-                    Svg::Text{}
-                            .SetPoint({
-                                              .x = zoomCoef.MakeZoomLon(
-                                                      stops_dict.at(stopName)->position.longitude),
-                                              .y = zoomCoef.MakeZoomLat(
-                                                      stops_dict.at(stopName)->position.latitude)
-                                      })
-                            .SetOffset({
-                                               .x = renderSettings.stop_label_offset.x,
-                                               .y = renderSettings.stop_label_offset.y
-                                       })
-                            .SetFontSize(renderSettings.stop_label_font_size)
-                            .SetFontFamily("Verdana")
-                            .SetData(stopName)
-                            .SetFillColor(renderSettings.underlayer_color)
-                            .SetStrokeColor(renderSettings.underlayer_color)
-                            .SetStrokeWidth(renderSettings.underlayer_width)
-                            .SetStrokeLineCap("round")
-                            .SetStrokeLineJoin("round")
-            ));
-            result.emplace_back(make_unique<Svg::Text>(
-                    Svg::Text{}
-                            .SetPoint({
-                                              .x = zoomCoef.MakeZoomLon(
-                                                      stops_dict.at(stopName)->position.longitude),
-                                              .y = zoomCoef.MakeZoomLat(
-                                                      stops_dict.at(stopName)->position.latitude)
-                                      })
-                            .SetOffset({
-                                               .x = renderSettings.stop_label_offset.x,
-                                               .y = renderSettings.stop_label_offset.y
-                                       })
-                            .SetFontSize(renderSettings.stop_label_font_size)
-                            .SetFontFamily("Verdana")
-                            .SetFillColor("black")
-                            .SetData(stopName)
-            ));
-        }
-        return result;
-    }
-
-
+  return svg;
 }

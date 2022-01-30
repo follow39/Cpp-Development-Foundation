@@ -1,208 +1,189 @@
 #pragma once
 
 #include <iostream>
-#include <string>
-#include <variant>
-#include <vector>
 #include <memory>
 #include <optional>
+#include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace Svg {
 
     struct Point {
-        double x = 0.0;
-        double y = 0.0;
+        double x = 0;
+        double y = 0;
     };
 
     struct Rgb {
-        Rgb() = default;
-
-        Rgb(int new_red, int new_green, int new_blue, double new_alpha = 0.0)
-                : red(new_red), green(new_green), blue(new_blue), alpha(new_alpha) {}
-
-        uint8_t red = 0;
-        uint8_t green = 0;
-        uint8_t blue = 0;
-        double alpha = 0.0;
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
     };
 
-    using Color = std::variant<std::monostate, std::string, Rgb>;
-    static const Color NoneColor{};
+    struct Rgba : Rgb {
+        double opacity;
+    };
 
-    void RenderPoint(std::ostream &output, const Point &point);
+    using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
+    const Color NoneColor{};
 
-    void RenderRgb(std::ostream &output, const Rgb &rgb);
+    void RenderColor(std::ostream &out, std::monostate);
 
-    void RenderColor(std::ostream &output, std::monostate);
+    void RenderColor(std::ostream &out, std::string);
 
-    void RenderColor(std::ostream &output, const std::string &color);
+    void RenderColor(std::ostream &out, Rgb);
 
-    void RenderColor(std::ostream &output, const Rgb &color);
-
-    template<typename ParamType>
-    void RenderParam(std::ostream &output, const std::string &paramName, const ParamType &paramValue);
-
-    template<>
-    void RenderParam(std::ostream &output, const std::string &paramName, const Color &paramValue);
+    void RenderColor(std::ostream &out, Rgba);
 
     class Object {
     public:
-        virtual void Render(std::ostream &output) const = 0;
+        virtual void Render(std::ostream &out) const = 0;
 
         virtual ~Object() = default;
     };
 
-    template<typename ObjectType>
-    class SvgObject {
+    template<typename Owner>
+    class PathProps {
     public:
-        SvgObject() = default;
+        Owner &SetFillColor(const Color &color);
 
-        ObjectType &SetFillColor(const Color &new_fillColor) {
-            fillColor = new_fillColor;
-            return *obj();
-        }
+        Owner &SetStrokeColor(const Color &color);
 
-        ObjectType &SetStrokeColor(const Color &new_strokeColor) {
-            strokeColor = new_strokeColor;
-            return *obj();
-        }
+        Owner &SetStrokeWidth(double value);
 
-        ObjectType &SetStrokeWidth(double new_strokeWidth) {
-            strokeWidth = new_strokeWidth;
-            return *obj();
-        }
+        Owner &SetStrokeLineCap(const std::string &value);
 
-        ObjectType &SetStrokeLineCap(const std::string &new_strokeLineCap) {
-            strokeLineCap = new_strokeLineCap;
-            return *obj();
-        }
+        Owner &SetStrokeLineJoin(const std::string &value);
 
-        ObjectType &SetStrokeLineJoin(const std::string &new_strokeLineJoin) {
-            strokeLineJoin = new_strokeLineJoin;
-            return *obj();
-        }
+        void RenderAttrs(std::ostream &out) const;
 
-        void RenderAttrs(std::ostream &output) const;
-
-        virtual ~SvgObject() = default;
+    protected:
+        Color fill_color_;
+        Color stroke_color_;
+        double stroke_width_ = 1.0;
+        std::optional<std::string> stroke_line_cap_;
+        std::optional<std::string> stroke_line_join_;
 
     private:
-        ObjectType *obj() {
-            return static_cast<ObjectType *>(this);
-        }
-
-        Color fillColor = NoneColor;
-        Color strokeColor = NoneColor;
-        double strokeWidth = 1.0;
-        std::string strokeLineCap;
-        std::string strokeLineJoin;
+        Owner &AsOwner();
     };
 
-    class Circle : public Object, public SvgObject<Circle> {
-        friend class SvgObject;
-
+    class Circle : public Object, public PathProps<Circle> {
     public:
-        Circle &SetCenter(Point new_center) {
-            center = new_center;
-            return *this;
-        }
+        Circle &SetCenter(Point point);
 
-        Circle &SetRadius(double new_radius) {
-            radius = new_radius;
-            return *this;
-        }
+        Circle &SetRadius(double radius);
 
-        void Render(std::ostream &output) const override;
+        void Render(std::ostream &out) const override;
 
     private:
-        Point center{0.0, 0.0};
-        double radius = 1.0;
+        Point center_;
+        double radius_ = 1;
     };
 
-    class Polyline : public Object, public SvgObject<Polyline> {
-        friend class SvgObject;
-
+    class Polyline : public Object, public PathProps<Polyline> {
     public:
-        Polyline &AddPoint(Point new_point) {
-            points.push_back(new_point);
-            return *this;
-        }
+        Polyline &AddPoint(Point point);
 
-        void Render(std::ostream &output) const override;
+        void Render(std::ostream &out) const override;
 
     private:
-        std::vector<Point> points;
+        std::vector<Point> points_;
     };
 
-    class Text : public Object, public SvgObject<Text> {
-        friend class SvgObject;
-
+    class Text : public Object, public PathProps<Text> {
     public:
-        Text &SetPoint(Point new_point) {
-            point = new_point;
-            return *this;
-        }
+        Text &SetPoint(Point point);
 
-        Text &SetOffset(Point new_offset) {
-            offset = new_offset;
-            return *this;
-        }
+        Text &SetOffset(Point point);
 
-        Text &SetFontSize(uint32_t new_fontSize) {
-            fontSize = new_fontSize;
-            return *this;
-        }
+        Text &SetFontSize(uint32_t size);
 
-        Text &SetFontFamily(const std::string &new_fontFamily) {
-            fontFamily = new_fontFamily;
-            return *this;
-        }
+        Text &SetFontFamily(const std::string &value);
 
-        Text &SetFontWeight(const std::string &new_fontWeight) {
-            fontWeight = new_fontWeight;
-            return *this;
-        }
+        Text &SetFontWeight(const std::string &value);
 
-        Text &SetData(const std::string &new_text) {
-            text = new_text;
-            return *this;
-        }
+        Text &SetData(const std::string &data);
 
-        void Render(std::ostream &output) const override;
+        void Render(std::ostream &out) const override;
 
     private:
-        Point point{0.0, 0.0};
-        Point offset{0.0, 0.0};
-        uint32_t fontSize = 1;
-        std::string fontFamily;
-        std::string fontWeight;
-        std::string text;
+        Point point_;
+        Point offset_;
+        uint32_t font_size_ = 1;
+        std::optional<std::string> font_family_;
+        std::optional<std::string> font_weight_;
+        std::string data_;
     };
-
 
     class Document : public Object {
     public:
-        template<class ObjectType>
-        Document &Add(ObjectType svgObject) {
-            objects.emplace_back(std::make_unique<ObjectType>(std::move(svgObject)));
-            return *this;
-        }
+        template<typename ObjectType>
+        void Add(ObjectType object);
 
-        Document &Add(std::vector<std::unique_ptr<Svg::Object>> svgObjects) {
-            for (auto &svgObject: svgObjects) {
-                objects.emplace_back(std::move(svgObject));
-            }
-            return *this;
-        }
-
-        void Render(std::ostream &output) const override;
+        void Render(std::ostream &out) const override;
 
     private:
-        const std::string xmlVersion = R"(<?xml version="1.0" encoding="UTF-8" ?>)";
-        const std::string svgBegin = R"(<svg xmlns="http://www.w3.org/2000/svg" version="1.1">)";
-        const std::string svgEnd = "</svg>";
-
-        std::vector<std::unique_ptr<Object>> objects;
+        std::vector<std::unique_ptr<Object>> objects_;
     };
+
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::AsOwner() {
+        return static_cast<Owner &>(*this);
+    }
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::SetFillColor(const Color &color) {
+        fill_color_ = color;
+        return AsOwner();
+    }
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::SetStrokeColor(const Color &color) {
+        stroke_color_ = color;
+        return AsOwner();
+    }
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::SetStrokeWidth(double value) {
+        stroke_width_ = value;
+        return AsOwner();
+    }
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::SetStrokeLineCap(const std::string &value) {
+        stroke_line_cap_ = value;
+        return AsOwner();
+    }
+
+    template<typename Owner>
+    Owner &PathProps<Owner>::SetStrokeLineJoin(const std::string &value) {
+        stroke_line_join_ = value;
+        return AsOwner();
+    }
+
+    template<typename Owner>
+    void PathProps<Owner>::RenderAttrs(std::ostream &out) const {
+        out << "fill=\"";
+        RenderColor(out, fill_color_);
+        out << "\" ";
+        out << "stroke=\"";
+        RenderColor(out, stroke_color_);
+        out << "\" ";
+        out << "stroke-width=\"" << stroke_width_ << "\" ";
+        if (stroke_line_cap_) {
+            out << "stroke-linecap=\"" << *stroke_line_cap_ << "\" ";
+        }
+        if (stroke_line_join_) {
+            out << "stroke-linejoin=\"" << *stroke_line_join_ << "\" ";
+        }
+    }
+
+    template<typename ObjectType>
+    void Document::Add(ObjectType object) {
+        objects_.push_back(std::make_unique<ObjectType>(std::move(object)));
+    }
 
 }

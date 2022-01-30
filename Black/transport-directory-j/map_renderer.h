@@ -1,84 +1,49 @@
 #pragma once
 
-#include "svg.h"
-#include "json.h"
 #include "descriptions.h"
+#include "json.h"
+#include "svg.h"
 
-#include <vector>
-#include <variant>
+#include <map>
 #include <string>
-#include <sstream>
-#include <optional>
+#include <unordered_map>
+#include <vector>
 
-namespace Render {
-    struct RenderSettings {
-        double width = 0.0;
-        double height = 0.0;
-        double padding = 0.0;
-        double stop_radius = 0.0;
-        double line_width = 0.0;
-        double underlayer_width = 0.0;
-        int stop_label_font_size = 0;
-        int bus_label_font_size = 0;
-        Svg::Point stop_label_offset;
-        Svg::Point bus_label_offset;
-        Svg::Color underlayer_color = Svg::NoneColor;
-        std::vector<Svg::Color> color_palette;
-        std::vector<std::string> layers;
 
-        RenderSettings() = default;
+struct RenderSettings {
+  double max_width;
+  double max_height;
+  double padding;
+  std::vector<Svg::Color> palette;
+  double line_width;
+  Svg::Color underlayer_color;
+  double underlayer_width;
+  double stop_radius;
+  Svg::Point bus_label_offset;
+  int bus_label_font_size;
+  Svg::Point stop_label_offset;
+  int stop_label_font_size;
+  std::vector<std::string> layers;
+};
 
-        explicit RenderSettings(const Json::Dict &attrs);
-    };
+class MapRenderer {
+public:
+  MapRenderer(const Descriptions::StopsDict& stops_dict,
+              const Descriptions::BusesDict& buses_dict,
+              const Json::Dict& render_settings_json);
 
-    struct ZoomCoef {
-        const double epsilon = 1e-6;
-        double zoomCoef = 0.0;
-        double minLon = 0.0;
-        double maxLon = 0.0;
-        double minLat = 0.0;
-        double maxLat = 0.0;
-        double padding = 0.0;
-        std::optional<double> widthZoomCoef;
-        std::optional<double> heightZoomCoef;
+  Svg::Document Render() const;
 
-        ZoomCoef() = delete;
+private:
+  RenderSettings render_settings_;
+  const Descriptions::BusesDict& buses_dict_;
+  std::map<std::string, Svg::Point> stops_coords_;
+  std::unordered_map<std::string, Svg::Color> bus_colors_;
 
-        explicit ZoomCoef(const Descriptions::StopsDict &stops_dict, const RenderSettings &renderSettings);
+  void RenderBusLines(Svg::Document& svg) const;
+  void RenderBusLabels(Svg::Document& svg) const;
+  void RenderStopPoints(Svg::Document& svg) const;
+  void RenderStopLabels(Svg::Document& svg) const;
 
-        [[nodiscard]] double MakeZoomLon(double longitude) const;
-
-        [[nodiscard]] double MakeZoomLat(double latitude) const;
-    };
-
-    Svg::Color ColorFromJson(const Json::Node &attrs);
-
-    std::string RenderTransportCatalog(const Descriptions::StopsDict &stops_dict,
-                                       const Descriptions::BusesDict &buses_dict,
-                                       const RenderSettings &renderSettings
-    );
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderBuses(const Descriptions::StopsDict &stops_dict,
-                                                          const Descriptions::BusesDict &buses_dict,
-                                                          const RenderSettings &renderSettings,
-                                                          const ZoomCoef &zoomCoef
-    );
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderBusesNames(const Descriptions::StopsDict &stops_dict,
-                                                               const Descriptions::BusesDict &buses_dict,
-                                                               const RenderSettings &renderSettings,
-                                                               const ZoomCoef &zoomCoef
-    );
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderStops(const Descriptions::StopsDict &stops_dict,
-                                                          const Descriptions::BusesDict &buses_dict,
-                                                          const RenderSettings &renderSettings,
-                                                          const ZoomCoef &zoomCoef
-    );
-
-    std::vector<std::unique_ptr<Svg::Object>> RenderStopsNames(const Descriptions::StopsDict &stops_dict,
-                                                               const Descriptions::BusesDict &buses_dict,
-                                                               const RenderSettings &renderSettings,
-                                                               const ZoomCoef &zoomCoef
-    );
-}
+  static const std::unordered_map<std::string, void (MapRenderer::*)(Svg::Document&) const> LAYER_ACTIONS;
+};

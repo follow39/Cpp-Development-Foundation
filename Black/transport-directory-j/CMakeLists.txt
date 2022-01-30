@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.20)
 project(transport_directory_j)
 
 set(CMAKE_CXX_STANDARD 17)
