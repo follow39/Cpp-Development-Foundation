@@ -92,6 +92,7 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
 //    /*
 
     // new
+    map<string, Svg::Point> stops_coords;
     double min_x = render_settings.padding;
     double max_x = render_settings.max_width - render_settings.padding;
     double min_y = render_settings.padding;
@@ -101,34 +102,37 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
     if (stops_dict.size() > 1) {
         step_x = (max_x - min_x) / (stops_dict.size() - 1);
         step_y = (max_y - min_y) / (stops_dict.size() - 1);
-    }
 
-    vector<double> coords_x;
-    vector<double> coords_y;
+        vector<double> coords_x;
+        vector<double> coords_y;
 
-    for (const auto&[_, stop_ptr]: stops_dict) {
-        coords_x.emplace_back(stop_ptr->position.longitude);
-        coords_y.emplace_back(stop_ptr->position.latitude);
-    }
-    sort(coords_x.begin(), coords_x.end());
-    sort(coords_y.begin(), coords_y.end());
+        for (const auto&[_, stop_ptr]: stops_dict) {
+            coords_x.emplace_back(stop_ptr->position.longitude);
+            coords_y.emplace_back(stop_ptr->position.latitude);
+        }
+        sort(coords_x.begin(), coords_x.end());
+        sort(coords_y.begin(), coords_y.end());
 
-    unordered_map<double, int> map_x;
-    unordered_map<double, int> map_y;
-    for (int i = 0; i < coords_x.size(); ++i) {
-        map_x[coords_x[i]] = i;
-        map_y[coords_y[i]] = coords_y.size() - i - 1;
-    }
+        unordered_map<double, int> map_x;
+        unordered_map<double, int> map_y;
+        for (int i = 0; i < coords_x.size(); ++i) {
+            map_x[coords_x[i]] = i;
+            map_y[coords_y[i]] = coords_y.size() - i - 1;
+        }
 
-    map<string, Svg::Point> stops_coords;
 
-    for (const auto&[stop_name, stop_ptr]: stops_dict) {
+        for (const auto&[stop_name, stop_ptr]: stops_dict) {
+            Svg::Point point;
+            point.x = map_x[stop_ptr->position.longitude] * step_x + min_x;
+            point.y = map_y[stop_ptr->position.latitude] * step_y + min_y;
+            stops_coords[stop_name] = point;
+        }
+    } else if (stops_dict.size() == 1) {
         Svg::Point point;
-        point.x = map_x[stop_ptr->position.longitude] * step_x + min_x;
-        point.y = map_y[stop_ptr->position.latitude] * step_y + min_y;
-        stops_coords[stop_name] = point;
+        point.x = min_x;
+        point.y = min_y;
+        stops_coords[stops_dict.begin()->second->name] = point;
     }
-
 //     */
 
     return stops_coords;
