@@ -94,10 +94,10 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
     // new
     double min_x = render_settings.padding;
     double max_x = render_settings.max_width - render_settings.padding;
-    double step_x = (max_x - min_x) / stops_dict.size();
+    double step_x = (max_x - min_x) / (stops_dict.size() - 1);
     double min_y = render_settings.padding;
     double max_y = render_settings.max_height - render_settings.padding;
-    double step_y = (max_y - min_y) / stops_dict.size();
+    double step_y = (max_y - min_y) / (stops_dict.size() - 1);
 
     vector<double> coords_x;
     vector<double> coords_y;
@@ -113,7 +113,7 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
     unordered_map<double, int> map_y;
     for (int i = 0; i < coords_x.size(); ++i) {
         map_x[coords_x[i]] = i;
-        map_y[coords_y[i]] = i;
+        map_y[coords_y[i]] = coords_y.size() - i - 1;
     }
 
     map<string, Svg::Point> stops_coords;
