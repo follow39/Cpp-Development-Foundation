@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define DEBUGIO 1
+#define DEBUGIO 0
 
 int main() {
 #if DEBUGIO
