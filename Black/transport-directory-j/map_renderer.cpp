@@ -67,41 +67,16 @@ RenderSettings ParseRenderSettings(const Json::Dict &json) {
 
 static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict &stops_dict,
                                                   const RenderSettings &render_settings) {
-    /*
-    vector<Sphere::Point> points;
-    points.reserve(stops_dict.size());
-    for (const auto&[_, stop_ptr]: stops_dict) {
-        points.push_back(stop_ptr->position);
-    }
-
-    const double max_width = render_settings.max_width;
-    const double max_height = render_settings.max_height;
-    const double padding = render_settings.padding;
-
-    const Sphere::Projector projector(
-            begin(points), end(points),
-            max_width, max_height, padding
-    );
-
-    map<string, Svg::Point> stops_coords;
-    for (const auto&[stop_name, stop_ptr]: stops_dict) {
-        stops_coords[stop_name] = projector(stop_ptr->position);
-    }
-
-     */
-//    /*
-
-    // new
     map<string, Svg::Point> stops_coords;
     double min_x = render_settings.padding;
     double max_x = render_settings.max_width - render_settings.padding;
     double min_y = render_settings.padding;
     double max_y = render_settings.max_height - render_settings.padding;
-    double step_x = min_x;
-    double step_y = min_y;
-    if (stops_dict.size() > 1) {
-        step_x = (max_x - min_x) / (stops_dict.size() - 1);
-        step_y = (max_y - min_y) / (stops_dict.size() - 1);
+    int lon_count = static_cast<int>(stops_dict.size());
+
+    if (lon_count > 1) {
+        double step_x = (max_x - min_x) / (lon_count - 1);
+        double step_y = (max_y - min_y) / (lon_count - 1);
 
         vector<double> coords_x;
         vector<double> coords_y;
@@ -115,9 +90,9 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
 
         unordered_map<double, int> map_x;
         unordered_map<double, int> map_y;
-        for (int i = 0; i < coords_x.size(); ++i) {
+        for (int i = 0; i < lon_count; ++i) {
             map_x[coords_x[i]] = i;
-            map_y[coords_y[i]] = coords_y.size() - i - 1;
+            map_y[coords_y[i]] = lon_count - i - 1;
         }
 
 
@@ -127,13 +102,9 @@ static map<string, Svg::Point> ComputeStopsCoords(const Descriptions::StopsDict 
             point.y = map_y[stop_ptr->position.latitude] * step_y + min_y;
             stops_coords[stop_name] = point;
         }
-    } else if (stops_dict.size() == 1) {
-        Svg::Point point;
-        point.x = min_x;
-        point.y = min_y;
-        stops_coords[stops_dict.begin()->second->name] = point;
+    } else if (lon_count == 1) {
+        stops_coords[stops_dict.begin()->second->name] = {min_x, max_y};
     }
-//     */
 
     return stops_coords;
 }
